@@ -1,0 +1,224 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ProjectStatus {
+  DRAFT
+  ONGOING
+  COMPLETED
+}
+
+enum TestimonialPlatform {
+  MANUAL
+  SOCIAL_MEDIA
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("admin")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Project {
+  id             String        @id @default(cuid())
+  title          String
+  slug           String        @unique
+  description    String        @db.Text
+  location       String?
+  client         String?
+  limasRole      String?       @map("limas_role")
+  coverImage     String?       @map("cover_image")
+  gallery        Json?         @default("[]")
+  status         ProjectStatus @default(DRAFT)
+  seoTitle       String?       @map("seo_title")
+  seoDescription String?       @map("seo_description")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  // Prisma 7 auto-inverse from projEntry
+  projectTeams     ProjectTeam[]
+  // Prisma 7 auto-inverse from Entity
+  testimonials     Testimonial[]
+  categoryProjects CategoryProject[]
+
+  @@map("projects")
+}
+
+model BlogPost {
+  id             String    @id @default(cuid())
+  title          String
+  slug           String    @unique
+  content        String    @db.Text
+  excerpt        String?   @db.Text
+  coverImage     String?   @map("cover_image")
+  seoTitle       String?   @map("seo_title")
+  seoDescription String?   @map("seo_description")
+  published      Boolean   @default(false)
+  publishedAt    DateTime? @map("published_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  // Prisma 7 auto-inverse from FK fields
+  blogPostCategories BlogPostCategory[]
+  blogPostTags       BlogPostTag[]
+
+  @@map("blog_posts")
+}
+
+model Page {
+  id             String   @id @default(cuid())
+  title          String
+  slug           String   @unique
+  content        String   @db.Text
+  seoTitle       String?  @map("seo_title")
+  seoDescription String?  @map("seo_description")
+  published      Boolean  @default(false)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("pages")
+}
+
+model Team {
+  id           String   @id @default(cuid())
+  name         String
+  position     String?
+  bio          String?  @db.Text
+  avatar       String?
+  email        String?
+  phone        String?
+  displayOrder Int?     @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Prisma 7 auto-inverse from FK field
+  projectTeams ProjectTeam[]
+
+  @@map("teams")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  type        String
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Prisma 7 auto-inverse from FK fields
+  blogPostCategories BlogPostCategory[]
+  categoryProjects   CategoryProject[]
+
+  @@map("categories")
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Prisma 7 auto-inverse
+  blogPostTags BlogPostTag[]
+
+  @@map("tags")
+}
+
+model Testimonial {
+  id         String              @id @default(cuid())
+  clientName String              @map("client_name")
+  content    String              @db.Text
+  rating     Int?
+  platform   TestimonialPlatform @default(MANUAL)
+  sourceUrl  String?             @map("source_url")
+  avatar     String?
+  published  Boolean             @default(false)
+  projectId  String?             @map("project_id")
+  createdAt  DateTime            @default(now()) @map("created_at")
+  updatedAt  DateTime            @updatedAt @map("updated_at")
+
+  project Project? @relation(fields: [projectId], references: [id])
+
+  @@map("testimonials")
+}
+
+model LeadsLog {
+  id        String   @id @default(cuid())
+  name      String?
+  phone     String?
+  message   String?  @db.Text
+  projectId String?  @map("project_id")
+  pageUrl   String?  @map("page_url")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("leads_logs")
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
+
+model ProjectTeam {
+  projectId String  @map("project_id")
+  teamId    String  @map("team_id")
+  role      String?
+
+  projEntry Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  teamEntry Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, teamId])
+  @@map("project_team")
+}
+
+model BlogPostCategory {
+  postId String @map("post_id")
+  catId  String @map("cat_id")
+
+  postEntry BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  catEntry  Category @relation(fields: [catId], references: [id], onDelete: Cascade)
+
+  @@id([postId, catId])
+  @@map("blog_post_category")
+}
+
+model BlogPostTag {
+  blogPostId String @map("blog_post_id")
+  tagId      String @map("tag_id")
+
+  postEntry BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  tagEntry  Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([blogPostId, tagId])
+  @@map("blog_post_tag")
+}
+
+model CategoryProject {
+  categoryId String @map("category_id")
+  projectId  String @map("project_id")
+
+  catEntry  Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  projEntry Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([categoryId, projectId])
+  @@map("category_project")
+}
