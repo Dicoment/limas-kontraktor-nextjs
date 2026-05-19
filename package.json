@@ -1,33 +1,31 @@
 {
-  "name": "limas-kontraktor-api",
+  "name": "limas-kontraktor",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@auth/core": "^0.41.2",
     "@prisma/client": "^7.8.0",
     "bcryptjs": "^3.0.3",
-    "cors": "^2.8.5",
-    "express": "^4.21.0",
-    "jsonwebtoken": "^9.0.2",
+    "dotenv": "^17.2.0",
+    "next": "16.2.6",
+    "next-auth": "5.0.0-beta.31",
     "prisma": "^7.8.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.1",
-    "@types/jsonwebtoken": "^9.0.9",
-    "@types/node": "^20",
-    "tsx": "^4.19.0",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "typescript": "^5"
   }
 }

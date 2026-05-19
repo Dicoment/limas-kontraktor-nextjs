@@ -1,8 +1,7 @@
-import { format } from "date-fns"
-
 export function formatDate(date: Date | string | null | undefined) {
   if (!date) return "—"
-  return typeof date === "string" ? date : format(date, "yyyy-MM-dd")
+  const d = typeof date === "string" ? new Date(date) : date
+  return new Intl.DateTimeFormat("id-ID", { year: "numeric", month: "2-digit", day: "2-digit" }).format(d)
 }
 
 export function truncate(str: string, length: number) {

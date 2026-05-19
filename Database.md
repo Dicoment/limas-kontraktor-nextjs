@@ -1,5 +1,5 @@
 # 📋 Dokumentasi Database - Limas Kontraktor
-**Tanggal:** 17 Mei 2026 (Diperbarui)  
+**Tanggal:** 19 Mei 2026 (Diperbarui)  
 **Repo:** `D:\GRINDING\GUDANG\limas-kontraktor`
 
 ---
@@ -90,6 +90,11 @@ Perintah yang tersedia dalam `package.json`:
 4. Enum di-deklarasikan terlebih dahulu sebelum digunakan dalam model
 5. Relasi many-to-many eksplisit dibuat untuk Project-Team karena perlu kolom tambahan `role`
 6. Database masih menggunakan struktur yang sama seperti Laravel (tidak ada perubahan skema)
+
+## 📓 Riwayat Perubahan
+
+- **19 Mei 2026**: Tidak ada perubahan pada skema database. Aktivitas hari ini lebih fokus pada pembersihan file konfigurasi yang tidak digunakan dan peningkatan struktur autentikasi.
+- **17 Mei 2026 (Diperbarui)**: Dokumentasi awal dibuat setelah migrasi dari Laravel/Filament ke Next.js + Prisma.
 
 ---
 *Dokumentasi ini menjelaskan struktur database yang digunakan dalam proyek Limas Kontraktor setelah migrasi dari Laravel/Filament ke Next.js + Prisma.*
