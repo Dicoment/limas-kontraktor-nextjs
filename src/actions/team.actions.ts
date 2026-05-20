@@ -27,7 +27,7 @@ export async function getTeams(params: { page?: number; limit?: number; search?:
   return { data, total, page, totalPages: Math.ceil(total / limit) }
 }
 
-export async function createTeam(data: { name: string; position?: string | null; bio?: string | null; avatar?: string | null; email?: string | null; phone?: string | null; displayOrder?: number | null }) {
+export async function createTeam(data: { name: string; position?: string | null; bio?: string | null; avatar?: string | null; email?: string | null; phone?: string | null; displayOrder?: number }) {
   return prisma.team.create({ data })
 }
 

@@ -1,9 +1,30 @@
-import { initAuth, errors } from "next-auth"
+import NextAuth, { type DefaultSession } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
+import { authConfig } from "./auth.config"
 
-export const { handlers, signIn, signOut, auth } = initAuth({
+declare module "next-auth" {
+  interface Session {
+    user: DefaultSession["user"] & {
+      id: string
+      role: string
+    }
+  }
+
+  interface User {
+    id: string
+    role: string
+  }
+
+  interface JWT {
+    id: string
+    role: string
+  }
+}
+
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...(authConfig as any),
   providers: [
     Credentials({
       name: "credentials",
@@ -28,7 +49,7 @@ export const { handlers, signIn, signOut, auth } = initAuth({
 
         return {
           id: user.id,
-          email: user.email,
+          email: user.email ?? null,
           name: user.name,
           role: user.role,
         }
@@ -56,9 +77,7 @@ export const { handlers, signIn, signOut, auth } = initAuth({
   },
   pages: {
     signIn: "/admin/login",
-  },
-  errors: {
-    signIn: "/admin/login",
+    error: "/admin/login",
   },
 })
 

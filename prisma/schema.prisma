@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated"
 }
 
 datasource db {
@@ -68,7 +69,6 @@ model BlogPost {
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
 
-  // Prisma 7 auto-inverse from FK fields
   blogPostCategories BlogPostCategory[]
   blogPostTags       BlogPostTag[]
 
@@ -97,11 +97,10 @@ model Team {
   avatar       String?
   email        String?
   phone        String?
-  displayOrder Int?     @default(0) @map("display_order")
+  displayOrder Int      @default(0)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  // Prisma 7 auto-inverse from FK field
   projectTeams ProjectTeam[]
 
   @@map("teams")
@@ -116,7 +115,6 @@ model Category {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  // Prisma 7 auto-inverse from FK fields
   blogPostCategories BlogPostCategory[]
   categoryProjects   CategoryProject[]
 
@@ -130,24 +128,23 @@ model Tag {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  // Prisma 7 auto-inverse
   blogPostTags BlogPostTag[]
 
   @@map("tags")
 }
 
 model Testimonial {
-  id         String              @id @default(cuid())
-  clientName String              @map("client_name")
-  content    String              @db.Text
-  rating     Int?
-  platform   TestimonialPlatform @default(MANUAL)
-  sourceUrl  String?             @map("source_url")
-  avatar     String?
-  published  Boolean             @default(false)
-  projectId  String?             @map("project_id")
-  createdAt  DateTime            @default(now()) @map("created_at")
-  updatedAt  DateTime            @updatedAt @map("updated_at")
+  id          String              @id @default(cuid())
+  clientName  String
+  content     String              @db.Text
+  rating      Int
+  platform    TestimonialPlatform @default(MANUAL)
+  sourceUrl   String?
+  avatar      String?
+  published   Boolean             @default(false)
+  projectId   String?
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
 
   project Project? @relation(fields: [projectId], references: [id])
 
@@ -159,10 +156,10 @@ model LeadsLog {
   name      String?
   phone     String?
   message   String?  @db.Text
-  projectId String?  @map("project_id")
-  pageUrl   String?  @map("page_url")
-  ipAddress String?  @map("ip_address")
-  userAgent String?  @map("user_agent")
+  projectId String?
+  pageUrl   String?
+  ipAddress String?
+  userAgent String?
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("leads_logs")
@@ -179,46 +176,54 @@ model Setting {
 }
 
 model ProjectTeam {
-  projectId String  @map("project_id")
-  teamId    String  @map("team_id")
-  role      String?
+  id          String   @id @default(cuid())
+  projectId   String
+  teamId      String
+  role        String?
+  createdAt   DateTime @default(now()) @map("created_at")
 
   projEntry Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   teamEntry Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
-  @@id([projectId, teamId])
-  @@map("project_team")
+  @@unique([projectId, teamId])
+  @@map("project_teams")
 }
 
 model BlogPostCategory {
-  postId String @map("post_id")
-  catId  String @map("cat_id")
+  id          String   @id @default(cuid())
+  blogPostId  String
+  categoryId  String
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  postEntry BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  catEntry  Category @relation(fields: [catId], references: [id], onDelete: Cascade)
+  catEntry   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  postEntry  BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
 
-  @@id([postId, catId])
-  @@map("blog_post_category")
+  @@unique([blogPostId, categoryId])
+  @@map("blog_post_categories")
 }
 
 model BlogPostTag {
-  blogPostId String @map("blog_post_id")
-  tagId      String @map("tag_id")
+  id          String   @id @default(cuid())
+  blogPostId  String
+  tagId       String
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  postEntry BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
-  tagEntry  Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagEntry   Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  postEntry  BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
 
-  @@id([blogPostId, tagId])
-  @@map("blog_post_tag")
+  @@unique([blogPostId, tagId])
+  @@map("blog_post_tags")
 }
 
 model CategoryProject {
-  categoryId String @map("category_id")
-  projectId  String @map("project_id")
+  id          String   @id @default(cuid())
+  categoryId  String
+  projectId   String
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  catEntry  Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  projEntry Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  catEntry   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  projEntry  Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  @@id([categoryId, projectId])
-  @@map("category_project")
+  @@unique([categoryId, projectId])
+  @@map("category_projects")
 }

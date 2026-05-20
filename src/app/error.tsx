@@ -1,3 +1,5 @@
+"use client"
+
 export default function GlobalError({
   error,
   reset,
@@ -6,8 +8,8 @@ export default function GlobalError({
   reset: () => void
 }) {
   return (
-    <html lang="id">
-      <body className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div lang="id">
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="text-center p-8 bg-white rounded-lg shadow-lg">
           <h1 className="text-2xl font-bold mb-4">Terjadi Kesalahan</h1>
           <p className="text-gray-600 mb-6">Produk kesalahan internal server.</p>
@@ -18,7 +20,7 @@ export default function GlobalError({
             Coba Lagi
           </button>
         </div>
-      </body>
-    </html>
+      </div>
+    </div>
   )
 }

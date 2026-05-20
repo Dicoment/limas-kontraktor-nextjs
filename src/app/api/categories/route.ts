@@ -37,21 +37,5 @@ export async function POST(request: NextRequest) {
     console.error("POST /api/categories error:", error)
     return errorResponse("Failed to create category", 500)
   }
-}
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  try {
-    const body = await request.json()
-    const category = await prisma.category.update({ where: { id }, data: body })
-    return successResponse(category)
-  } catch {
-    return notFoundResponse("Category")
-  }
-}
-
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  await prisma.category.delete({ where: { id } })
-  return new NextResponse(null, { status: 204 })
 }

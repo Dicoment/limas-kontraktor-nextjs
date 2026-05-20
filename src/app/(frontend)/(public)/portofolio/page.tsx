@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 export default async function PortfolioPage() {
   const [allCategories, allProjects] = await Promise.all([
     prisma.category.findMany({ where: { type: "project" }, orderBy: { name: "asc" } }),
-    prisma.project.findMany({ include: { categories: { include: { category: true } } }, orderBy: { createdAt: "desc" } }),
+    prisma.project.findMany({ include: { categoryProjects: { include: { catEntry: true } } }, orderBy: { createdAt: "desc" } }),
   ])
 
   return (

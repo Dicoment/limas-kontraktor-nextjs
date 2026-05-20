@@ -18,8 +18,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const body = await request.json()
     const { categoryIds, tagIds, ...data } = body
 
-    await prisma.blogPostCategory.deleteMany({ where: { postId: id } })
-    await prisma.blogPostTag.deleteMany({ where: { postId: id } })
+    await prisma.blogPostCategory.deleteMany({ where: { blogPostId: id } })
+    await prisma.blogPostTag.deleteMany({ where: { blogPostId: id } })
     const updated = await prisma.blogPost.update({
       where: { id },
       data: {

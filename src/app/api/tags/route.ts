@@ -35,18 +35,3 @@ export async function POST(request: NextRequest) {
     return errorResponse("Failed to create tag", 500)
   }
 }
-export async function PUT(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  try {
-    const body = await ({} as any).request.json()
-    const tag = await prisma.tag.update({ where: { id }, data: body })
-    return successResponse(tag)
-  } catch {
-    return notFoundResponse("Tag")
-  }
-}
-export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  await prisma.tag.delete({ where: { id } })
-  return new NextResponse(null, { status: 204 })
-}

@@ -1,4 +1,4 @@
-import { getTeams, createTeam } from "@/actions/misc.actions"
+import { getTeams } from "@/actions/misc.actions"
 import Link from "next/link"
 
 export const dynamic = "force-dynamic"

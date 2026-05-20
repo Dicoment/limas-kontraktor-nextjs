@@ -5,8 +5,8 @@ export default async function PortfolioDetailPage({ params }: { params: Promise<
   const project = await prisma.project.findUnique({
     where: { slug },
     include: {
-      categoryProjects: { include: { category: true } },
-      projectTeams: { include: { team: true } },
+      categoryProjects: { include: { catEntry: true } },
+      projectTeams: { include: { teamEntry: true } },
       testimonials: { take: 3 },
     },
   })
@@ -24,7 +24,7 @@ export default async function PortfolioDetailPage({ params }: { params: Promise<
       <h2 className="text-xl font-bold text-slate-800 mb-4">Categories</h2>
       <div className="flex gap-2 mb-8">
         {(project.categoryProjects || []).map((cat: any) => (
-          <span key={cat.categoryId} className="px-3 py-1 text-sm rounded-full bg-slate-100 text-slate-600">{cat.category.name}</span>
+          <span key={cat.categoryId} className="px-3 py-1 text-sm rounded-full bg-slate-100 text-slate-600">{cat.catEntry.name}</span>
         ))}
       </div>
 
@@ -33,11 +33,11 @@ export default async function PortfolioDetailPage({ params }: { params: Promise<
         {(project.projectTeams || []).map((pt: any) => (
           <div key={pt.teamId} className="bg-white rounded-lg shadow p-4 flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-slate-400">
-              {pt.team.avatar ? <img src={pt.team.avatar} alt={pt.team.name} className="w-12 h-12 rounded-full object-cover" /> : pt.team.name.charAt(0)}
+               {pt.teamEntry.avatar ? <img src={pt.teamEntry.avatar} alt={pt.teamEntry.name} className="w-12 h-12 rounded-full object-cover" /> : pt.teamEntry.name.charAt(0)}
             </div>
             <div>
-              <p className="font-medium text-slate-800">{pt.team.name}</p>
-              <p className="text-xs text-slate-500">{pt.role || pt.team.position || "—"}</p>
+              <p className="font-medium text-slate-800">{pt.teamEntry.name}</p>
+              <p className="text-xs text-slate-500">{pt.role || pt.teamEntry.position || "—"}</p>
             </div>
           </div>
         ))}

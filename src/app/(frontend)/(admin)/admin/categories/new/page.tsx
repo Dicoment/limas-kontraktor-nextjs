@@ -1,20 +1,16 @@
 import { prisma } from "@/lib/prisma"
 
-export default async function EditCategoryPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const category = await prisma.category.findUnique({ where: { id } })
-  if (!category) return <div className="text-slate-500">Category not found.</div>
-  return <CategoryForm category={category} isEdit />
+export default async function AdminNewCategoryPage() {
+  return (
+    <div className="space-y-6 max-w-2xl">
+      <h1 className="text-xl font-bold text-slate-800">New Category</h1>
+      <CategoryForm />
+    </div>
+  )
 }
 
-export async function NewCategoryPage() {
-  return <div className="space-y-6 max-w-2xl">
-    <h1 className="text-xl font-bold text-slate-800">New Category</h1>
-    <CategoryForm />
-  </div>
-}
-
-function CategoryForm({ category, isEdit = false }: { category?: any; isEdit?: boolean }) {
+function CategoryForm({ category }: { category?: any }) {
+  const isEdit = !!category
   return (
     <form action={isEdit ? `/api/categories/${category.id}` : "/api/categories"} method={isEdit ? "PUT" : "POST"} className="bg-white rounded-lg shadow p-6 space-y-4 max-w-2xl">
       <div>

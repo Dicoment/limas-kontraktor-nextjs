@@ -1,135 +1,16 @@
-"use client"
+import { prisma } from "@/lib/prisma"
+import NewBlogPostClient from "./NewBlogPostClient"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-
-export default function NewBlogPostPage({
-  categories,
-  tags,
-}: {
-  categories: { id: string; name: string; slug: string; type: string }[]
-  tags: { id: string; name: string; slug: string }[]
-}) {
-  const router = useRouter()
-  const [title, setTitle] = useState("")
-  const [slug, setSlug] = useState("")
-  const [content, setContent] = useState("")
-  const [excerpt, setExcerpt] = useState("")
-  const [coverImage, setCoverImage] = useState("")
-  const [seoTitle, setSeoTitle] = useState("")
-  const [seoDescription, setSeoDescription] = useState("")
-  const [published, setPublished] = useState(false)
-  const [publishedAt, setPublishedAt] = useState("")
-  const [categoryIds, setCategoryIds] = useState<string[]>([])
-  const [tagIds, setTagIds] = useState<string[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-
-  const toggleCategory = (id: string) => {
-    setCategoryIds(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id])
-  }
-  const toggleTag = (id: string) => {
-    setTagIds(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id])
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError("")
-
-    const res = await fetch("/api/blog-posts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, slug, content, excerpt, coverImage, seoTitle, seoDescription, published, publishedAt: publishedAt || null, categoryIds, tagIds }),
-    })
-    const json = await res.json()
-    if (json.success) {
-      router.push("/admin/blog-posts")
-      router.refresh()
-    } else {
-      setError(json.error || "Failed to create post")
-    }
-    setLoading(false)
-  }
+export default async function AdminNewBlogPostPage() {
+  const [categories, tags] = await Promise.all([
+    prisma.category.findMany({ where: { type: "blog" }, orderBy: { name: "asc" } }),
+    prisma.tag.findMany({ orderBy: { name: "asc" } }),
+  ])
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-5xl">
-      <h1 className="text-xl font-bold text-slate-800">New Blog Post</h1>
-      {error && <div className="bg-red-50 text-red-600 p-3 rounded">{error}</div>}
-      <div className="grid grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <Field label="Title" name="title" value={title} onChange={setTitle} required />
-          <Field label="Slug" name="slug" value={slug} onChange={setSlug} required />
-          <Field label="Cover Image URL" name="coverImage" value={coverImage} onChange={setCoverImage} type="url" />
-          <Field label="SEO Title" name="seoTitle" value={seoTitle} onChange={setSeoTitle} />
-          <Field label="Excerpt" name="excerpt" value={excerpt} onChange={setExcerpt} type="textarea" />
-        </div>
-        <div className="space-y-4">
-          <Field label="Published" name="published">
-            <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} className="accent-blue-600" />
-          </Field>
-          <Field label="Publish Date" name="publishedAt">
-            <input type="datetime-local" value={publishedAt} onChange={(e) => setPublishedAt(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" />
-          </Field>
-          <Field label="Categories">
-            <div className="border border-slate-300 rounded p-2 max-h-40 overflow-y-auto space-y-1">
-              {categories.filter((c) => c.type === "blog").map((c) => (
-                <label key={c.id} className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={categoryIds.includes(c.id)} onChange={() => toggleCategory(c.id)} className="accent-blue-600" />
-                  <span className="text-sm">{c.name}</span>
-                </label>
-              ))}
-            </div>
-          </Field>
-          <Field label="Tags">
-            <div className="border border-slate-300 rounded p-2 max-h-40 overflow-y-auto space-y-1">
-              {tags.map((t) => (
-                <label key={t.id} className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={tagIds.includes(t.id)} onChange={() => toggleTag(t.id)} className="accent-blue-600" />
-                  <span className="text-sm">{t.name}</span>
-                </label>
-              ))}
-            </div>
-          </Field>
-        </div>
-      </div>
-      <Field label="Content" name="content" value={content} onChange={setContent} type="textarea" rows={10} required />
-      <Field label="SEO Description" name="seoDescription" value={seoDescription} onChange={setSeoDescription} type="textarea" rows={2} />
-
-      <div className="flex gap-3">
-        <button type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 cursor-pointer">
-          {loading ? "Saving..." : "Publish"}
-        </button>
-        <button type="button" onClick={() => router.push("/admin/blog-posts")} className="px-6 py-2 border border-slate-300 rounded hover:bg-slate-50 cursor-pointer">Cancel</button>
-      </div>
-    </form>
+    <NewBlogPostClient
+      categories={categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug, type: c.type }))}
+      tags={tags.map((t) => ({ id: t.id, name: t.name, slug: t.slug }))}
+    />
   )
-}
-
-function Field({ label, name, value, onChange, type = "text", required, children }: { label: string; name: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; children?: React.ReactNode }) {
-  const inputElement = children || (type === "textarea" ? (
-    <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} />
-  ) : (
-    <input type={type} value={value} onChange={(e) => onChange?.(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} />
-  ))
-
-  return (
-    <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
-      {Array.isArray(inputElement) ? inputElement[0] : inputElement}
-    </div>
-  )
-}
-export async function EditBlogPostPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const post = await getBlogPosts().then(() => null) // replaced by revalidate link approach
-  return <EditForm id={id} />
-}
-
-async function EditForm({ id }: { id: string }) {
-  "use client"
-  const router = useRouter()
-  const [title, setTitle] = useState("")
-  // ... similar form as NewBlogPostPage
-  return null
 }

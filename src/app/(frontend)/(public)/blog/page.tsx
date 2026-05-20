@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma"
 
 export default async function PublicBlogListPage() {
   const posts = await prisma.blogPost.findMany({
-    include: { blogPostCategories: { include: { category: true } }, blogPostTags: { include: { tag: true } } },
+    include: { blogPostCategories: { include: { catEntry: true } }, blogPostTags: { include: { tagEntry: true } } },
     orderBy: { publishedAt: "desc" },
   })
 
@@ -18,7 +18,7 @@ export default async function PublicBlogListPage() {
             <div className="p-5 space-y-2">
               <div className="flex gap-2 flex-wrap">
                 {(post.blogPostCategories || []).map((cat: any) => (
-                  <span key={cat.categoryId} className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700">{cat.category.name}</span>
+                  <span key={cat.categoryId} className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700">{cat.catEntry.name}</span>
                 ))}
               </div>
               <h3 className="font-bold text-slate-800">{post.title}</h3>
