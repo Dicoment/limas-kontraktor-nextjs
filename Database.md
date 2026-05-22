@@ -1,100 +1,252 @@
 # 📋 Dokumentasi Database - Limas Kontraktor
-**Tanggal:** 19 Mei 2026 (Diperbarui)  
+**Tanggal:** 22 Mei 2026 (Diperbarui)  
 **Repo:** `D:\GRINDING\GUDANG\limas-kontraktor`
 
 ---
 
-## 🗄️ Struktur Database (Prisma ORM)
+## 🗄️ Skema Database (Prisma ORM — PostgreSQL)
 
-Database menggunakan PostgreSQL dengan ORM Prisma v7.8.0. Semua model didefinisikan dalam file `prisma/schema.prisma`.
+Database menggunakan **PostgreSQL** dengan **Prisma v7.8.0** (`@prisma/client`).
+Semua model didefinisikan di `prisma/schema.prisma`. Generated Prisma Client berada di `src/generated/`.
+
+### Gambaran Relasi Database
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                               DATABASE                                   │
+├──────────────┐       ┌──────────────────────────────────────────────── ─┤
+│   users      │       │  projects                                      │
+│  ─────────   │       │  ────────                                      │
+│  id (PK)  ├──┼───────┤  id (PK)                                      │
+│  email    │  │       │  title                                        │
+│  password │  │       │  slug (unique)                                 │
+│  name     │  │       │  description                                  │
+│  role     │  │       │  location                                     │
+│  createdAt│  │       │  client                                       │
+│  updatedAt│  └───┐   │  limas_role  ←→  roles.role                    │
+│            1    │   │  cover_image                                    │
+│           admin  │   │  gallery (JSON[])                               │
+│                 │   │  status  → ProjectStatus enum                   │
+│                 │   │  seo_title                                      │
+│                 │   │  seo_description                                │
+│                 │   │  createdAt                                      │
+│                 │   │  updatedAt                                      │
+│                 │   │                                                 │
+│                 │   │  projectTeams (PK: projectId+teamId, unique)    │
+│                 │   │  ├── projectId  → projects.id                   │
+│                 │   │  └── teamId     → teams.id                       │
+│                 │   │         role (String)                                │
+│                 │   │                                                     │
+│                 │   │  testimonials                                     │
+│                 │   │  ─────────────                                     │
+│                 │   │  id (PK)  ←→  testimonials.projectId             │
+│                 │   │  reviewText                                       │
+│                 │   │  rating  → TestimonialPlatform enum              │
+│                 │   │  featured (boolean)                               │
+│                 │   │  createdAt                                        │
+│                 │   └────────────────────────────────────────────────── │
+│                 │                                                        │
+│                 │         ┌──────────────┐       ┌─────────────────┐   │
+│                 │         │   teams      │       │  testimonial_    │   │
+│                 │         │  ────────    │       │  platforms       │   │
+│                 │         │  id (PK)  ◄──┘       │  ─────────────── │   │
+│                 │         │  name      └───────►│  id (PK)         │   │
+│                 │         │  position           │  name            │   │
+│                 │         │  bio                │  createdAt       │   │
+│                 │         │  createdAt          └─────────────────┘   │
+│                 │         │  updatedAt                                   │
+│                 │         └──────────────────────────────────────────────┘
+│                 │
+│  ┌──────────────┼─────────────────────────────────────────────────────┐
+│  │  blog_posts  │                                                        │
+│  │  ─────────   │                                                        │
+│  │  id (PK)    │       ┌──────────────┐  ┌──────────────┐              │
+│  │  title      │       │  tags        │  │  categories  │               │
+│  │  slug       │       │  ───────     │  │  ──────────  │               │
+│  │  content    │       │  id (PK)    │  │  id (PK)     │               │
+│  │  excerpt    │       │  name       │  │  name        │               │
+│  │  coverImg   │       │  slug        │  │  slug        │               │
+│  │  seo_title  │       │  createdAt   │  │  type        │               │
+│  │  seo_desc   │       └──────────────┘  └──────────────┘               │
+│  │  published  │                                                           
+│  │  publishedAt│                                                           
+│  │  createdAt  │                                                           
+│  │  updatedAt  │                                                           
+│  │             │                                                           
+│  │  blogPostTags  (id / blogPostId / tagId / createdAt)                   │
+│  │  blogPostCategories (id / blogPostId / categoryId / createdAt)         │
+│  └──────────────┘                                                           
+│                                                                              │
+│  ┌───────────────────────────────────────────────────────────────────┐    │
+│  │  pages                                                              │    │
+│  │  ─────                                                              │    │
+│  │  id (PK)   title  slug  content  seo_title  seo_description        │    │
+│  │  published publishedAt  createdAt  updatedAt                        │    │
+│  └───────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌───────────────────────────────────────────────────────────────────┐    │
+│  │  settings                                                           │    │
+│  │  ────────                                                           │    │
+│  │  id (PK)   key (unique)   value   createdAt   updatedAt             │    │
+│  └───────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌───────────────────────────────────────────────────────────────────┐    │
+│  │  leads_logs                                                         │    │
+│  │  ──────────                                                         │    │
+│  │  id (PK)   name  phone  message  projectId  pageUrl  ipAddress     │    │
+│  │  userAgent  createdAt                                                │    │
+│  └───────────────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+*Diagram menunjukkan relasi antara 10 model utama dan 4 tabel pivot dalam database PostgreSQL.*
+
+---
 
 ## 📊 Model Utama
 
-| Model | Deskripsi | Kolom Penting |
-|-------|-----------|---------------|
-| **User** | Autentikasi admin dashboard | `id`, `email` (unique), `password` (bcrypt), `name`, `role`, `createdAt`, `updatedAt` |
-| **Project** | Portofolio proyek konstruksi | `id`, `title`, `slug` (unique), `description`, `location`, `client`, `limasRole`, `coverImage`, `gallery` (JSON), `status` (enum), `seoTitle`, `seoDescription`, `createdAt`, `updatedAt` |
-| **BlogPost** | Artikel blog | `id`, `title`, `slug` (unique), `content`, `excerpt`, `coverImage`, `seoTitle`, `seoDescription`, `published`, `publishedAt`, `createdAt`, `updatedAt` |
-| **Page** | Halaman statis (Layanan, Tentang, dll) | `id`, `title`, `slug` (unique), `content`, `seoTitle`, `seoDescription`, `published`, `createdAt`, `updatedAt` |
-| **Team** | Data karyawan/tim | `id`, `name`, `position`, `bio`, `avatar`, `email`, `phone`, `displayOrder`, `createdAt`, `updatedAt` |
-| **Category** | Kategori umum untuk blog & project | `id`, `name`, `slug` (unique), `type` (blog/project), `description`, `createdAt`, `updatedAt` |
-| **Tag** | Tag khusus untuk blog | `id`, `name`, `slug` (unique), `createdAt`, `updatedAt` |
-| **Testimonial** | Testimoni klien | `id`, `clientName`, `content`, `rating`, `platform` (enum), `sourceUrl`, `avatar`, `published`, `projectId` (relasi), `createdAt`, `updatedAt` |
-| **LeadsLog** | Log historis klik klien (read-only) | `id`, `name`, `phone`, `message`, `projectId`, `pageUrl`, `ipAddress`, `userAgent`, `createdAt` |
-| **Setting** | Konfigurasi global (key-value) | `id`, `key` (unique), `value`, `createdAt`, `updatedAt` |
+| Model | Tabel | Deskripsi |
+|-------|-------|-----------|
+| **User** | `users` | Akun pengguna sistem (admin dashboard) |
+| **Project** | `projects` | Portofolio proyek konstruksi |
+| **BlogPost** | `blog_posts` | Artikel/blog website |
+| **Page** | `pages` | Halaman statis dinamis (`/tentang-kami`, `/karir`, dll.) |
+| **Team** | `teams` | Data anggota tim/karyawan |
+| **Category** | `categories` | Kategori Projek & Blog |
+| **Tag** | `tags` | Tag artikel blog |
+| **Testimonial** | `testimonials` | Testimonial/review dari klien |
+| **LeadsLog** | `leads_logs` | Log calon pelanggan (read-only) |
+| **Setting** | `settings` | Konfigurasi key-value global |
+
+---
 
 ## 🔗 Relasi Many-to-Many (Tabel Pivot)
 
-| Tabel Pivot | Relasi | Kolom Tambahan |
-|-------------|--------|----------------|
-| **ProjectTeam** | Project ↔ Team | `role` (String) - jabatan tim di proyek tersebut |
-| **BlogPostCategory** | BlogPost ↔ Category | Tidak ada |
-| **BlogPostTag** | BlogPost ↔ Tag | Tidak ada |
-| **CategoryProject** | Category ↔ Project | Tidak ada |
+| Tabel Pivot | Relasi Between | Kolom Tambahan |
+|-------------|---------------|----------------|
+| **project_teams** | Project ↔ Team | `role` — jabatan anggota tim di proyek tersebut |
+| **blog_post_categories** | BlogPost ↔ Category | *(tidak ada)* |
+| **blog_post_tags** | BlogPost ↔ Tag | *(tidak ada)* |
+| **category_projects** | Category ↔ Project | *(tidak ada)* |
+
+---
 
 ## 🎨 Enums
 
-| Enum | Nilai |
-|------|-------|
-| **ProjectStatus** | DRAFT, ONGOING, COMPLETED |
-| **TestimonialPlatform** | MANUAL, SOCIAL_MEDIA |
+```typescript
+enum ProjectStatus {
+  DRAFT     // Proyek belum dirilis
+  ONGOING   // Proyek sedang berjalan
+  COMPLETED // Proyek selesai
+}
+
+enum TestimonialPlatform {
+  MANUAL       // Diinput manual oleh admin
+  SOCIAL_MEDIA // Import dari media sosial
+}
+```
+
+---
 
 ## ⚙️ Konfigurasi Prisma
 
-File `prisma/schema.prisma` mengandung:
+File `prisma/schema.prisma`:
 
 ```prisma
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client"
+  output     = "../src/generated"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
+
+enum ProjectStatus { DRAFT, ONGOING, COMPLETED }
+enum TestimonialPlatform { MANUAL, SOCIAL_MEDIA }
 ```
 
-## 📦 Cara Menggunakan Prisma Client
+Catatan:
+- `generator.output = "../src/generated"` — Prisma Client di-generate ke dalam direktori `src/`, bukan `node_modules/`.
+- Tidak ada bidang `url` di blok `datasource`; koneksi disediakan melalui adapter (`@prisma/adapter-pg`).
 
-Dalam aplikasi, Prisma client diinisialisasi sebagai singleton di `src/lib/prisma.ts`:
+---
+
+## 📦 Inisialisasi Prisma Client (Prisma 7)
+
+Di Prisma 7, `PrismaClient` memerlukan opsi konstruktor yang **tidak kosong** — yaitu `{ adapter }` atau `{ accelerateUrl }`.
+Adapter PostgreSQL digunakan secara eksplisit:
 
 ```typescript
-import { PrismaClient } from '@prisma/client'
+// src/lib/prisma.ts
+import { PrismaClient } from '../generated/client'
+import { PrismaPg } from '@prisma/adapter-pg'
 
-declare global {
-  var prisma: PrismaClient | undefined
+const connectionString = process.env.DATABASE_URL
+
+if (!connectionString) {
+  console.error('ERROR: DATABASE_URL environment variable is not set.')
+  process.exit(1)
 }
 
-export const prisma =
-  global.prisma ||
-  new PrismaClient({
-    log: ['query'],
-  })
+const adapter = new PrismaPg(connectionString)
+const prisma = new PrismaClient({ adapter })
 
-if (process.env.NODE_ENV !== 'production') global.prisma = prisma
+export default prisma
 ```
 
-## 🔄 Migrasi Database
+---
 
-Perintah yang tersedia dalam `package.json`:
+## 🔄 Migrasi & Perintah Database
 
-- `npm run db:generate` - Menghasilkan Prisma Client
-- `npm run db:push` - Mendorong perubahan skema ke database
-- `npm run db:studio` - Membuka Prisma Studio untuk melihat data
+Perintah yang tersedia di `package.json`:
+
+| Perintah | Deskripsi |
+|----------|-----------|
+| `npm run db:generate` | Menghasilkan Prisma Client ke `src/generated/` |
+| `npm run db:push` | Mendorong perubahan schema ke database |
+| `npm run db:seed` | Menjalankan seeder (`prisma/seed.ts`) |
+| `npm run db:studio` | Membuka Prisma Studio (GUI database) |
+
+---
+
+## 🌱 Seed Data (`prisma/seed.ts`)
+
+Seeder mengisi database dengan data awal:
+- **Users**: 2 akun (`admin@limas.co.id`, `manager@limas.co.id`)
+- **Teams**: 3 anggota tim
+- **Categories**: 3 kategori proyek + 2 kategori blog
+- **Tags**: 3 tag artikel
+- **Projects**: 3 proyek (status berbeda: DRAFT, ONGOING, COMPLETED)
+- **BlogPosts**: 2 artikel (1 published, 1 draft)
+- **Pages**: 2 halaman (1 published, 1 draft)
+- **Testimonials**: 3 testimoni
+- **LeadsLogs**: 2 log calon pelanggan
+- **Settings**: 5 pengaturan global
+
+Seeder melakukan **deleteMany** di semua tabel terlebih dahulu (dalam transaksi) sebelum insert data baru,
+dengan urutan menghormati foreign key constraints:
+`leadsLogs → blogPostTag / blogPostCategory / categoryProject / projectTeam → testimonials / blogPosts / pages → projects → teams → categories → tags → settings → users`.
+
+---
 
 ## 📝 Catatan Penting
 
-1. Semua kolom timestamp menggunakan tipe `DateTime` dengan mapping ke nama kolom snake_case di database (`created_at`, `updated_at`)
-2. Kolom JSON seperti `gallery` menggunakan tipe `Json?` dengan default nilai `"[]"`
-3. Relasi menggunakan referensi `@id` dengan fungsi `cuid()` untuk ID unik
-4. Enum di-deklarasikan terlebih dahulu sebelum digunakan dalam model
-5. Relasi many-to-many eksplisit dibuat untuk Project-Team karena perlu kolom tambahan `role`
-6. Database masih menggunakan struktur yang sama seperti Laravel (tidak ada perubahan skema)
+1. **Prisma 7 breaking change** — `PrismaClient()` tanpa opsi sekarang melempar `PrismaClientInitializationError`. Selalu satu adapter (`PrismaPg`) atau `accelerateUrl`.
+2. Semua kolom timestamp menggunakan `DateTime` dengan mapping snake_case (`created_at`, `updated_at`) di database.
+3. Kolom JSON seperti `gallery` menggunakan tipe `Json?` dengan default `[]`.
+4. Semua ID menggunakan `cuid()` untuk keunikan.
+5. Enum dideklarasikan terlebih dahulu sebelum digunakan di model.
+6. Relasi many-to-many eksplisit untuk `Project ↔ Team` karena tabel pivot `project_teams` memerlukan kolom tambahan `role`.
+
+---
 
 ## 📓 Riwayat Perubahan
 
-- **19 Mei 2026**: Tidak ada perubahan pada skema database. Aktivitas hari ini lebih fokus pada pembersihan file konfigurasi yang tidak digunakan dan peningkatan struktur autentikasi.
-- **17 Mei 2026 (Diperbarui)**: Dokumentasi awal dibuat setelah migrasi dari Laravel/Filament ke Next.js + Prisma.
+- **22 Mei 2026** — Memperbaiki `prisma/seed.ts` untuk kompatibilitas Prisma 7 (import path, adapter, seeding method). Memperbarui dokumentasi database dan menambahkan dokumentasi hari ini.
+- **19 Mei 2026** — Pembersihan file yang tidak digunakan, struktur autentikasi diperbarui.
+- **17 Mei 2026** — Migrasi dari Laravel/Filament ke Next.js + Prisma selesai. Prisma schema lengkap, Zod schemas, REST API, Admin Dashboard, dan halaman publik siap digunakan.
 
 ---
-*Dokumentasi ini menjelaskan struktur database yang digunakan dalam proyek Limas Kontraktor setelah migrasi dari Laravel/Filament ke Next.js + Prisma.*
+
+*Dokumentasi ini mendeskripsikan struktur database PostgreSQL yang mendukung seluruh fitur Limas Kontraktor dan dokumentasi aktivitas pengembangan terbaru.*
