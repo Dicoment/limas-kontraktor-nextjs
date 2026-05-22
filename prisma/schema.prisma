@@ -46,9 +46,7 @@ model Project {
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime      @updatedAt @map("updated_at")
 
-  // Prisma 7 auto-inverse from projEntry
   projectTeams     ProjectTeam[]
-  // Prisma 7 auto-inverse from Entity
   testimonials     Testimonial[]
   categoryProjects CategoryProject[]
 
@@ -176,11 +174,11 @@ model Setting {
 }
 
 model ProjectTeam {
-  id          String   @id @default(cuid())
-  projectId   String
-  teamId      String
-  role        String?
-  createdAt   DateTime @default(now()) @map("created_at")
+  id        String   @id @default(cuid())
+  projectId String
+  teamId    String
+  role      String?
+  createdAt DateTime @default(now()) @map("created_at")
 
   projEntry Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   teamEntry Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -190,39 +188,39 @@ model ProjectTeam {
 }
 
 model BlogPostCategory {
-  id          String   @id @default(cuid())
-  blogPostId  String
-  categoryId  String
-  createdAt   DateTime @default(now()) @map("created_at")
+  id         String   @id @default(cuid())
+  blogPostId String
+  categoryId String
+  createdAt  DateTime @default(now()) @map("created_at")
 
-  catEntry   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  postEntry  BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  catEntry  Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  postEntry BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
 
   @@unique([blogPostId, categoryId])
   @@map("blog_post_categories")
 }
 
 model BlogPostTag {
-  id          String   @id @default(cuid())
-  blogPostId  String
-  tagId       String
-  createdAt   DateTime @default(now()) @map("created_at")
+  id         String   @id @default(cuid())
+  blogPostId String
+  tagId      String
+  createdAt  DateTime @default(now()) @map("created_at")
 
-  tagEntry   Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  postEntry  BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  tagEntry  Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  postEntry BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
 
   @@unique([blogPostId, tagId])
   @@map("blog_post_tags")
 }
 
 model CategoryProject {
-  id          String   @id @default(cuid())
-  categoryId  String
-  projectId   String
-  createdAt   DateTime @default(now()) @map("created_at")
+  id         String   @id @default(cuid())
+  categoryId String
+  projectId  String
+  createdAt  DateTime @default(now()) @map("created_at")
 
-  catEntry   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  projEntry  Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  catEntry  Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  projEntry Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@unique([categoryId, projectId])
   @@map("category_projects")
