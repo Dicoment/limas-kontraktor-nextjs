@@ -17,4 +17,4 @@ export default async function StaticPagePage({ params }: { params: Promise<{ slu
       </div>
     </div>
   )
-}
+} 

@@ -1,22 +1,4 @@
-import AuthProvider from "@/components/AuthProvider"
-import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-})
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-})
-
-export const metadata: Metadata = {
-  title: "Limas Kontraktor - Admin",
-  description: "Dashboard Admin Limas Kontraktor",
-}
 
 export default function RootLayout({
   children,
@@ -25,11 +7,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-      </body>
+      <body>{children}</body>
     </html>
   )
 }

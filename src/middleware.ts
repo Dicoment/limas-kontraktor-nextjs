@@ -6,7 +6,7 @@ import { authConfig } from "@/lib/auth.config" // <-- UBAH IMPORT INI
 // Inisialisasi auth khusus untuk environment Edge (tanpa Prisma)
 const { auth } = NextAuth(authConfig)
 
-const publicRoutes = ["/admin/login"]
+const publicRoutes = ["/login"]
 const publicPatterns = [/^\/api\/auth/, /^\/_next/, /^\/favicon\.ico/, /\.(svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot|css)$/]
 
 export default auth((req) => {
@@ -17,7 +17,7 @@ export default auth((req) => {
 
   if (pathname.startsWith("/admin") && !isPublicRoute) {
     if (!isAuthenticated) {
-      return NextResponse.redirect(new URL("/admin/login", req.url))
+      return NextResponse.redirect(new URL("  /login", req.url))
     }
   }
 
