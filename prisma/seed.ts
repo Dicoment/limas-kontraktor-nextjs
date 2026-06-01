@@ -1,6 +1,7 @@
 // prisma/seed.ts
 import { PrismaClient, ProjectStatus, TestimonialPlatform } from '../src/generated/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import bcrypt from 'bcryptjs';
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -8,7 +9,6 @@ if (!connectionString) {
   console.error('ERROR: DATABASE_URL environment variable is not set.');
   process.exit(1);
 }
-
 const adapter = new PrismaPg(connectionString);
 const prisma = new PrismaClient({ adapter });
 

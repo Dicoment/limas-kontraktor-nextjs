@@ -5,6 +5,7 @@ allowBuilds:
   '@prisma/engines': true
   a: true
   e: true
+  esbuild: true
   g: true
   h: true
   i: true

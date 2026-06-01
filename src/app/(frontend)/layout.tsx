@@ -1,6 +1,6 @@
 import AuthProvider from "@/components/AuthProvider"
 import Navbar from "@/components/layout/Navbar"
-import Footer from "@/components/layout/Footer"
+import Footer from "@/components/layout/footer/Footer"
 import type { Metadata } from "next"
 import { Plus_Jakarta_Sans, DM_Serif_Display } from "next/font/google"
 
@@ -19,12 +19,12 @@ const dmSerif = DM_Serif_Display({
 const siteUrl = "https://limaskontraktor.com"
 const siteName = "Limas Kontraktor"
 const siteDescription =
-  "Limas Kontraktor adalah brand dari CV Listiya Mandiri Jaya Steel, perusahaan jasa desain dan konstruksi pembangunan terpercaya di Bekasi. Melayani pembangunan, renovasi, dan desain bangunan profesional."
+  "Cari kontraktor terpercaya di Bekasi? Limas Kontraktor melayani jasa kontraktor pembangunan, renovasi rumah, dan desain bangunan profesional dengan hasil berkualitas.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${siteName} — Jasa Konstruksi & Desain Bangunan Bekasi`,
+    default: `${siteName} - Jasa Kontraktor & Desain Bangunan Profesional Bekasi`,
     template: `%s | ${siteName}`,
   },
   description: siteDescription,
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     locale: "id_ID",
     url: siteUrl,
     siteName: siteName,
-    title: `${siteName} — Jasa Konstruksi & Desain Bangunan Bekasi`,
+    title: `${siteName} - Jasa Kontraktor & Desain Bangunan Profesional Bekasi`,
     description: siteDescription,
     images: [
       {
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteName} — Jasa Konstruksi & Desain Bangunan Bekasi`,
+    title: `${siteName} - Jasa Kontraktor & Desain Bangunan Profesional Bekasi`,
     description: siteDescription,
     images: [`${siteUrl}/og-image.jpg`],
   },

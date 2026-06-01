@@ -1,75 +1,111 @@
-"use client"
+'use client'
 
+import { useState, useEffect } from "react"
+import { LayoutDashboard, Briefcase, FileText, Settings, PlusCircle, LayoutGrid } from "lucide-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { signOut, useSession } from "next-auth/react"
+import { usePathname, useRouter } from 'next/navigation'
 
-const navItems = [
-  { href: "/admin", label: "Dashboard", exact: true },
-  { href: "/admin/projects", label: "Projects" },
-  { href: "/admin/blog-posts", label: "Blog Posts" },
-  { href: "/admin/categories", label: "Categories" },
-  { href: "/admin/tags", label: "Tags" },
-  { href: "/admin/teams", label: "Teams" },
-  { href: "/admin/testimonials", label: "Testimonials" },
-  { href: "/admin/pages", label: "Pages" },
-  { href: "/admin/settings", label: "Settings" },
-  { href: "/admin/leads-logs", label: "Leads Log" },
-]
+// Import komponen terpisah hasil pemecahan
+import { Sidebar } from "@/components/admin/Sidebar"
+import { Header } from "@/components/admin/Header"
+import { BottomNavItem } from "@/components/admin/NavComponents"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const [collapsed, setCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false) 
+  const [adminName, setAdminName] = useState('Admin')
+  const [adminEmail, setAdminEmail] = useState('')
+  const [isDataLoaded, setIsDataLoaded] = useState(false) 
   const pathname = usePathname()
-  const { data: session } = useSession()
+  const router = useRouter()
 
-  const isActive = (href: string, exact?: boolean) => {
-    if (exact) return pathname === href
-    return pathname.startsWith(href)
+  useEffect(() => {
+    const getAdminData = async () => {
+      try {
+        setAdminEmail('admin-testing@limaskontraktor.com')
+        setAdminName('ADMIN LIMAS')
+      } catch (err) {
+        console.error("Gagal load profil admin:", err)
+      } finally {
+        setIsDataLoaded(true)
+      }
+    }
+    getAdminData()
+  }, [])
+
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [pathname])
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+      localStorage.clear()
+      window.location.replace('/dashboard/login')
+    } catch (err) {
+      localStorage.clear()
+      window.location.replace('/dashboard/login')
+    }
+  }
+
+  if (!isDataLoaded) {
+    return (
+      <div className="h-screen w-screen flex flex-col items-center justify-center bg-white text-black">
+        <span className="animate-spin mb-4 text-xl">🔄</span>
+        <p className="text-[10px] font-medium uppercase tracking-[0.4em]">Dashboard Loading...</p>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col">
-        <div className="p-6 border-b border-slate-700">
-          <h2 className="text-xl font-bold">Limas Admin</h2>
-          <p className="text-slate-400 text-xs mt-1">{session?.user?.email}</p>
-        </div>
-        <nav className="flex-1 py-4 px-3 space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`block px-4 py-2 rounded-md text-sm transition-colors ${
-                isActive(item.href, item.exact)
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-300 hover:bg-slate-800"
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="p-4 border-t border-slate-700">
-          <button
-            onClick={() => signOut({ callbackUrl: "/admin/login" })}
-            className="w-full px-4 py-2 text-sm bg-slate-800 text-slate-300 rounded-md hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
-          >
-            Logout
-          </button>
-        </div>
-      </aside>
+    <div className="flex min-h-screen bg-[#f8fafc] font-sans text-black">
+      {/* Overlay Mobile */}
+      {mobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-60 lg:hidden backdrop-blur-sm"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
 
-      {/* Main area */}
-      <main className="flex-1 overflow-auto">
-        <header className="bg-white border-b border-slate-200 px-8 py-4">
-          <h1 className="text-xl font-semibold text-slate-800">
-            {navItems.find((item) => isActive(item.href, item.exact))?.label || "Dashboard"}
-          </h1>
-        </header>
-        <div className="p-8">
-          {children}
-        </div>
-      </main>
+      {/* SIDEBAR KOMPONEN */}
+      <Sidebar 
+        collapsed={collapsed} setCollapsed={setCollapsed}
+        mobileOpen={mobileOpen} setMobileOpen={setMobileOpen}
+        pathname={pathname} adminName={adminName} adminEmail={adminEmail}
+        handleLogout={handleLogout}
+      />
+
+      {/* MAIN CONTENT WORKSPACE */}
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${collapsed ? "lg:ml-20" : "lg:ml-64"} ml-0 min-w-0`}>
+        
+        {/* HEADER KOMPONEN (Dropdown profil kanan ada di sini) */}
+        <Header 
+          pathname={pathname} router={router} setMobileOpen={setMobileOpen}
+          adminName={adminName} adminEmail={adminEmail} handleLogout={handleLogout}
+        />
+
+        {/* AREA HALAMAN */}
+        <main className="p-4 lg:p-6 flex-1 text-black bg-white pb-28 lg:pb-6">
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-700">
+            {children}
+          </div>
+        </main>
+
+        {/* BOTTOM NAV MOBILE (Tetap Standby di bawah layar HP) */}
+        <nav className="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 px-6 flex justify-between items-center z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+          <BottomNavItem href="/dashboard" icon={<LayoutDashboard size={22} />} label="DASH" active={pathname === '/dashboard'} />
+          <BottomNavItem href="/dashboard/projects" icon={<Briefcase size={22} />} label="PROYEK" active={pathname === '/dashboard/projects'} />
+          
+          <div className="relative -top-5">
+             <Link href="/dashboard/blog-posts/new" className="w-16 h-16 bg-black text-white rounded-2xl flex items-center justify-center shadow-2xl transition-all">
+                <PlusCircle size={32} />
+             </Link>
+          </div>
+
+          <BottomNavItem href="/dashboard/blog-posts" icon={<FileText size={22} />} label="BLOG" active={pathname === '/dashboard/blog-posts'} />
+          <BottomNavItem href="/dashboard/settings" icon={<Settings size={22} />} label="SETTING" active={pathname === '/dashboard/settings'} />
+        </nav>
+      </div>
     </div>
   )
 }
