@@ -2,6 +2,7 @@
 import { PrismaClient, ProjectStatus, TestimonialPlatform } from '../src/generated/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import bcrypt from 'bcryptjs';
+import "dotenv/config";
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -32,10 +33,14 @@ async function main() {
   ]);
 
   // --- Users ---
+  // Buat hash untuk masing-masing password menggunakan bcrypt
+  const hashedAdminPassword = await bcrypt.hash('adminlimas', 10);
+  const hashedManagerPassword = await bcrypt.hash('managerlimas', 10);
+
   const admin = await prisma.user.create({
     data: {
-      email: 'admin@limas.co.id',
-      password: '$adminlimas', // dummy hash
+      email: 'admin@limaskontraktor.com',
+      password: hashedAdminPassword,
       name: 'Admin Limas',
       role: 'admin',
     },
@@ -43,8 +48,8 @@ async function main() {
 
   const manager = await prisma.user.create({
     data: {
-      email: 'manager@limas.co.id',
-      password: 'managerlimas',
+      email: 'manager@limaskontraktor.com',
+      password: hashedManagerPassword,
       name: 'Sarah Manajer',
       role: 'manager',
     },
@@ -56,7 +61,7 @@ async function main() {
       name: 'Budi Santoso',
       position: 'Project Manager',
       bio: 'Berpengalaman lebih dari 10 tahun di konstruksi.',
-      email: 'budi@limas.co.id',
+      email: 'budi@limaskontraktor.com',
       phone: '081234567890',
       displayOrder: 1,
     },
@@ -67,7 +72,7 @@ async function main() {
       name: 'Anisa Rahma',
       position: 'Architect',
       bio: 'Spesialis desain modern dan berkelanjutan.',
-      email: 'anisa@limas.co.id',
+      email: 'anisa@limaskontraktor.com',
       phone: '081234567891',
       displayOrder: 2,
     },
@@ -77,7 +82,7 @@ async function main() {
     data: {
       name: 'Dian Pratama',
       position: 'Site Supervisor',
-      email: 'dian@limas.co.id',
+      email: 'dian@limaskontraktor.com',
       displayOrder: 3,
     },
   });
