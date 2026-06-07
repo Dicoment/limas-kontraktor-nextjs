@@ -219,7 +219,7 @@ export type TestimonialGroupByOutputType = {
   id: string
   clientName: string
   content: string
-  rating: number
+  rating: number | null
   platform: $Enums.TestimonialPlatform
   sourceUrl: string | null
   avatar: string | null
@@ -256,7 +256,7 @@ export type TestimonialWhereInput = {
   id?: Prisma.StringFilter<"Testimonial"> | string
   clientName?: Prisma.StringFilter<"Testimonial"> | string
   content?: Prisma.StringFilter<"Testimonial"> | string
-  rating?: Prisma.IntFilter<"Testimonial"> | number
+  rating?: Prisma.IntNullableFilter<"Testimonial"> | number | null
   platform?: Prisma.EnumTestimonialPlatformFilter<"Testimonial"> | $Enums.TestimonialPlatform
   sourceUrl?: Prisma.StringNullableFilter<"Testimonial"> | string | null
   avatar?: Prisma.StringNullableFilter<"Testimonial"> | string | null
@@ -271,7 +271,7 @@ export type TestimonialOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   clientName?: Prisma.SortOrder
   content?: Prisma.SortOrder
-  rating?: Prisma.SortOrder
+  rating?: Prisma.SortOrderInput | Prisma.SortOrder
   platform?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -289,7 +289,7 @@ export type TestimonialWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.TestimonialWhereInput | Prisma.TestimonialWhereInput[]
   clientName?: Prisma.StringFilter<"Testimonial"> | string
   content?: Prisma.StringFilter<"Testimonial"> | string
-  rating?: Prisma.IntFilter<"Testimonial"> | number
+  rating?: Prisma.IntNullableFilter<"Testimonial"> | number | null
   platform?: Prisma.EnumTestimonialPlatformFilter<"Testimonial"> | $Enums.TestimonialPlatform
   sourceUrl?: Prisma.StringNullableFilter<"Testimonial"> | string | null
   avatar?: Prisma.StringNullableFilter<"Testimonial"> | string | null
@@ -304,7 +304,7 @@ export type TestimonialOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   clientName?: Prisma.SortOrder
   content?: Prisma.SortOrder
-  rating?: Prisma.SortOrder
+  rating?: Prisma.SortOrderInput | Prisma.SortOrder
   platform?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -326,7 +326,7 @@ export type TestimonialScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Testimonial"> | string
   clientName?: Prisma.StringWithAggregatesFilter<"Testimonial"> | string
   content?: Prisma.StringWithAggregatesFilter<"Testimonial"> | string
-  rating?: Prisma.IntWithAggregatesFilter<"Testimonial"> | number
+  rating?: Prisma.IntNullableWithAggregatesFilter<"Testimonial"> | number | null
   platform?: Prisma.EnumTestimonialPlatformWithAggregatesFilter<"Testimonial"> | $Enums.TestimonialPlatform
   sourceUrl?: Prisma.StringNullableWithAggregatesFilter<"Testimonial"> | string | null
   avatar?: Prisma.StringNullableWithAggregatesFilter<"Testimonial"> | string | null
@@ -340,7 +340,7 @@ export type TestimonialCreateInput = {
   id?: string
   clientName: string
   content: string
-  rating: number
+  rating?: number | null
   platform?: $Enums.TestimonialPlatform
   sourceUrl?: string | null
   avatar?: string | null
@@ -354,7 +354,7 @@ export type TestimonialUncheckedCreateInput = {
   id?: string
   clientName: string
   content: string
-  rating: number
+  rating?: number | null
   platform?: $Enums.TestimonialPlatform
   sourceUrl?: string | null
   avatar?: string | null
@@ -368,7 +368,7 @@ export type TestimonialUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   clientName?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
+  rating?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   platform?: Prisma.EnumTestimonialPlatformFieldUpdateOperationsInput | $Enums.TestimonialPlatform
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -382,7 +382,7 @@ export type TestimonialUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   clientName?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
+  rating?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   platform?: Prisma.EnumTestimonialPlatformFieldUpdateOperationsInput | $Enums.TestimonialPlatform
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -396,7 +396,7 @@ export type TestimonialCreateManyInput = {
   id?: string
   clientName: string
   content: string
-  rating: number
+  rating?: number | null
   platform?: $Enums.TestimonialPlatform
   sourceUrl?: string | null
   avatar?: string | null
@@ -410,7 +410,7 @@ export type TestimonialUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   clientName?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
+  rating?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   platform?: Prisma.EnumTestimonialPlatformFieldUpdateOperationsInput | $Enums.TestimonialPlatform
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -423,7 +423,7 @@ export type TestimonialUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   clientName?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
+  rating?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   platform?: Prisma.EnumTestimonialPlatformFieldUpdateOperationsInput | $Enums.TestimonialPlatform
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -535,6 +535,14 @@ export type TestimonialUncheckedUpdateManyWithoutProjectNestedInput = {
   deleteMany?: Prisma.TestimonialScalarWhereInput | Prisma.TestimonialScalarWhereInput[]
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type EnumTestimonialPlatformFieldUpdateOperationsInput = {
   set?: $Enums.TestimonialPlatform
 }
@@ -543,7 +551,7 @@ export type TestimonialCreateWithoutProjectInput = {
   id?: string
   clientName: string
   content: string
-  rating: number
+  rating?: number | null
   platform?: $Enums.TestimonialPlatform
   sourceUrl?: string | null
   avatar?: string | null
@@ -556,7 +564,7 @@ export type TestimonialUncheckedCreateWithoutProjectInput = {
   id?: string
   clientName: string
   content: string
-  rating: number
+  rating?: number | null
   platform?: $Enums.TestimonialPlatform
   sourceUrl?: string | null
   avatar?: string | null
@@ -598,7 +606,7 @@ export type TestimonialScalarWhereInput = {
   id?: Prisma.StringFilter<"Testimonial"> | string
   clientName?: Prisma.StringFilter<"Testimonial"> | string
   content?: Prisma.StringFilter<"Testimonial"> | string
-  rating?: Prisma.IntFilter<"Testimonial"> | number
+  rating?: Prisma.IntNullableFilter<"Testimonial"> | number | null
   platform?: Prisma.EnumTestimonialPlatformFilter<"Testimonial"> | $Enums.TestimonialPlatform
   sourceUrl?: Prisma.StringNullableFilter<"Testimonial"> | string | null
   avatar?: Prisma.StringNullableFilter<"Testimonial"> | string | null
@@ -612,7 +620,7 @@ export type TestimonialCreateManyProjectInput = {
   id?: string
   clientName: string
   content: string
-  rating: number
+  rating?: number | null
   platform?: $Enums.TestimonialPlatform
   sourceUrl?: string | null
   avatar?: string | null
@@ -625,7 +633,7 @@ export type TestimonialUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   clientName?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
+  rating?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   platform?: Prisma.EnumTestimonialPlatformFieldUpdateOperationsInput | $Enums.TestimonialPlatform
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -638,7 +646,7 @@ export type TestimonialUncheckedUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   clientName?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
+  rating?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   platform?: Prisma.EnumTestimonialPlatformFieldUpdateOperationsInput | $Enums.TestimonialPlatform
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -651,7 +659,7 @@ export type TestimonialUncheckedUpdateManyWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   clientName?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
-  rating?: Prisma.IntFieldUpdateOperationsInput | number
+  rating?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   platform?: Prisma.EnumTestimonialPlatformFieldUpdateOperationsInput | $Enums.TestimonialPlatform
   sourceUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -741,7 +749,7 @@ export type $TestimonialPayload<ExtArgs extends runtime.Types.Extensions.Interna
     id: string
     clientName: string
     content: string
-    rating: number
+    rating: number | null
     platform: $Enums.TestimonialPlatform
     sourceUrl: string | null
     avatar: string | null

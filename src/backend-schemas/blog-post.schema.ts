@@ -9,9 +9,9 @@ export const blogPostSchema = z.object({
   seoTitle: z.string().optional().nullable(),
   seoDescription: z.string().optional().nullable(),
   published: z.boolean().default(false),
-  publishedAt: z.string().datetime().optional().nullable(),
-  categoryIds: z.array(z.string()).optional().default([]),
-  tagIds: z.array(z.string()).optional().default([]),
+  publishedAt: z.string().datetime({ offset: true }).optional().nullable(),
+  categoryIds: z.array(z.string().cuid()).optional().default([]),
+  tagIds: z.array(z.string().cuid()).optional().default([]),
 })
 
 export const blogPostUpdateSchema = blogPostSchema.partial()

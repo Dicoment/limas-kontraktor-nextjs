@@ -214,6 +214,7 @@ export type LeadsLogWhereInput = {
   ipAddress?: Prisma.StringNullableFilter<"LeadsLog"> | string | null
   userAgent?: Prisma.StringNullableFilter<"LeadsLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LeadsLog"> | Date | string
+  project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
 }
 
 export type LeadsLogOrderByWithRelationInput = {
@@ -226,6 +227,7 @@ export type LeadsLogOrderByWithRelationInput = {
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   userAgent?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  project?: Prisma.ProjectOrderByWithRelationInput
 }
 
 export type LeadsLogWhereUniqueInput = Prisma.AtLeast<{
@@ -241,6 +243,7 @@ export type LeadsLogWhereUniqueInput = Prisma.AtLeast<{
   ipAddress?: Prisma.StringNullableFilter<"LeadsLog"> | string | null
   userAgent?: Prisma.StringNullableFilter<"LeadsLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"LeadsLog"> | Date | string
+  project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
 }, "id">
 
 export type LeadsLogOrderByWithAggregationInput = {
@@ -278,11 +281,11 @@ export type LeadsLogCreateInput = {
   name?: string | null
   phone?: string | null
   message?: string | null
-  projectId?: string | null
   pageUrl?: string | null
   ipAddress?: string | null
   userAgent?: string | null
   createdAt?: Date | string
+  project?: Prisma.ProjectCreateNestedOneWithoutLeadsLogsInput
 }
 
 export type LeadsLogUncheckedCreateInput = {
@@ -302,11 +305,11 @@ export type LeadsLogUpdateInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  project?: Prisma.ProjectUpdateOneWithoutLeadsLogsNestedInput
 }
 
 export type LeadsLogUncheckedUpdateInput = {
@@ -338,7 +341,6 @@ export type LeadsLogUpdateManyMutationInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -355,6 +357,16 @@ export type LeadsLogUncheckedUpdateManyInput = {
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LeadsLogListRelationFilter = {
+  every?: Prisma.LeadsLogWhereInput
+  some?: Prisma.LeadsLogWhereInput
+  none?: Prisma.LeadsLogWhereInput
+}
+
+export type LeadsLogOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type LeadsLogCountOrderByAggregateInput = {
@@ -393,6 +405,155 @@ export type LeadsLogMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
 }
 
+export type LeadsLogCreateNestedManyWithoutProjectInput = {
+  create?: Prisma.XOR<Prisma.LeadsLogCreateWithoutProjectInput, Prisma.LeadsLogUncheckedCreateWithoutProjectInput> | Prisma.LeadsLogCreateWithoutProjectInput[] | Prisma.LeadsLogUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.LeadsLogCreateOrConnectWithoutProjectInput | Prisma.LeadsLogCreateOrConnectWithoutProjectInput[]
+  createMany?: Prisma.LeadsLogCreateManyProjectInputEnvelope
+  connect?: Prisma.LeadsLogWhereUniqueInput | Prisma.LeadsLogWhereUniqueInput[]
+}
+
+export type LeadsLogUncheckedCreateNestedManyWithoutProjectInput = {
+  create?: Prisma.XOR<Prisma.LeadsLogCreateWithoutProjectInput, Prisma.LeadsLogUncheckedCreateWithoutProjectInput> | Prisma.LeadsLogCreateWithoutProjectInput[] | Prisma.LeadsLogUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.LeadsLogCreateOrConnectWithoutProjectInput | Prisma.LeadsLogCreateOrConnectWithoutProjectInput[]
+  createMany?: Prisma.LeadsLogCreateManyProjectInputEnvelope
+  connect?: Prisma.LeadsLogWhereUniqueInput | Prisma.LeadsLogWhereUniqueInput[]
+}
+
+export type LeadsLogUpdateManyWithoutProjectNestedInput = {
+  create?: Prisma.XOR<Prisma.LeadsLogCreateWithoutProjectInput, Prisma.LeadsLogUncheckedCreateWithoutProjectInput> | Prisma.LeadsLogCreateWithoutProjectInput[] | Prisma.LeadsLogUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.LeadsLogCreateOrConnectWithoutProjectInput | Prisma.LeadsLogCreateOrConnectWithoutProjectInput[]
+  upsert?: Prisma.LeadsLogUpsertWithWhereUniqueWithoutProjectInput | Prisma.LeadsLogUpsertWithWhereUniqueWithoutProjectInput[]
+  createMany?: Prisma.LeadsLogCreateManyProjectInputEnvelope
+  set?: Prisma.LeadsLogWhereUniqueInput | Prisma.LeadsLogWhereUniqueInput[]
+  disconnect?: Prisma.LeadsLogWhereUniqueInput | Prisma.LeadsLogWhereUniqueInput[]
+  delete?: Prisma.LeadsLogWhereUniqueInput | Prisma.LeadsLogWhereUniqueInput[]
+  connect?: Prisma.LeadsLogWhereUniqueInput | Prisma.LeadsLogWhereUniqueInput[]
+  update?: Prisma.LeadsLogUpdateWithWhereUniqueWithoutProjectInput | Prisma.LeadsLogUpdateWithWhereUniqueWithoutProjectInput[]
+  updateMany?: Prisma.LeadsLogUpdateManyWithWhereWithoutProjectInput | Prisma.LeadsLogUpdateManyWithWhereWithoutProjectInput[]
+  deleteMany?: Prisma.LeadsLogScalarWhereInput | Prisma.LeadsLogScalarWhereInput[]
+}
+
+export type LeadsLogUncheckedUpdateManyWithoutProjectNestedInput = {
+  create?: Prisma.XOR<Prisma.LeadsLogCreateWithoutProjectInput, Prisma.LeadsLogUncheckedCreateWithoutProjectInput> | Prisma.LeadsLogCreateWithoutProjectInput[] | Prisma.LeadsLogUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.LeadsLogCreateOrConnectWithoutProjectInput | Prisma.LeadsLogCreateOrConnectWithoutProjectInput[]
+  upsert?: Prisma.LeadsLogUpsertWithWhereUniqueWithoutProjectInput | Prisma.LeadsLogUpsertWithWhereUniqueWithoutProjectInput[]
+  createMany?: Prisma.LeadsLogCreateManyProjectInputEnvelope
+  set?: Prisma.LeadsLogWhereUniqueInput | Prisma.LeadsLogWhereUniqueInput[]
+  disconnect?: Prisma.LeadsLogWhereUniqueInput | Prisma.LeadsLogWhereUniqueInput[]
+  delete?: Prisma.LeadsLogWhereUniqueInput | Prisma.LeadsLogWhereUniqueInput[]
+  connect?: Prisma.LeadsLogWhereUniqueInput | Prisma.LeadsLogWhereUniqueInput[]
+  update?: Prisma.LeadsLogUpdateWithWhereUniqueWithoutProjectInput | Prisma.LeadsLogUpdateWithWhereUniqueWithoutProjectInput[]
+  updateMany?: Prisma.LeadsLogUpdateManyWithWhereWithoutProjectInput | Prisma.LeadsLogUpdateManyWithWhereWithoutProjectInput[]
+  deleteMany?: Prisma.LeadsLogScalarWhereInput | Prisma.LeadsLogScalarWhereInput[]
+}
+
+export type LeadsLogCreateWithoutProjectInput = {
+  id?: string
+  name?: string | null
+  phone?: string | null
+  message?: string | null
+  pageUrl?: string | null
+  ipAddress?: string | null
+  userAgent?: string | null
+  createdAt?: Date | string
+}
+
+export type LeadsLogUncheckedCreateWithoutProjectInput = {
+  id?: string
+  name?: string | null
+  phone?: string | null
+  message?: string | null
+  pageUrl?: string | null
+  ipAddress?: string | null
+  userAgent?: string | null
+  createdAt?: Date | string
+}
+
+export type LeadsLogCreateOrConnectWithoutProjectInput = {
+  where: Prisma.LeadsLogWhereUniqueInput
+  create: Prisma.XOR<Prisma.LeadsLogCreateWithoutProjectInput, Prisma.LeadsLogUncheckedCreateWithoutProjectInput>
+}
+
+export type LeadsLogCreateManyProjectInputEnvelope = {
+  data: Prisma.LeadsLogCreateManyProjectInput | Prisma.LeadsLogCreateManyProjectInput[]
+  skipDuplicates?: boolean
+}
+
+export type LeadsLogUpsertWithWhereUniqueWithoutProjectInput = {
+  where: Prisma.LeadsLogWhereUniqueInput
+  update: Prisma.XOR<Prisma.LeadsLogUpdateWithoutProjectInput, Prisma.LeadsLogUncheckedUpdateWithoutProjectInput>
+  create: Prisma.XOR<Prisma.LeadsLogCreateWithoutProjectInput, Prisma.LeadsLogUncheckedCreateWithoutProjectInput>
+}
+
+export type LeadsLogUpdateWithWhereUniqueWithoutProjectInput = {
+  where: Prisma.LeadsLogWhereUniqueInput
+  data: Prisma.XOR<Prisma.LeadsLogUpdateWithoutProjectInput, Prisma.LeadsLogUncheckedUpdateWithoutProjectInput>
+}
+
+export type LeadsLogUpdateManyWithWhereWithoutProjectInput = {
+  where: Prisma.LeadsLogScalarWhereInput
+  data: Prisma.XOR<Prisma.LeadsLogUpdateManyMutationInput, Prisma.LeadsLogUncheckedUpdateManyWithoutProjectInput>
+}
+
+export type LeadsLogScalarWhereInput = {
+  AND?: Prisma.LeadsLogScalarWhereInput | Prisma.LeadsLogScalarWhereInput[]
+  OR?: Prisma.LeadsLogScalarWhereInput[]
+  NOT?: Prisma.LeadsLogScalarWhereInput | Prisma.LeadsLogScalarWhereInput[]
+  id?: Prisma.StringFilter<"LeadsLog"> | string
+  name?: Prisma.StringNullableFilter<"LeadsLog"> | string | null
+  phone?: Prisma.StringNullableFilter<"LeadsLog"> | string | null
+  message?: Prisma.StringNullableFilter<"LeadsLog"> | string | null
+  projectId?: Prisma.StringNullableFilter<"LeadsLog"> | string | null
+  pageUrl?: Prisma.StringNullableFilter<"LeadsLog"> | string | null
+  ipAddress?: Prisma.StringNullableFilter<"LeadsLog"> | string | null
+  userAgent?: Prisma.StringNullableFilter<"LeadsLog"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"LeadsLog"> | Date | string
+}
+
+export type LeadsLogCreateManyProjectInput = {
+  id?: string
+  name?: string | null
+  phone?: string | null
+  message?: string | null
+  pageUrl?: string | null
+  ipAddress?: string | null
+  userAgent?: string | null
+  createdAt?: Date | string
+}
+
+export type LeadsLogUpdateWithoutProjectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LeadsLogUncheckedUpdateWithoutProjectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LeadsLogUncheckedUpdateManyWithoutProjectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 
 
 export type LeadsLogSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -405,6 +566,7 @@ export type LeadsLogSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   ipAddress?: boolean
   userAgent?: boolean
   createdAt?: boolean
+  project?: boolean | Prisma.LeadsLog$projectArgs<ExtArgs>
 }, ExtArgs["result"]["leadsLog"]>
 
 export type LeadsLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -417,6 +579,7 @@ export type LeadsLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   ipAddress?: boolean
   userAgent?: boolean
   createdAt?: boolean
+  project?: boolean | Prisma.LeadsLog$projectArgs<ExtArgs>
 }, ExtArgs["result"]["leadsLog"]>
 
 export type LeadsLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -429,6 +592,7 @@ export type LeadsLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   ipAddress?: boolean
   userAgent?: boolean
   createdAt?: boolean
+  project?: boolean | Prisma.LeadsLog$projectArgs<ExtArgs>
 }, ExtArgs["result"]["leadsLog"]>
 
 export type LeadsLogSelectScalar = {
@@ -444,10 +608,21 @@ export type LeadsLogSelectScalar = {
 }
 
 export type LeadsLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "message" | "projectId" | "pageUrl" | "ipAddress" | "userAgent" | "createdAt", ExtArgs["result"]["leadsLog"]>
+export type LeadsLogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  project?: boolean | Prisma.LeadsLog$projectArgs<ExtArgs>
+}
+export type LeadsLogIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  project?: boolean | Prisma.LeadsLog$projectArgs<ExtArgs>
+}
+export type LeadsLogIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  project?: boolean | Prisma.LeadsLog$projectArgs<ExtArgs>
+}
 
 export type $LeadsLogPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "LeadsLog"
-  objects: {}
+  objects: {
+    project: Prisma.$ProjectPayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string | null
@@ -852,6 +1027,7 @@ readonly fields: LeadsLogFieldRefs;
  */
 export interface Prisma__LeadsLogClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  project<T extends Prisma.LeadsLog$projectArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LeadsLog$projectArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -907,6 +1083,10 @@ export type LeadsLogFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Inte
    */
   omit?: Prisma.LeadsLogOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeadsLogInclude<ExtArgs> | null
+  /**
    * Filter, which LeadsLog to fetch.
    */
   where: Prisma.LeadsLogWhereUniqueInput
@@ -925,6 +1105,10 @@ export type LeadsLogFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensio
    */
   omit?: Prisma.LeadsLogOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeadsLogInclude<ExtArgs> | null
+  /**
    * Filter, which LeadsLog to fetch.
    */
   where: Prisma.LeadsLogWhereUniqueInput
@@ -942,6 +1126,10 @@ export type LeadsLogFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the LeadsLog
    */
   omit?: Prisma.LeadsLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeadsLogInclude<ExtArgs> | null
   /**
    * Filter, which LeadsLog to fetch.
    */
@@ -991,6 +1179,10 @@ export type LeadsLogFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extension
    */
   omit?: Prisma.LeadsLogOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeadsLogInclude<ExtArgs> | null
+  /**
    * Filter, which LeadsLog to fetch.
    */
   where?: Prisma.LeadsLogWhereInput
@@ -1038,6 +1230,10 @@ export type LeadsLogFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the LeadsLog
    */
   omit?: Prisma.LeadsLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeadsLogInclude<ExtArgs> | null
   /**
    * Filter, which LeadsLogs to fetch.
    */
@@ -1087,6 +1283,10 @@ export type LeadsLogCreateArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   omit?: Prisma.LeadsLogOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeadsLogInclude<ExtArgs> | null
+  /**
    * The data needed to create a LeadsLog.
    */
   data?: Prisma.XOR<Prisma.LeadsLogCreateInput, Prisma.LeadsLogUncheckedCreateInput>
@@ -1120,6 +1320,10 @@ export type LeadsLogCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    */
   data: Prisma.LeadsLogCreateManyInput | Prisma.LeadsLogCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeadsLogIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1134,6 +1338,10 @@ export type LeadsLogUpdateArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the LeadsLog
    */
   omit?: Prisma.LeadsLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeadsLogInclude<ExtArgs> | null
   /**
    * The data needed to update a LeadsLog.
    */
@@ -1186,6 +1394,10 @@ export type LeadsLogUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    * Limit how many LeadsLogs to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeadsLogIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1200,6 +1412,10 @@ export type LeadsLogUpsertArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the LeadsLog
    */
   omit?: Prisma.LeadsLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeadsLogInclude<ExtArgs> | null
   /**
    * The filter to search for the LeadsLog to update in case it exists.
    */
@@ -1227,6 +1443,10 @@ export type LeadsLogDeleteArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   omit?: Prisma.LeadsLogOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeadsLogInclude<ExtArgs> | null
+  /**
    * Filter which LeadsLog to delete.
    */
   where: Prisma.LeadsLogWhereUniqueInput
@@ -1247,6 +1467,25 @@ export type LeadsLogDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
+ * LeadsLog.project
+ */
+export type LeadsLog$projectArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Project
+   */
+  select?: Prisma.ProjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Project
+   */
+  omit?: Prisma.ProjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectInclude<ExtArgs> | null
+  where?: Prisma.ProjectWhereInput
+}
+
+/**
  * LeadsLog without action
  */
 export type LeadsLogDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1258,4 +1497,8 @@ export type LeadsLogDefaultArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the LeadsLog
    */
   omit?: Prisma.LeadsLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LeadsLogInclude<ExtArgs> | null
 }

@@ -5,8 +5,12 @@ export function successResponse<T>(data: T, status = 200): NextResponse<ApiRespo
   return NextResponse.json({ success: true, data }, { status })
 }
 
-export function errorResponse(message: string, status = 400): NextResponse<ApiResponse> {
-  return NextResponse.json({ success: false, error: message }, { status })
+// api-response.ts
+export function errorResponse(message: string, status = 400, errors?: Record<string, unknown> | unknown[]): NextResponse<ApiResponse & { errors?: Record<string, unknown> | unknown[] }> {
+  return NextResponse.json(
+    { success: false, error: message, ...(errors && { errors }) },
+    { status }
+  )
 }
 
 export function notFoundResponse(entity = "Resource"): NextResponse<ApiResponse> {

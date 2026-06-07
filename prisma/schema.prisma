@@ -48,6 +48,7 @@ model Project {
 
   projectTeams     ProjectTeam[]
   testimonials     Testimonial[]
+  leadsLogs        LeadsLog[]
   categoryProjects CategoryProject[]
 
   @@map("projects")
@@ -135,7 +136,7 @@ model Testimonial {
   id          String              @id @default(cuid())
   clientName  String
   content     String              @db.Text
-  rating      Int
+  rating      Int?
   platform    TestimonialPlatform @default(MANUAL)
   sourceUrl   String?
   avatar      String?
@@ -159,6 +160,8 @@ model LeadsLog {
   ipAddress String?
   userAgent String?
   createdAt DateTime @default(now()) @map("created_at")
+
+  project Project? @relation(fields: [projectId], references: [id])
 
   @@map("leads_logs")
 }

@@ -1,23 +1,52 @@
-import { NextResponse, NextRequest } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { successResponse, notFoundResponse, errorResponse, paginatedResponse } from "@/lib/api-response"
+import { successResponse, errorResponse } from "@/lib/api-response"
+import { blogPostSchema } from "@/backend-schemas/blog-post.schema"
+import { z } from "zod"
+import { 
+  formatBlogPosts, 
+  formatBlogPost, 
+  validateAndParseDate, 
+  buildBlogPostWhereInput, 
+  getPaginationParams 
+} from "@/lib/blog-post-helpers"
 
 export async function GET(request: NextRequest) {
   try {
-    const { page, limit, skip, where } = buildQueryParams(request)
+    const url = new URL(request.url)
+    const searchParams = url.searchParams
+    const where = buildBlogPostWhereInput(searchParams)
+    const { page, limit, skip } = getPaginationParams(searchParams)
 
     const [data, total] = await Promise.all([
       prisma.blogPost.findMany({
-        where: where as any,
+        where,
         include: {
           blogPostCategories: { include: { catEntry: true } },
           blogPostTags: { include: { tagEntry: true } },
         },
-        skip, take: limit, orderBy: { publishedAt: "desc" },
+        skip,
+        take: limit,
+        orderBy: { publishedAt: "desc" },
       }),
-      prisma.blogPost.count({ where: where as any }),
+      prisma.blogPost.count({ where }),
     ])
-    return successResponse(paginatedResponse(data, total, page, limit))
+    
+    const formattedData = formatBlogPosts(data)
+    const totalPages = Math.ceil(total / limit)
+    
+    // Consistent response format: { success, data, pagination }
+    return successResponse({
+      items: formattedData,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      }
+    })
   } catch (error) {
     console.error("GET /api/blog-posts error:", error)
     return errorResponse("Failed to fetch blog posts", 500)
@@ -26,54 +55,76 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { title, slug, published, publishedAt, categoryIds, tagIds, ...data } = body
+    let body
+    try {
+      body = await request.json()
+    } catch (error) {
+      return errorResponse("Invalid JSON body", 400)
+    }
+    
+    // Validate with zod schema
+    const validatedData = blogPostSchema.parse(body)
+    
+    const { title, slug, published, publishedAt, categoryIds, tagIds, content, excerpt, coverImage, seoTitle, seoDescription } = validatedData
 
-    const existing = await prisma.blogPost.findUnique({ where: { slug } })
-    if (existing) return errorResponse("Blog post with this slug already exists", 409)
+    // Check for existing slug
+    const existing = await prisma.blogPost.findUnique({ 
+      where: { slug } 
+    })
+    
+    if (existing) {
+      return errorResponse("Blog post with this slug already exists", 409)
+    }
+
+    // Validate and parse publishedAt
+    let finalPublishedAt = null
+    if (publishedAt) {
+      try {
+        finalPublishedAt = validateAndParseDate(publishedAt)
+      } catch (error) {
+        return errorResponse("Invalid publishedAt date format", 400)
+      }
+    }
+    
+    // Auto-set publishedAt if published is true
+    if (published && !finalPublishedAt) {
+      finalPublishedAt = new Date()
+    }
 
     const post = await prisma.blogPost.create({
       data: {
         title,
         slug,
-        content: data.content || "",
-        excerpt: data.excerpt || null,
-        coverImage: data.coverImage || null,
-        seoTitle: data.seoTitle || null,
-        seoDescription: data.seoDescription || null,
+        content: content || "",
+        excerpt: excerpt || null,
+        coverImage: coverImage || null,
+        seoTitle: seoTitle || null,
+        seoDescription: seoDescription || null,
         published: published ?? false,
-        publishedAt: publishedAt ? new Date(publishedAt) : null,
+        publishedAt: finalPublishedAt,
         blogPostCategories: categoryIds?.length
-          ? { create: categoryIds.map((id: string) => ({ category: { connect: { id } } })) }
+          ? { create: categoryIds.map((id: string) => ({ catEntry: { connect: { id } } })) }
           : undefined,
+
         blogPostTags: tagIds?.length
-          ? { create: tagIds.map((id: string) => ({ tag: { connect: { id } } })) }
+          ? { create: tagIds.map((id: string) => ({ tagEntry: { connect: { id } } })) }
           : undefined,
       },
-      include: { blogPostCategories: { include: { catEntry: true } }, blogPostTags: { include: { tagEntry: true } } },
+      include: { 
+        blogPostCategories: { include: { catEntry: true } }, 
+        blogPostTags: { include: { tagEntry: true } } 
+      },
     })
-    return successResponse(post, 201)
+    
+    const formattedPost = formatBlogPost(post)
+    
+    // Consistent response format
+    return successResponse(formattedPost, 201)
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return errorResponse("Validation failed", 400, error.flatten().fieldErrors)
+    }
     console.error("POST /api/blog-posts error:", error)
     return errorResponse("Failed to create blog post", 500)
   }
-}
-
-function buildQueryParams(request: NextRequest) {
-  const sp = request.nextUrl.searchParams
-  const search = sp.get("search") || undefined
-  const published = sp.get("published")
-  const page = Math.max(1, parseInt(sp.get("page") || "1", 10))
-  const limit = Math.min(100, Math.max(1, parseInt(sp.get("limit") || "10", 10)))
-  const skip = (page - 1) * limit
-  const where: Record<string, unknown> = {}
-  if (published !== null) where.published = published === "true"
-  if (search) {
-    where.OR = [
-      { title: { contains: search } },
-      { content: { contains: search } },
-      { excerpt: { contains: search } },
-    ] as any
-  }
-  return { page, limit, skip, where }
 }
