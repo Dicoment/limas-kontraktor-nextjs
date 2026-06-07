@@ -51,7 +51,7 @@ function TestimonialForm({ testimonial, projects, isEdit = false }: { testimonia
         </div>
         <div className="flex gap-3">
           <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer">{isEdit ? "Update" : "Create"}</button>
-          <a href="/admin/testimonials" className="px-6 py-2 border border-slate-300 rounded hover:bg-slate-50">Cancel</a>
+          <a href="/dashboard/testimonials" className="px-6 py-2 border border-slate-300 rounded hover:bg-slate-50">Cancel</a>
         </div>
       </form>
     </div>

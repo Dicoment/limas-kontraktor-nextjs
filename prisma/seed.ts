@@ -336,24 +336,44 @@ async function main() {
   await prisma.setting.createMany({
     data: [
       {
-        key: 'site_title',
-        value: 'Limas Karya – Kontraktor Profesional',
+        key: 'company_name',
+        value: 'LIMAS KONTRAKTOR',
       },
       {
-        key: 'site_description',
-        value: 'Membangun masa depan dengan kualitas terbaik.',
+        key: 'company_description',
+        value: 'LIMAS KONTRAKTOR merupakan brand dari CV Listiya Mandiri Jaya Steel, perusahaan yang bergerak di bidang jasa desain dan konstruksi pembangunan.',
+      },
+      {
+        key: 'company_address',
+        value: 'Jl. Mawar IV No.70A, RT.001/RW.007, Kali Baru, Kecamatan Medan Satria, Kota Bekasi, Jawa Barat 17183.',
+      },
+      {
+        key: 'contact_phone1',
+        value: '0823-2072-1150',
+      },
+      {
+        key: 'contact_phone2',
+        value: '0812-8767-2654',
       },
       {
         key: 'contact_email',
-        value: 'info@limas.co.id',
-      },
-      {
-        key: 'contact_phone',
-        value: '021-12345678',
+        value: 'cvlistiyamandirijayasteel70a@gmail.com',
       },
       {
         key: 'social_instagram',
-        value: 'https://instagram.com/limaskarya',
+        value: 'limas.kontraktor',
+      },
+      {
+        key: 'social_facebook',
+        value: 'Limas Kontraktor',
+      },
+      {
+        key: 'social_tiktok',
+        value: 'LIMAS KONTRAKTOR',
+      },
+      {
+        key: 'social_youtube',
+        value: 'Limas Kontraktor',
       },
     ],
   });

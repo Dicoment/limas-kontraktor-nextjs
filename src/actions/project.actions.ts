@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
-import { paginatedResponse } from "@/lib/api-response"
+import { formatProject, formatProjects } from "@/helpers/project-helpers"
 
 export async function getProjects(params: { page?: number; limit?: number; search?: string; status?: string } = {}) {
   const page = params.page ?? 1
@@ -18,7 +18,7 @@ export async function getProjects(params: { page?: number; limit?: number; searc
   }
   if (params.status) where.status = params.status
 
-  const [projects, total] = await Promise.all([
+  const [rawProjects, total] = await Promise.all([
     prisma.project.findMany({
       where: where as any,
       include: {
@@ -29,22 +29,24 @@ export async function getProjects(params: { page?: number; limit?: number; searc
     }),
     prisma.project.count({ where: where as any }),
   ])
-  return { projects, total, page, totalPages: Math.ceil(total / limit) }
+  const formattedProjects = formatProjects(rawProjects)
+  return { projects: formattedProjects, total, page, totalPages: Math.ceil(total / limit) }
 }
 
 export async function getProjectById(id: string) {
-  return prisma.project.findUnique({
+  const project = await prisma.project.findUnique({
     where: { id },
     include: {
       categoryProjects: { include: { catEntry: true } },
       projectTeams: { include: { teamEntry: true } },
     },
   })
+  return project ? formatProject(project) : null
 }
 
 export async function deleteProject(id: string) {
   await prisma.project.delete({ where: { id } })
-  redirect("/admin/projects")
+  redirect("/dashboard/projects")
 }
 
 export async function getAllCategories() {

@@ -21,7 +21,7 @@ export default async function AdminCategoriesPage({ searchParams }: { searchPara
           <Link href={`?type=project`} className={`px-3 py-1 text-sm rounded ${type === "project" ? "bg-blue-600 text-white" : "bg-slate-200"}`}>Project</Link>
           {(!type || type === "blog") ? null : <Link href={`?type=project`} className="text-sm text-blue-600">Show Projects</Link>}
         </div>
-        <Link href="/admin/categories/new" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium">+ New Category</Link>
+        <Link href="/dashboard/categories/new" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium">+ New Category</Link>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -47,7 +47,7 @@ export default async function AdminCategoriesPage({ searchParams }: { searchPara
                 </td>
                 <td className="px-4 py-3 text-sm text-slate-600">{cat.description || "—"}</td>
                 <td className="px-4 py-3 text-right space-x-2">
-                  <Link href={`/admin/categories/${cat.id}/edit`} className="text-blue-600 hover:text-blue-800 text-sm">Edit</Link>
+                  <Link href={`/dashboard/categories/${cat.id}/edit`} className="text-blue-600 hover:text-blue-800 text-sm">Edit</Link>
                 </td>
               </tr>
             ))}

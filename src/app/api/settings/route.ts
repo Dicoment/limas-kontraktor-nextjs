@@ -4,6 +4,19 @@ import { successResponse, errorResponse } from "@/lib/api-response"
 import { settingsBulkSchema, settingSchema } from "@/backend-schemas/setting.schema"
 import { z } from "zod"
 
+const DEFAULT_SETTINGS: Record<string, string> = {
+  company_name: "LIMAS KONTRAKTOR",
+  company_description: "LIMAS KONTRAKTOR merupakan brand dari CV Listiya Mandiri Jaya Steel, perusahaan yang bergerak di bidang jasa desain dan konstruksi pembangunan.",
+  company_address: "Jl. Mawar IV No.70A, RT.001/RW.007, Kali Baru, Kecamatan Medan Satria, Kota Bekasi, Jawa Barat 17183.",
+  contact_phone1: "0823-2072-1150",
+  contact_phone2: "0812-8767-2654",
+  contact_email: "cvlistiyamandirijayasteel70a@gmail.com",
+  social_instagram: "limas.kontraktor",
+  social_facebook: "Limas Kontraktor",
+  social_tiktok: "LIMAS KONTRAKTOR",
+  social_youtube: "Limas Kontraktor",
+}
+
 export async function GET(request: NextRequest) {
   try {
     const settings = await prisma.setting.findMany({
@@ -11,11 +24,10 @@ export async function GET(request: NextRequest) {
       select: { key: true, value: true, updatedAt: true }
     })
 
-    // Ubah menjadi object format yang nyaman dipakai di frontend
-    const settingsObject = settings.reduce((acc, item) => {
-      acc[item.key] = item.value
-      return acc
-    }, {} as Record<string, string>)
+    let settingsObject: Record<string, string> = { ...DEFAULT_SETTINGS }
+    for (const item of settings) {
+      settingsObject[item.key] = item.value
+    }
 
     return successResponse({
       data: settingsObject,

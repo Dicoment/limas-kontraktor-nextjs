@@ -20,7 +20,7 @@ export default async function NewTeamPage() {
         </div>
         <div className="flex gap-3">
           <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer">Create</button>
-          <a href="/admin/teams" className="px-6 py-2 border border-slate-300 rounded hover:bg-slate-50">Cancel</a>
+          <a href="/dashboard/teams" className="px-6 py-2 border border-slate-300 rounded hover:bg-slate-50">Cancel</a>
         </div>
       </form>
     </div>

@@ -25,8 +25,8 @@ export function Sidebar({
   mobileOpen,
   setMobileOpen,
   pathname,
-  adminName,
-  adminEmail,
+  adminName = 'ADMIN LIMAS',
+  adminEmail = 'admin@limaskontraktor.com',
   handleLogout
 }: SidebarProps) {
   return (
@@ -95,6 +95,7 @@ export function Sidebar({
         <SidebarItem href="/dashboard/pages" icon={<Shapes size={18} />} label="Pages" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/pages'} />
 
         <SidebarLabel label="Sistem & Prospektus" collapsed={collapsed} mobileOpen={mobileOpen} />
+        <SidebarItem href="/dashboard/profile" icon={<User size={18} />} label="Profil" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/profile'} />
         <SidebarItem href="/dashboard/settings" icon={<Settings size={18} />} label="Settings" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/settings'} />
         <SidebarItem href="/dashboard/leads-logs" icon={<History size={18} />} label="Leads Log" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/leads-logs'} />
       </nav>
@@ -114,8 +115,8 @@ export function Sidebar({
         </div>
         {(!collapsed || mobileOpen) && (
           <div className="grid grid-cols-2 gap-2 mt-4">
-            <Link href="/dashboard/settings" className="flex items-center justify-center gap-1.5 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-700 active:bg-slate-800 transition-colors">
-              <Settings size={12} /> Profil
+            <Link href="/dashboard/profile" className="flex items-center justify-center gap-1.5 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-700 active:bg-slate-800 transition-colors">
+              <User size={12} /> Profil
             </Link>
             <button onClick={handleLogout} className="flex items-center justify-center gap-1.5 py-2.5 bg-red-950/40 border border-red-900/60 rounded-lg text-xs font-medium text-red-400 hover:bg-red-600 hover:text-white transition-all">
               <LogOut size={12} /> Keluar

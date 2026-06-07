@@ -84,7 +84,7 @@ export async function getProjectById(id: string) {
 
 export async function deleteProject(id: string) {
   await prisma.project.delete({ where: { id } })
-  redirect("/admin/projects")
+  redirect("/dashboard/projects")
 }
 
 export async function getAllCategories() {
@@ -102,6 +102,10 @@ export async function deleteLeadLog(id: string) {
 export async function getSettings() {
   return prisma.setting.findMany({ orderBy: { key: "asc" } })
 }
+export async function getAllProjects() {
+  return prisma.project.findMany({ select: { id: true, title: true }, orderBy: { title: "asc" } })
+}
+
 export async function deleteSetting(id: string) {
   await prisma.setting.delete({ where: { id } })
 }

@@ -64,7 +64,7 @@ export default function AdminLeadsLogsClient() {
             </tr>
           </thead>
           <tbody>
-            {data?.data?.map((log: any) => (
+            {data?.items?.map((log: any) => (
               <tr key={log.id} className="border-b hover:bg-slate-50">
                 <td className="px-4 py-3 font-medium text-slate-800">{log.name || "Anonymous"}</td>
                 <td className="px-4 py-3">

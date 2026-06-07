@@ -17,7 +17,7 @@ export default async function AdminProjectsPage({ searchParams }: { searchParams
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold text-slate-800">Projects</h1>
         <Link
-          href="/admin/projects/new"
+          href="/dashboard/projects/new"
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
         >
           + New Project
@@ -63,7 +63,7 @@ export default async function AdminProjectsPage({ searchParams }: { searchParams
                 <td className="px-4 py-3 text-sm text-slate-600">{project.client || "—"}</td>
                 <td className="px-4 py-3 text-sm text-slate-600">{project.location || "—"}</td>
                 <td className="px-4 py-3 text-right space-x-2">
-                  <Link href={`/admin/projects/${project.id}/edit`} className="text-blue-600 hover:text-blue-800 text-sm">Edit</Link>
+                  <Link href={`/dashboard/projects/${project.id}/edit`} className="text-blue-600 hover:text-blue-800 text-sm">Edit</Link>
                 </td>
               </tr>
             ))}

@@ -14,7 +14,7 @@ export default async function AdminTeamsPage({ searchParams }: { searchParams: {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold text-slate-800">Teams</h1>
-        <Link href="/admin/teams/new" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium">+ New Team</Link>
+        <Link href="/dashboard/teams/new" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium">+ New Team</Link>
       </div>
       <form method="GET" className="flex gap-2">
         <input name="search" defaultValue={searchParams.search || ""} placeholder="Cari..." className="px-3 py-2 border border-slate-300 rounded-md text-sm w-64" />
@@ -39,7 +39,7 @@ export default async function AdminTeamsPage({ searchParams }: { searchParams: {
                 <td className="px-4 py-3 text-sm text-slate-600">{t.email || "—"}</td>
                 <td className="px-4 py-3 text-sm text-slate-600">{t.displayOrder ?? "—"}</td>
                 <td className="px-4 py-3 text-right space-x-2">
-                  <Link href={`/admin/teams/${t.id}/edit`} className="text-blue-600 hover:text-blue-800 text-sm">Edit</Link>
+                  <Link href={`/dashboard/teams/${t.id}/edit`} className="text-blue-600 hover:text-blue-800 text-sm">Edit</Link>
                 </td>
               </tr>
             ))}
