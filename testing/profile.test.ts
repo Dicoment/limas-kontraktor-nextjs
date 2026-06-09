@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { NextRequest } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
+import { z } from "zod"
 
 const mockAuth = vi.fn()
 const mockSuccessResponse = vi.fn()
@@ -60,14 +61,7 @@ describe("GET /api/profile", () => {
     const req = new NextRequest("http://localhost/api/profile")
     const res = await mod.GET(req)
 
-    expect(mockUnauthorizedResponse).toHaveBeenCalled()
-  })
-
-  it("returns user data when authenticated", async () => {
-    mockAuth.mockResolvedValue({ user: { id: "user-123" } })
-    mockPrisma.user.findUnique.mockResolvedValue(mockProfileUser)
-
-    expect(mockUnauthorizedResponse).toHaveBeenCalled()
+    expect(res.status).toBe(401)
   })
 
   it("returns user data when authenticated", async () => {
@@ -76,7 +70,7 @@ describe("GET /api/profile", () => {
 
     const mod = await import("@/app/api/profile/route")
     const req = new NextRequest("http://localhost/api/profile")
-    await mod.GET()
+    await mod.GET(req)
 
     expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
       where: { id: "user-123" },
@@ -90,7 +84,7 @@ describe("GET /api/profile", () => {
 
     const mod = await import("@/app/api/profile/route")
     const req = new NextRequest("http://localhost/api/profile")
-    await mod.GET()
+    await mod.GET(req)
 
     expect(mockErrorResponse).toHaveBeenCalledWith("User not found", 404)
   })

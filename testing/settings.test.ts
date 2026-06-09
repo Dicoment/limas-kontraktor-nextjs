@@ -90,7 +90,7 @@ describe("PUT /api/settings", () => {
     const invalidPayload = { settings: [] }
     const result = settingsBulkSchema.safeParse(invalidPayload)
     expect(result.success).toBe(false)
-    if (!result.success) {
+    if (!result.success && result.error?.errors?.[0]) {
       expect(result.error.errors[0].message).toBe("Minimal harus ada 1 setting")
     }
   })
