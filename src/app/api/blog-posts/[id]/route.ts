@@ -7,13 +7,13 @@ import { formatBlogPost, validateAndParseDate } from "@/lib/blog-post-helpers"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { slug } = await params
+    const { id } = await params
     
     const post = await prisma.blogPost.findUnique({
-      where: { slug },
+      where: { id },
       include: { 
         blogPostCategories: { include: { catEntry: true } }, 
         blogPostTags: { include: { tagEntry: true } } 
@@ -25,17 +25,17 @@ export async function GET(
     const formattedPost = formatBlogPost(post)
     return successResponse(formattedPost)
   } catch (error) {
-    console.error("GET /api/blog-posts/[slug] error:", error)
+    console.error("GET /api/blog-posts/[id] error:", error)
     return errorResponse("Failed to fetch blog post", 500)
   }
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { slug } = await params
+    const { id } = await params
     
     let body
     try {
@@ -49,13 +49,13 @@ export async function PUT(
     
     // Check if blog post exists
     const existingPost = await prisma.blogPost.findUnique({
-      where: { slug }
+      where: { id }
     })
     
     if (!existingPost) return notFoundResponse("BlogPost")
     
     // If slug is being changed, check for uniqueness
-    if (validatedData.slug && validatedData.slug !== slug) {
+    if (validatedData.slug && validatedData.slug !== existingPost.slug) {
       const slugExists = await prisma.blogPost.findUnique({
         where: { slug: validatedData.slug }
       })
@@ -87,11 +87,11 @@ export async function PUT(
     const updated = await prisma.$transaction(async (tx) => {
       // Update relations if provided
       if (categoryIds !== undefined) {
-        await tx.blogPostCategory.deleteMany({ where: { blogPostId: existingPost.id } })
+        await tx.blogPostCategory.deleteMany({ where: { blogPostId: id } })
         if (categoryIds.length > 0) {
           await tx.blogPostCategory.createMany({
             data: categoryIds.map((cid: string) => ({ 
-              blogPostId: existingPost.id, 
+              blogPostId: id, 
               categoryId: cid 
             }))
           })
@@ -99,11 +99,11 @@ export async function PUT(
       }
       
       if (tagIds !== undefined) {
-        await tx.blogPostTag.deleteMany({ where: { blogPostId: existingPost.id } })
+        await tx.blogPostTag.deleteMany({ where: { blogPostId: id } })
         if (tagIds.length > 0) {
           await tx.blogPostTag.createMany({
             data: tagIds.map((tid: string) => ({ 
-              blogPostId: existingPost.id, 
+              blogPostId: id, 
               tagId: tid 
             }))
           })
@@ -112,7 +112,7 @@ export async function PUT(
       
       // Update main post
       return await tx.blogPost.update({
-        where: { slug },
+        where: { id },
         data: {
           ...data,
           published: published ?? existingPost.published,
@@ -131,17 +131,17 @@ export async function PUT(
     if (error instanceof z.ZodError) {
       return errorResponse("Validation failed", 400, error.flatten().fieldErrors)
     }
-    console.error("PUT /api/blog-posts/[slug] error:", error)
+    console.error("PUT /api/blog-posts/[id] error:", error)
     return errorResponse("Failed to update blog post", 500)
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { slug } = await params
+    const { id } = await params
     
     let body
     try {
@@ -155,13 +155,13 @@ export async function PATCH(
     
     // Check if blog post exists
     const existingPost = await prisma.blogPost.findUnique({
-      where: { slug }
+      where: { id }
     })
     
     if (!existingPost) return notFoundResponse("BlogPost")
     
     // If slug is being changed, check for uniqueness
-    if (validatedData.slug && validatedData.slug !== slug) {
+    if (validatedData.slug && validatedData.slug !== existingPost.slug) {
       const slugExists = await prisma.blogPost.findUnique({
         where: { slug: validatedData.slug }
       })
@@ -193,11 +193,11 @@ export async function PATCH(
     const updated = await prisma.$transaction(async (tx) => {
       // Update relations if provided
       if (categoryIds !== undefined) {
-        await tx.blogPostCategory.deleteMany({ where: { blogPostId: existingPost.id } })
+        await tx.blogPostCategory.deleteMany({ where: { blogPostId: id } })
         if (categoryIds.length > 0) {
           await tx.blogPostCategory.createMany({
             data: categoryIds.map((cid: string) => ({ 
-              blogPostId: existingPost.id, 
+              blogPostId: id, 
               categoryId: cid 
             }))
           })
@@ -205,11 +205,11 @@ export async function PATCH(
       }
       
       if (tagIds !== undefined) {
-        await tx.blogPostTag.deleteMany({ where: { blogPostId: existingPost.id } })
+        await tx.blogPostTag.deleteMany({ where: { blogPostId: id } })
         if (tagIds.length > 0) {
           await tx.blogPostTag.createMany({
             data: tagIds.map((tid: string) => ({ 
-              blogPostId: existingPost.id, 
+              blogPostId: id, 
               tagId: tid 
             }))
           })
@@ -223,7 +223,7 @@ export async function PATCH(
       
       // Update main post
       return await tx.blogPost.update({
-        where: { slug },
+        where: { id },
         data: updateData,
         include: { 
           blogPostCategories: { include: { catEntry: true } }, 
@@ -238,33 +238,33 @@ export async function PATCH(
     if (error instanceof z.ZodError) {
       return errorResponse("Validation failed", 400, error.flatten().fieldErrors)
     }
-    console.error("PATCH /api/blog-posts/[slug] error:", error)
+    console.error("PATCH /api/blog-posts/[id] error:", error)
     return errorResponse("Failed to update blog post", 500)
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { slug } = await params
+    const { id } = await params
     
     // Check if blog post exists
     const existingPost = await prisma.blogPost.findUnique({
-      where: { slug }
+      where: { id }
     })
     
     if (!existingPost) return notFoundResponse("BlogPost")
     
     // Delete blog post (relations will be deleted via CASCADE)
     await prisma.blogPost.delete({ 
-      where: { slug } 
+      where: { id } 
     })
     
     return new NextResponse(null, { status: 204 })
   } catch (error) {
-    console.error("DELETE /api/blog-posts/[slug] error:", error)
+    console.error("DELETE /api/blog-posts/[id] error:", error)
     return errorResponse("Failed to delete blog post", 500)
   }
 }
