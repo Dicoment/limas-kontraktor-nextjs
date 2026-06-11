@@ -1,21 +1,18 @@
 import { NextRequest, NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
+import { auth, signOut } from "@/lib/auth"
 
 export async function POST(request: NextRequest) {
   const session = await auth()
-  
+   
   if (!session) {
     return NextResponse.json({ success: false, error: "Not authenticated" }, { status: 401 })
   }
 
   try {
-    await auth.api.signOut({
-      headers: request.headers,
-      query: { 
-        callbackUrl: "/dashboard/login" 
-      }
+    await signOut({
+      redirectTo: "/dashboard/login",
     })
-    
+     
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Logout error:", error)
