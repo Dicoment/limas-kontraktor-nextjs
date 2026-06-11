@@ -2,6 +2,11 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
+
+# ---> TAMBAHAN PENTING: Salin folder prisma sebelum npm ci <---
+COPY prisma ./prisma/
+COPY prisma.config.ts ./prisma.config.ts 
+
 # Kita pakai npm ci tanpa --only=production agar prisma CLI tersedia
 RUN npm ci
 
