@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma"
 
+export const dynamic = "force-dynamic"
+
 export default async function NewTestimonialPage() {
   const projects = await prisma.project.findMany({ select: { id: true, title: true }, orderBy: { title: "asc" } })
   return <TestimonialForm projects={projects} />
