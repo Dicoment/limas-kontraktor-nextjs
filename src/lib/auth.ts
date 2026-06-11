@@ -1,4 +1,4 @@
-import NextAuth, { type DefaultSession, type NextAuthResult } from "next-auth"
+import NextAuth, { type DefaultSession } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
@@ -7,8 +7,7 @@ import { authConfig } from "./auth.config"
 /**
  * EXTENSION TYPE DECLARATION (Module Augmentation)
  * Menambahkan properti kustom 'id' dan 'role' ke dalam objek bawaan NextAuth.
- * PENTING: Jangan hapus bagian ini karena digunakan oleh Middleware dan Server Component
- * untuk membatasi hak akses halaman dashboard / admin.
+ * Dokumentasi: Digunakan oleh Middleware dan Server Component untuk membatasi hak akses.
  */
 declare module "next-auth" {
   interface Session {
@@ -30,11 +29,9 @@ declare module "next-auth" {
 }
 
 /**
- * AUTHENTICATION CONFIGURATION & HANDLERS
- * NOTE: Tipe `: NextAuthResult` ditambahkan secara eksplisit untuk mengatasi bug kompilasi 
- * "The inferred type of 'auth' cannot be named without a reference..." saat Next.js melakukan production build.
+ * INSTANSIASI NEXTAUTH INTERNAL
  */
-export const { handlers, signIn, signOut, auth }: NextAuthResult = NextAuth({
+const configAuth = NextAuth({
   ...(authConfig as any),
   providers: [
     Credentials({
@@ -44,7 +41,7 @@ export const { handlers, signIn, signOut, auth }: NextAuthResult = NextAuth({
         password: { label: "Password", type: "password" },
       },
       /**
-       * Validasi kredensial pengguna yang masuk berdasarkan data email dan password di database.
+       * Mengautentikasi kredensial pengguna berdasarkan data di database PostgreSQL.
        */
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
@@ -52,18 +49,15 @@ export const { handlers, signIn, signOut, auth }: NextAuthResult = NextAuth({
         const email = credentials.email as string
         const password = credentials.password as string
 
-        // Mencari user di PostgreSQL via Prisma Client
         const user = await prisma.user.findUnique({
           where: { email },
         })
 
         if (!user) return null
 
-        // Komparasi password terenkripsi menggunakan bcrypt
         const isValid = await bcrypt.compare(password, user.password)
         if (!isValid) return null
 
-        // Return objek user yang akan dilempar ke JWT Callback
         return {
           id: user.id,
           email: user.email ?? null,
@@ -74,12 +68,9 @@ export const { handlers, signIn, signOut, auth }: NextAuthResult = NextAuth({
     }),
   ],
   session: {
-    strategy: "jwt", // Menggunakan JWT Session agar stateless dan performa server ringan
+    strategy: "jwt",
   },
   callbacks: {
-    /**
-     * Memasukkan data user dari database ke dalam token JWT saat sesi pertama kali dibuat.
-     */
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
@@ -87,9 +78,6 @@ export const { handlers, signIn, signOut, auth }: NextAuthResult = NextAuth({
       }
       return token
     },
-    /**
-     * Mentransfer data dari token JWT ke dalam objek Session agar bisa dibaca di sisi client via `useSession()`.
-     */
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string
@@ -99,11 +87,28 @@ export const { handlers, signIn, signOut, auth }: NextAuthResult = NextAuth({
     },
   },
   pages: {
-    signIn: "/login", // Redirect kustom jika user mencoba mengakses halaman terproteksi
+    signIn: "/login",
     error: "/login",
   },
 })
 
-// Ekspor handler API Route untuk menangani request GET/POST ke /api/auth/*
+// ============================================================================
+// EXPORT HANDLERS & UTILITIES
+// ============================================================================
+
+/**
+ * Mendeklarasikan tipe fungsi 'auth' secara eksplisit dengan menyontek signature 
+ * parameter dan return value asli dari configAuth.auth.
+ *  */
+type AuthFunction = (
+  ...args: Parameters<typeof configAuth.auth>
+) => ReturnType<typeof configAuth.auth>
+
+export const handlers = configAuth.handlers
+export const auth: AuthFunction = configAuth.auth
+export const signIn = configAuth.signIn
+export const signOut = configAuth.signOut
+
+// Ekspor handler rute API untuk keperluan Next.js Route Handlers
 export const GET = handlers.GET
 export const POST = handlers.POST
