@@ -11,8 +11,8 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate"
-  },
+    "_postinstall": "prisma generate" 
+},
   "dependencies": {
     "@auth/core": "^0.41.2",
     "@prisma/adapter-pg": "^7.8.0",
