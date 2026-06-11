@@ -4,6 +4,11 @@ import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
 import { authConfig } from "./auth.config"
 
+/**
+ * EXTENSION TYPE DECLARATION (Module Augmentation)
+ * Menambahkan properti kustom 'id' dan 'role' ke dalam objek bawaan NextAuth.
+ * Dokumentasi: Digunakan oleh Middleware dan Server Component untuk membatasi hak akses.
+ */
 declare module "next-auth" {
   interface Session {
     user: DefaultSession["user"] & {
@@ -23,7 +28,10 @@ declare module "next-auth" {
   }
 }
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+/**
+ * INSTANSIASI NEXTAUTH INTERNAL
+ */
+const configAuth = NextAuth({
   ...(authConfig as any),
   providers: [
     Credentials({
@@ -32,6 +40,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
+      /**
+       * Mengautentikasi kredensial pengguna berdasarkan data di database PostgreSQL.
+       */
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
 
@@ -81,5 +92,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
 })
 
+// ============================================================================
+// EXPORT HANDLERS & UTILITIES
+// ============================================================================
+
+/**
+ * Mendeklarasikan tipe fungsi 'auth' secara eksplisit dengan menyontek signature 
+ * parameter dan return value asli dari configAuth.auth.
+ *  */
+type AuthFunction = (
+  ...args: Parameters<typeof configAuth.auth>
+) => ReturnType<typeof configAuth.auth>
+
+export const handlers = configAuth.handlers
+export const auth: AuthFunction = configAuth.auth
+export const signIn = configAuth.signIn
+export const signOut = configAuth.signOut
+
+// Ekspor handler rute API untuk keperluan Next.js Route Handlers
 export const GET = handlers.GET
 export const POST = handlers.POST
