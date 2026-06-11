@@ -33,7 +33,6 @@ async function main() {
   ]);
 
   // --- Users ---
-  // Buat hash untuk masing-masing password menggunakan bcrypt
   const hashedAdminPassword = await bcrypt.hash('adminlimas', 10);
   const hashedManagerPassword = await bcrypt.hash('managerlimas', 10);
 
