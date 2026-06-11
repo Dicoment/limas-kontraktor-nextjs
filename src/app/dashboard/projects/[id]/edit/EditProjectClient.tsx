@@ -163,13 +163,13 @@ export default function EditProjectClient({
   )
 }
 
-function Field({ label, value, onChange, type = "text", required, placeholder, children }: 
-  { label: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; placeholder?: string; children?: React.ReactNode }) {
+function Field({ label, value, onChange, type = "text", required, placeholder, options, children }: 
+  { label: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; placeholder?: string; options?: string[]; children?: React.ReactNode }) {
   const inputElement = children || (type === "textarea" ? (
     <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} placeholder={placeholder} />
   ) : type === "select" ? (
     <select value={value} onChange={(e) => onChange?.(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" required={required}>
-      {(children as any)?.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
+      {(options || []).map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
     </select>
   ) : (
     <input type={type} value={value} onChange={(e) => onChange?.(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} placeholder={placeholder} />
