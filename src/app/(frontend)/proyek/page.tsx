@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma"
 
+export const dynamic = "force-dynamic"
+
 export default async function PortfolioPage() {
   const [allCategories, allProjects] = await Promise.all([
     prisma.category.findMany({ where: { type: "project" }, orderBy: { name: "asc" } }),
