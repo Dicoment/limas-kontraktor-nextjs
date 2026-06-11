@@ -1,4 +1,4 @@
-import NextAuth, { type DefaultSession } from "next-auth"
+import NextAuth, { type DefaultSession, type Session } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
@@ -92,20 +92,8 @@ const configAuth = NextAuth({
   },
 })
 
-// ============================================================================
-// EXPORT HANDLERS & UTILITIES
-// ============================================================================
-
-/**
- * Mendeklarasikan tipe fungsi 'auth' secara eksplisit dengan menyontek signature 
- * parameter dan return value asli dari configAuth.auth.
- *  */
-type AuthFunction = (
-  ...args: Parameters<typeof configAuth.auth>
-) => ReturnType<typeof configAuth.auth>
-
 export const handlers = configAuth.handlers
-export const auth: AuthFunction = configAuth.auth
+export const auth: (...args: any[]) => Promise<Session | null> = configAuth.auth
 export const signIn = configAuth.signIn
 export const signOut = configAuth.signOut
 
