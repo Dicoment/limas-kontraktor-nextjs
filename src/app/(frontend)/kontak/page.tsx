@@ -1,25 +1,36 @@
 "use client"
 
+export const dynamic = "force-dynamic"
+
 import { useState } from "react"
 import { MapPin, Phone, Mail, Clock, HardHat, Send, Building2 } from "lucide-react"
 
 interface ContactClientProps {
-  settings: {
-    company_name: string;
-    company_description: string;
-    company_address: string;
-    contact_phone1: string;
-    contact_phone2: string;
-    contact_email: string;
-    social_instagram: string;
-    social_facebook: string;
-    social_tiktok: string;
-    social_youtube: string;
+  settings?: {
+    company_name?: string
+    company_description?: string
+    company_address?: string
+    contact_phone1?: string
+    contact_phone2?: string
+    contact_email?: string
+    social_instagram?: string
+    social_facebook?: string
+    social_tiktok?: string
+    social_youtube?: string
   }
 }
 
 export default function ContactClient({ settings }: ContactClientProps) {
+  const companyName = settings?.company_name ?? "Limas Kontraktor"
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "" })
+
+  if (!settings) {
+    return (
+      <div className="bg-slate-50 min-h-screen font-sans antialiased flex items-center justify-center">
+        <p className="text-slate-500">Memuat data kontak...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans antialiased">
@@ -44,7 +55,7 @@ export default function ContactClient({ settings }: ContactClientProps) {
             
             {/* Judul Utama dengan Kombinasi Warna Brand Navy & Orange */}
             <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
-              Wujudkan Proyek Bangunan Anda Bersama <span className="text-[#E87722]">{settings.company_name}</span>
+              Wujudkan Proyek Bangunan Anda Bersama <span className="text-[#E87722]">{companyName}</span>
             </h1>
             
             <p className="text-gray-300 text-base md:text-lg max-w-2xl leading-relaxed">
@@ -68,7 +79,7 @@ export default function ContactClient({ settings }: ContactClientProps) {
               </div>
               <div className="space-y-1">
                 <h3 className="font-extrabold text-sm text-slate-900 uppercase tracking-wider">Kantor Kami</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">{settings.company_address}</p>
+                <p className="text-sm text-slate-600 leading-relaxed">{settings?.company_address ?? "Alamat belum diatur"}</p>
               </div>
             </div>
           </div>
@@ -82,8 +93,8 @@ export default function ContactClient({ settings }: ContactClientProps) {
               <div className="space-y-1">
                 <h3 className="font-extrabold text-sm text-slate-900 uppercase tracking-wider">Telepon / WhatsApp</h3>
                 <div className="text-sm text-slate-600 space-y-1 font-medium">
-                  <a href={`tel:${settings.contact_phone1}`} className="block hover:text-[#E87722] transition-colors">{settings.contact_phone1}</a>
-                  {settings.contact_phone2 && (
+                  <a href={`tel:${settings?.contact_phone1 ?? ""}`} className="block hover:text-[#E87722] transition-colors">{settings?.contact_phone1 ?? "Nomor belum diatur"}</a>
+                  {settings?.contact_phone2 && (
                     <a href={`tel:${settings.contact_phone2}`} className="block hover:text-[#E87722] transition-colors">{settings.contact_phone2}</a>
                   )}
                 </div>
@@ -99,8 +110,8 @@ export default function ContactClient({ settings }: ContactClientProps) {
               </div>
               <div className="space-y-1">
                 <h3 className="font-extrabold text-sm text-slate-900 uppercase tracking-wider">Email Resmi</h3>
-                <a href={`mailto:${settings.contact_email}`} className="text-sm text-slate-600 block break-all hover:text-[#E87722] transition-colors font-medium">
-                  {settings.contact_email}
+                <a href={`mailto:${settings?.contact_email ?? ""}`} className="text-sm text-slate-600 block break-all hover:text-[#E87722] transition-colors font-medium">
+                  {settings?.contact_email ?? "Email belum diatur"}
                 </a>
               </div>
             </div>
