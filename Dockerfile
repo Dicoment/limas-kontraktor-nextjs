@@ -1,11 +1,15 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
+# Tambahkan baris ini agar postinstall (prisma generate) bisa berjalan
+COPY prisma ./prisma/
 RUN npm ci --only=production
 
 FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
+# Tambahkan baris ini juga untuk proses build
+COPY prisma ./prisma/
 RUN npm ci
 COPY . .
 RUN npm run build
