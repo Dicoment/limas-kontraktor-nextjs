@@ -239,7 +239,7 @@ export default async function PublicBlogDetailPage({ params }: Props) {
                   <h3 className="font-extrabold text-sm md:text-base text-slate-900 uppercase tracking-wider">Artikel Terbaru</h3>
                 </div>
                 <div className="space-y-5">
-                  {trendingPosts.map((tPost) => (
+                  {trendingPosts.map((tPost: { id: string; slug: string; title: string; coverImage: string | null; publishedAt: Date | null }) => (
                     <Link href={`/blog/${tPost.slug}`} key={tPost.id} className="flex gap-4 group items-center">
                       <div className="relative w-24 h-20 rounded-lg overflow-hidden bg-slate-100 shrink-0 shadow-sm">
                         {tPost.coverImage && <Image src={tPost.coverImage} alt={tPost.title} fill className="object-cover" />}

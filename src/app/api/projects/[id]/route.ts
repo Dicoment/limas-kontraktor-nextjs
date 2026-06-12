@@ -72,7 +72,7 @@ export async function PUT(
     const validatedGallery = gallery !== undefined ? validateGallery(gallery) : undefined
     
     // Update with transaction
-    const updatedProject = await prisma.$transaction(async (tx) => {
+    const updatedProject = await prisma.$transaction(async (tx: any) => {
       // Update categories if provided
       if (categoryIds !== undefined) {
         await tx.categoryProject.deleteMany({ where: { projectId: id } })
@@ -172,7 +172,7 @@ export async function PATCH(
     const validatedGallery = gallery !== undefined ? validateGallery(gallery) : undefined
     
     // Update with transaction
-    const updatedProject = await prisma.$transaction(async (tx) => {
+    const updatedProject = await prisma.$transaction(async (tx: any) => {
       // Update categories if provided
       if (categoryIds !== undefined) {
         await tx.categoryProject.deleteMany({ where: { projectId: id } })

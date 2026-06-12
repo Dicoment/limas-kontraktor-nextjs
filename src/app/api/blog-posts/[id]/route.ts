@@ -84,7 +84,7 @@ export async function PUT(
     }
     
     // Update with transaction
-    const updated = await prisma.$transaction(async (tx) => {
+    const updated = await prisma.$transaction(async (tx: any) => {
       // Update relations if provided
       if (categoryIds !== undefined) {
         await tx.blogPostCategory.deleteMany({ where: { blogPostId: id } })
@@ -190,7 +190,7 @@ export async function PATCH(
     }
     
     // Update with transaction
-    const updated = await prisma.$transaction(async (tx) => {
+    const updated = await prisma.$transaction(async (tx: any) => {
       // Update relations if provided
       if (categoryIds !== undefined) {
         await tx.blogPostCategory.deleteMany({ where: { blogPostId: id } })

@@ -44,9 +44,9 @@ export async function GET(request: NextRequest) {
     const totalPages = Math.ceil(total / limit)
     
     // Calculate summary statistics
-    const ratings = data.filter(t => t.rating !== null).map(t => t.rating as number)
+    const ratings = data.filter((t: { rating: number | null }) => t.rating !== null).map((t: { rating: number | null }) => t.rating as number)
     const averageRating = ratings.length > 0 
-      ? ratings.reduce((a, b) => a + b, 0) / ratings.length 
+      ? ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length 
       : null
     
     // Consistent response format
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
       summary: {
         averageRating: averageRating ? Number(averageRating.toFixed(1)) : null,
         totalWithRating: ratings.length,
-        totalPublished: data.filter(t => t.published).length,
+        totalPublished: data.filter((t: { published: boolean }) => t.published).length,
       }
     })
   } catch (error) {

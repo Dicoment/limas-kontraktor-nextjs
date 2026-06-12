@@ -58,7 +58,7 @@ export default async function PublicBlogListPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post) => (
+            {posts.map((post: { id: string; slug: string; title: string; coverImage: string | null; excerpt: string | null; content: string | null; published: boolean; publishedAt: Date | null; blogPostCategories: { categoryId: string; catEntry: { name: string } }[] }) => (
               <article 
                 key={post.id} 
                 className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden flex flex-col group hover:shadow-md transition-all duration-300"

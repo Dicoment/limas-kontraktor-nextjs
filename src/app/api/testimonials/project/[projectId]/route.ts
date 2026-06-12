@@ -41,9 +41,9 @@ export async function GET(
     const formattedTestimonials = formatTestimonials(testimonials)
     
     // Calculate average rating
-    const ratings = testimonials.filter(t => t.rating !== null).map(t => t.rating as number)
+    const ratings = testimonials.filter((t: { rating: number | null }) => t.rating !== null).map((t: { rating: number | null }) => t.rating as number)
     const averageRating = ratings.length > 0 
-      ? ratings.reduce((a, b) => a + b, 0) / ratings.length 
+      ? ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length 
       : null
     
     return successResponse({

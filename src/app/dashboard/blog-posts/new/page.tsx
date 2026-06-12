@@ -11,8 +11,8 @@ export default async function AdminNewBlogPostPage() {
 
   return (
     <NewBlogPostClient
-      categories={categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug, type: c.type }))}
-      tags={tags.map((t) => ({ id: t.id, name: t.name, slug: t.slug }))}
+      categories={categories.map((c: { id: string; name: string; slug: string; type: string }) => ({ id: c.id, name: c.name, slug: c.slug, type: c.type }))}
+      tags={tags.map((t: { id: string; name: string; slug: string }) => ({ id: t.id, name: t.name, slug: t.slug }))}
     />
   )
 }

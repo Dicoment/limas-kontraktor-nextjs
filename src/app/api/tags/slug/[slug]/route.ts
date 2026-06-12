@@ -34,8 +34,8 @@ export async function GET(
     const formattedTag = {
       ...tag,
       blogPosts: tag.blogPostTags
-        .filter(bpt => bpt.postEntry.published)
-        .map(bpt => bpt.postEntry)
+        .filter((bpt: { postEntry: { published: boolean | null } }) => bpt.postEntry.published)
+        .map((bpt: { postEntry: any }) => bpt.postEntry)
     }
     
     return successResponse(formattedTag)

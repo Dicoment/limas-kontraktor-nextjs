@@ -20,7 +20,7 @@ export default async function HomePage() {
       <section className="py-16 px-8 max-w-7xl mx-auto">
         <h2 className="text-2xl font-bold text-slate-800 mb-8">Proyek Terbaru</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((p) => (
+          {projects.map((p: { id: string; slug: string; title: string; coverImage: string | null; status: string; client: string | null; location: string | null }) => (
             <a key={p.id} href={`/portofolio/${p.slug}`} className="bg-white rounded-lg shadow hover:shadow-lg transition block">
               <div className="h-48 bg-slate-100 rounded-t-lg flex items-center justify-center">
                 {p.coverImage ? <img src={p.coverImage} alt={p.title} className="w-full h-full object-cover rounded-t-lg" /> : <span className="text-slate-400">No Image</span>}
@@ -40,7 +40,7 @@ export default async function HomePage() {
           <div className="max-w-7xl mx-auto">
             <h2 className="text-2xl font-bold text-slate-800 mb-8">Apa Kata Klien Kami</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {testimonials.map((t) => (
+              {testimonials.map((t: { id: string; clientName: string; content: string; avatar: string | null; rating: number | null }) => (
                 <div key={t.id} className="bg-white p-6 rounded-lg shadow">
                   <p className="text-slate-600 italic">"{t.content}"</p>
                   <div className="flex items-center gap-3 mt-4">

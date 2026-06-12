@@ -61,7 +61,7 @@ export default async function ProyekPage({ searchParams }: Props) {
           >
             Semua
           </Link>
-          {allCategories.map((c) => (
+          {allCategories.map((c: { id: string; slug: string; name: string }) => (
             <Link
               key={c.id}
               href={`/proyek?category=${c.slug}`}
@@ -85,7 +85,7 @@ export default async function ProyekPage({ searchParams }: Props) {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {allProjects.map((project) => (
+            {allProjects.map((project: { id: string; slug: string; title: string; description: string | null; coverImage: string | null; client: string | null; location: string | null; status: string; categoryProjects: { catEntry: { id: string; name: string } }[]; createdAt: Date }) => (
               <Link
                 key={project.id}
                 href={`/proyek/${project.slug}`}

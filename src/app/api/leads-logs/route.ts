@@ -54,8 +54,8 @@ export async function GET(request: NextRequest) {
       },
       summary: {
         totalLeads: total,
-        withPhone: data.filter(l => l.phone).length,
-        withMessage: data.filter(l => l.message).length,
+        withPhone: data.filter((l: { phone: string | null }) => l.phone).length,
+        withMessage: data.filter((l: { message: string | null }) => l.message).length,
       }
     })
   } catch (error) {
