@@ -1,5 +1,4 @@
-// src/middleware.ts
-import { auth } from "@/lib/auth"
+import { auth } from "@/lib/auth.edge"
 import { NextResponse, type NextRequest } from "next/server"
 
 const publicRoutes = ["/login"]
@@ -10,14 +9,10 @@ export default auth(async (req: NextRequest) => {
   const isAuthenticated = !!session
   const { pathname } = req.nextUrl
 
-  const isPublicRoute = publicRoutes.includes(pathname) || publicPatterns.some(p => p.test(pathname))
+  const isPublicRoute = publicRoutes.includes(pathname) || publicPatterns.some((p) => p.test(pathname))
 
-  if (!isPublicRoute) {
-    if (pathname.startsWith("/dashboard")) {
-      if (!isAuthenticated) {
-        return NextResponse.redirect(new URL("/login", req.url))
-      }
-    }
+  if (!isPublicRoute && pathname.startsWith("/dashboard") && !isAuthenticated) {
+    return NextResponse.redirect(new URL("/login", req.url))
   }
 
   return NextResponse.next()

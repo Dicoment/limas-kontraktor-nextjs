@@ -1,16 +1,25 @@
-// src/lib/auth.config.ts
 import type { NextAuthConfig } from "next-auth"
+import Credentials from "next-auth/providers/credentials"
 
 export const authConfig = {
   pages: {
     signIn: "/login",
+    error: "/login",
   },
   session: {
     strategy: "jwt",
   },
-  callbacks: {
-    // Anda bisa menambahkan callback authorized atau jwt di sini jika perlu
-  },
-  // Kosongkan array providers di sini, kita akan mengisinya di auth.ts
-  providers: [], 
+  providers: [
+    Credentials({
+      name: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(_credentials) {
+        return null
+      },
+    }),
+  ],
+  callbacks: {},
 } satisfies NextAuthConfig
