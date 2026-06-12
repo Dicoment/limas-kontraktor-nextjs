@@ -40,7 +40,7 @@ export default function AdminLoginPage() {
       {/* Kolom Kiri — Full Gambar */}
       <div className="hidden md:block w-1/2 relative">
         <Image
-          src="/login-bg.jpeg"
+          src="/loginbg.jpeg"
           alt="Proyek konstruksi Limas"
           fill
           className="object-cover"
