@@ -1,26 +1,24 @@
 import { PrismaClient, ProjectStatus, TestimonialPlatform } from "@prisma/client"
+import { PrismaPg } from "@prisma/adapter-pg"
 import bcrypt from "bcryptjs"
 import "dotenv/config"
 
-const prisma = new PrismaClient()
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.error('ERROR: DATABASE_URL environment variable is not set.');
+  process.exit(1);
+}
+
+const adapter = new PrismaPg({ connectionString });
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  await prisma.$transaction([
-    prisma.leadsLog.deleteMany(),
-    prisma.categoryProject.deleteMany(),
-    prisma.blogPostTag.deleteMany(),
-    prisma.blogPostCategory.deleteMany(),
-    prisma.projectTeam.deleteMany(),
-    prisma.testimonial.deleteMany(),
-    prisma.blogPost.deleteMany(),
-    prisma.page.deleteMany(),
-    prisma.project.deleteMany(),
-    prisma.team.deleteMany(),
-    prisma.category.deleteMany(),
-    prisma.tag.deleteMany(),
-    prisma.setting.deleteMany(),
-    prisma.user.deleteMany(),
-  ])
+  const existingAdmin = await prisma.user.findFirst({ where: { email: 'admin@limaskontraktor.com' } });
+  if (existingAdmin) {
+    console.log('Database already seeded. Skipping...');
+    return;
+  }
 
   const hashedAdminPassword = await bcrypt.hash("adminlimas", 10)
   const hashedManagerPassword = await bcrypt.hash("managerlimas", 10)

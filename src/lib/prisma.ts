@@ -1,18 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
-const connectionString = process.env.DATABASE_URL;
-
 const prismaClientSingleton = () => {
-  if (connectionString) {
-    return new PrismaClient({
-      adapter: new PrismaPg(connectionString),
-      log: ['error', 'warn'],
-    });
-  }
-  return new PrismaClient({
-    log: ['error', 'warn'],
-  });
+  const dbUrl = process.env.DATABASE_URL || 'postgresql://dummy:dummy@localhost:5432/dummy';
+  const adapter = new PrismaPg({ connectionString: dbUrl });
+  return new PrismaClient({ adapter });
 };
 
 declare global {
@@ -26,3 +18,4 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 export { prisma };
+export default prisma;

@@ -57,4 +57,4 @@ COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 EXPOSE 8000
 
 # Perintah utama untuk menyalakan server Next.js
-CMD ["npm", "start"]
+CMD sh -c "npm run db:push && npm run db:seed && npm start"
