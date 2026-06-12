@@ -5,7 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Menu, X, ChevronDown, Phone } from "lucide-react"
 import { motion, AnimatePresence, Variants } from "framer-motion"
-import Button from "@/components/ui/Button" // Pastikan path import sesuai dengan folder Anda
+import Button from "@/components/ui/Button"
 
 const navLinks = [
   { label: "Beranda", href: "/" },
@@ -36,32 +36,27 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState<string | null>(null)
-  
-  // State untuk nomor WhatsApp dinamis dari database
-  const [whatsappNumber, setWhatsappNumber] = useState("628123456789") // Angka default jika API gagal/kosong
+  const [whatsappNumber, setWhatsappNumber] = useState("628123456789")
 
-  // Mengambil nomor WA dari API /api/settings proyek Limas Kontraktor
   useEffect(() => {
     async function fetchWhatsappSetting() {
       try {
         const res = await fetch("/api/settings")
         if (res.ok) {
-          const settings = await res.json()
-          // Mencari data setting dengan key 'whatsapp' atau 'whatsapp_number'
-          const waSetting = settings.find(
-            (item: any) => item.key === "whatsapp" || item.key === "whatsapp_number"
-          )
-          if (waSetting && waSetting.value) {
-            // Memastikan nomor hanya berisi angka (membersihkan tanda + atau spasi jika terinput admin)
-            const cleanNumber = waSetting.value.replace(/[^0-9]/g, "")
-            setWhatsappNumber(cleanNumber)
+          const json = await res.json()
+          const settings = json?.data?.data
+          if (settings) {
+            const waNumber = settings.whatsapp || settings.whatsapp_number || settings.contact_phone1
+            if (waNumber) {
+              const cleanNumber = waNumber.replace(/[^0-9]/g, "")
+              setWhatsappNumber(cleanNumber)
+            }
           }
         }
       } catch (error) {
         console.error("Gagal memuat nomor WhatsApp dari dashboard:", error)
       }
     }
-
     fetchWhatsappSetting()
   }, [])
 
@@ -71,7 +66,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  // Mengunci scroll body ketika menu mobile terbuka biar terasa clean
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = "hidden"
@@ -81,23 +75,10 @@ export default function Navbar() {
     return () => { document.body.style.overflow = "unset" }
   }, [mobileOpen])
 
-  // Variasi Animasi Framer Motion dengan Tipe Data Eksplisit (Anti-Error TS)
   const menuVariants: Variants = {
     hidden: { opacity: 0, y: -20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        staggerChildren: 0.08, 
-        duration: 0.4,
-        ease: [0.16, 1, 0.3, 1] 
-      }
-    },
-    exit: { 
-      opacity: 0, 
-      y: -15,
-      transition: { duration: 0.25, ease: "easeInOut" }
-    }
+    visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.08, duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
+    exit: { opacity: 0, y: -15, transition: { duration: 0.25, ease: "easeInOut" } }
   }
 
   const itemVariants: Variants = {
@@ -107,18 +88,8 @@ export default function Navbar() {
 
   const dropdownVariants: Variants = {
     hidden: { opacity: 0, height: 0, marginTop: 0 },
-    visible: { 
-      opacity: 1, 
-      height: "auto", 
-      marginTop: 4,
-      transition: { duration: 0.3, ease: "easeInOut" }
-    },
-    exit: { 
-      opacity: 0, 
-      height: 0, 
-      marginTop: 0,
-      transition: { duration: 0.2, ease: "easeInOut" }
-    }
+    visible: { opacity: 1, height: "auto", marginTop: 4, transition: { duration: 0.3, ease: "easeInOut" } },
+    exit: { opacity: 0, height: 0, marginTop: 0, transition: { duration: 0.2, ease: "easeInOut" } }
   }
 
   return (
@@ -129,7 +100,6 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
 
-        {/* Logo */}
         <Link href="/" onClick={() => setMobileOpen(false)}>
           <Image
             src={scrolled || mobileOpen ? "/logo-biru.png" : "/logo-putih.png"}
@@ -141,7 +111,6 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* Menu Desktop */}
         <nav className="hidden md:flex items-center gap-7">
           {navLinks.map((link) => {
             if (link.children) {
@@ -160,10 +129,9 @@ export default function Navbar() {
                     {link.label}
                     <ChevronDown size={14} className={`transition-transform duration-300 ${openDropdown === link.label ? "rotate-180" : ""}`} />
                   </button>
-
                   <AnimatePresence>
                     {openDropdown === link.label && (
-                      <motion.div 
+                      <motion.div
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 5, scale: 0.95 }}
@@ -185,7 +153,6 @@ export default function Navbar() {
                 </div>
               )
             }
-
             return (
               <Link
                 key={link.label}
@@ -200,7 +167,6 @@ export default function Navbar() {
           })}
         </nav>
 
-        {/* CTA Button Desktop (Menggunakan Komponen Button Baru) */}
         <div className="hidden md:flex items-center">
           <Button
             href={`https://wa.me/${whatsappNumber}`}
@@ -213,7 +179,6 @@ export default function Navbar() {
           </Button>
         </div>
 
-        {/* Hamburger Mobile */}
         <button
           className={`md:hidden p-1 z-50 relative transition-colors ${scrolled || mobileOpen ? "text-slate-700" : "text-white"}`}
           onClick={() => setMobileOpen(!mobileOpen)}
@@ -223,7 +188,6 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Menu Dropdown dengan Transisi Super Smooth */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -243,12 +207,11 @@ export default function Navbar() {
                         className="flex items-center justify-between w-full py-3 text-base font-semibold text-slate-800 hover:text-[#1B3A6B]"
                       >
                         <span>{link.label}</span>
-                        <ChevronDown 
-                          size={18} 
-                          className={`text-slate-400 transition-transform duration-300 ${mobileDropdownOpen === link.label ? "rotate-180" : ""}`} 
+                        <ChevronDown
+                          size={18}
+                          className={`text-slate-400 transition-transform duration-300 ${mobileDropdownOpen === link.label ? "rotate-180" : ""}`}
                         />
                       </button>
-                      
                       <AnimatePresence>
                         {mobileDropdownOpen === link.label && (
                           <motion.div
@@ -284,8 +247,6 @@ export default function Navbar() {
                 </motion.div>
               ))}
             </div>
-
-            {/* CTA Button Mobile di bagian paling bawah (Menggunakan Komponen Button Baru) */}
             <motion.div variants={itemVariants} className="pt-6 mt-auto">
               <Button
                 href={`https://wa.me/${whatsappNumber}`}
