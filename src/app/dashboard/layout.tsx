@@ -43,10 +43,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     try {
       await fetch('/api/auth/logout', { method: 'POST' })
       localStorage.clear()
-      window.location.replace('/dashboard/login')
+      window.location.replace('/login')
     } catch (err) {
       localStorage.clear()
-      window.location.replace('/dashboard/login')
+      window.location.replace('/login')
     }
   }
 

@@ -15,7 +15,7 @@ const middleware = auth(async (req) => {
   const isPublicRoute = publicRoutes.includes(pathname) || publicPatterns.some(p => p.test(pathname))
 
   if (!isPublicRoute) {
-    if (pathname.startsWith("/admin") || pathname.startsWith("/dashboard")) {
+    if (pathname.startsWith("/dashboard")) {
       if (!isAuthenticated) {
         return NextResponse.redirect(new URL("/login", req.url))
       }

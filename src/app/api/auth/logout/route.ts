@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
 
   try {
     await signOut({
-      redirectTo: "/dashboard/login",
+      redirectTo: "/login",
     })
      
     return NextResponse.json({ success: true })
