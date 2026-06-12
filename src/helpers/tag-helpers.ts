@@ -1,4 +1,4 @@
-import { Prisma,Tag } from "@/generated/client"
+import { Prisma, Tag } from "@prisma/client"
 
 export type TagWithRelations = Tag & {
   blogPostTags?: Array<{ blogPostId: string }>

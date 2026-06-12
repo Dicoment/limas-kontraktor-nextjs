@@ -1,4 +1,4 @@
-import { Prisma, Page } from "@/generated/client"
+import { Prisma, Page } from "@prisma/client"
 
 export type PageWithRelations = Page
 

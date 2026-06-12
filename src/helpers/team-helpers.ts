@@ -1,4 +1,4 @@
-import { Prisma,Team } from "@/generated/client"
+import { Prisma, Team } from "@prisma/client"
 
 export type ProjectSummary = {
   id: string

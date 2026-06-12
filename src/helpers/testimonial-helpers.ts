@@ -1,4 +1,4 @@
-import { Prisma, Testimonial } from "@/generated/client"
+import { Prisma, Testimonial } from "@prisma/client"
 
 export type ProjectSummary = {
   id: string

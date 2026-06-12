@@ -1,4 +1,4 @@
-import { Prisma, Project, Category, Team } from "@/generated/client"
+import { Prisma, Project, Category, Team } from "@prisma/client"
 
 export type ProjectWithRelations = Project & {
   categoryProjects?: Array<{ catEntry: Category }>

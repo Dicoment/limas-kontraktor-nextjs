@@ -1,4 +1,4 @@
-import { Prisma, BlogPost, Category, Tag } from "@/generated/client"
+import { Prisma, BlogPost, Category, Tag } from "@prisma/client"
 
 export type BlogPostWithRelations = BlogPost & {
   blogPostCategories: Array<{ catEntry: Category }>

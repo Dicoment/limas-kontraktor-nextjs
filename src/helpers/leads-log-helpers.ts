@@ -1,4 +1,4 @@
-import { Prisma,LeadsLog } from "@/generated/client"
+import { Prisma, LeadsLog } from "@prisma/client"
 
 export type FormattedLeadsLog = LeadsLog
 
