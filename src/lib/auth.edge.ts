@@ -70,7 +70,11 @@ export const authConfig: NextAuthConfig = {
   },
 } satisfies NextAuthConfig
 
-const handler = NextAuth(authConfig)
+const handler = NextAuth({
+  ...authConfig,
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  trustHost: true,
+})
 
 export const auth = handler.auth as any
 export const signIn = handler.signIn

@@ -1,7 +1,7 @@
 import type { NextAuthConfig } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 
-export const authConfig = {
+export const authConfig: NextAuthConfig = {
   pages: {
     signIn: "/login",
     error: "/login",
@@ -22,4 +22,4 @@ export const authConfig = {
     }),
   ],
   callbacks: {},
-} satisfies NextAuthConfig
+}
