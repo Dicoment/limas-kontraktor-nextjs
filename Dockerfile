@@ -20,9 +20,7 @@ RUN npm run build
 # Stage 3: Runner
 FROM node:22-alpine AS runner
 WORKDIR /app
-ARG CACHEBUST=2
 ENV NODE_ENV=production
-ENV PORT=8000
 ENV HOSTNAME="0.0.0.0"
 
 COPY --from=builder /app/node_modules ./node_modules
@@ -32,5 +30,5 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
-EXPOSE 8000
-CMD ["npm", "start", "--", "-p", "8000", "-H", "0.0.0.0"]
+EXPOSE 3000
+CMD ["npm", "start"]
