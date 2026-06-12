@@ -41,12 +41,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' })
+      const res = await fetch('/api/auth/logout', { method: 'POST' })
+      const data = await res.json()
       localStorage.clear()
-      window.location.replace('/login')
+      if (data.redirectTo) {
+        router.push(data.redirectTo)
+      }
     } catch (err) {
       localStorage.clear()
-      window.location.replace('/login')
+      router.push('/login')
     }
   }
 

@@ -9,11 +9,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    await signOut({
-      redirectTo: "/login",
-    })
-     
-    return NextResponse.json({ success: true })
+    await signOut()
+      
+    return NextResponse.json({ success: true, redirectTo: "/login" })
   } catch (error) {
     console.error("Logout error:", error)
     return NextResponse.json({ success: false, error: "Logout failed" }, { status: 500 })

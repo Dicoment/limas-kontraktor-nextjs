@@ -1,15 +1,13 @@
 // src/middleware.ts
-import NextAuth from "next-auth"
+import { auth } from "@/lib/auth"
 import { NextResponse, type NextRequest } from "next/server"
-import { authConfig } from "@/lib/auth.config"
-
-const { auth } = NextAuth(authConfig)
 
 const publicRoutes = ["/login"]
 const publicPatterns = [/^\/api\/auth/, /^\/_next/, /^\/favicon\.ico/, /\.(svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot|css)$/]
 
-const middleware = auth(async (req) => {
-  const isAuthenticated = !!(await auth())
+export default auth(async (req: NextRequest) => {
+  const session = await auth()
+  const isAuthenticated = !!session
   const { pathname } = req.nextUrl
 
   const isPublicRoute = publicRoutes.includes(pathname) || publicPatterns.some(p => p.test(pathname))
@@ -23,9 +21,7 @@ const middleware = auth(async (req) => {
   }
 
   return NextResponse.next()
-}) as any
-
-export default middleware
+})
 
 export const config = {
   matcher: [
