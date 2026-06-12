@@ -1,5 +1,5 @@
 # ==========================================
-# Stage 1: Dependencies (deps)
+# Stage 1: Install semua dependencies (deps)
 # ==========================================
 FROM node:22-alpine AS deps
 WORKDIR /app
@@ -7,15 +7,12 @@ WORKDIR /app
 # Salin file konfigurasi npm
 COPY package.json package-lock.json ./
 
-# Salin folder prisma sebelum instalasi agar file schema tersedia
+# Salin folder prisma agar file schema tersedia jika dibutuhkan
 COPY prisma ./prisma/
 COPY prisma.config.ts ./prisma.config.ts 
 
-# MATIKAN fitur auto-generate bawaan Prisma saat npm ci
-ENV PRISMA_SKIP_POSTINSTALL_GENERATE=true
-
-# Instalasi dependencies tanpa memicu prisma generate secara prematur
-RUN npm ci
+# JURUS PAMUNGKAS: Instal dependencies dan PAKSA abaikan semua script otomatis (postinstall Prisma)
+RUN npm ci --ignore-scripts
 
 # ==========================================
 # Stage 2: Builder
@@ -29,11 +26,11 @@ COPY --from=deps /app/node_modules ./node_modules
 # Salin seluruh kode sumber proyek
 COPY . .
 
-# Eksekusi prisma generate secara manual menggunakan DUMMY URL 
-# agar tidak butuh koneksi database asli saat proses build
+# GUNAKAN DUMMY URL agar prisma generate tidak gagal saat build.
+# Di sinilah Prisma Client benar-benar di-generate secara aman.
 RUN DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy npx prisma generate
 
-# Jalankan proses kompilasi Next.js
+# Jalankan proses build Next.js
 RUN npm run build
 
 # ==========================================
@@ -42,21 +39,21 @@ RUN npm run build
 FROM node:22-alpine AS runner
 WORKDIR /app
 
-# Set environment variables untuk mode production
+# Set environment variables
 ENV NODE_ENV=production
 ENV PORT=8000
 
-# Salin file-file yang dibutuhkan untuk menjalankan aplikasi
+# Copy runtime essentials
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/package.json ./package.json
 
-# Salin folder prisma dan config agar runtime bisa mengakses skema database
+# Penting: Copy folder prisma dan config agar runtime bisa akses skema
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
-# Buka port 8000
+# Ekspos port yang digunakan aplikasi
 EXPOSE 8000
 
 # Perintah utama untuk menyalakan server Next.js
