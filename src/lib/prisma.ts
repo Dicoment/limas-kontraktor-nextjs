@@ -8,13 +8,11 @@ declare global {
 
 const connectionString = process.env.DATABASE_URL
 
-const prismaOptions = connectionString
-  ? { adapter: new PrismaPg(connectionString) }
-  : { datasourceUrl: "postgresql://dummy:dummy@localhost:5432/dummy" }
-
 const prisma =
   global.prisma ||
-  new PrismaClient(prismaOptions as any)
+  (connectionString
+    ? new PrismaClient({ adapter: new PrismaPg(connectionString) })
+    : new PrismaClient())
 
 if (process.env.NODE_ENV !== "production") global.prisma = prisma
 
