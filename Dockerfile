@@ -22,6 +22,7 @@ FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8000
+ENV HOSTNAME="0.0.0.0"
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/public ./public
@@ -31,4 +32,4 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
 EXPOSE 8000
-CMD ["npm", "start"]
+CMD ["npm", "start", "--", "-p", "8000", "-H", "0.0.0.0"]
