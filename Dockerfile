@@ -20,6 +20,7 @@ RUN npm run build
 # Stage 3: Runner
 FROM node:22-alpine AS runner
 WORKDIR /app
+ARG CACHEBUST=2
 ENV NODE_ENV=production
 ENV PORT=8000
 ENV HOSTNAME="0.0.0.0"
