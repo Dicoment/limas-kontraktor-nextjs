@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Save } from "lucide-react"
+import { Save, Camera, Share2, Video } from "lucide-react"
 
 const DEFAULT_SETTINGS = {
   company_name: "LIMAS KONTRAKTOR",
@@ -72,6 +72,60 @@ function InputField({
     </div>
   )
 }
+
+function SocialInputField({
+  label,
+  value,
+  onChange,
+  placeholder = "",
+  icon: Icon,
+}: {
+  label: string
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  placeholder?: string
+  icon: React.ComponentType<{ size?: number; className?: string }>
+}) {
+  const getUrl = (val: string) => {
+    if (!val) return "#"
+    return val.startsWith("http") ? val : `https://${val}`
+  }
+
+  return (
+    <div>
+      <label className="block text-sm font-semibold text-slate-700 mb-1.5">{label}</label>
+      <div className="relative">
+        <input
+          type="text"
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          className="w-full px-3 py-2.5 pr-12 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+        />
+        {value ? (
+          <a
+            href={getUrl(value)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
+          >
+            <Icon size={18} className="text-blue-600" />
+          </a>
+        ) : (
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-gray-50 rounded-md">
+            <Icon size={18} className="text-gray-300" />
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+const TikTokIcon = (props: { size?: number; className?: string }) => (
+  <svg width={props.size} height={props.size} viewBox="0 0 24 24" fill="currentColor" className={props.className}>
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
+  </svg>
+)
 
 export default function SettingsPage() {
   const [formData, setFormData] = useState<SettingsFormData>(DEFAULT_SETTINGS)
@@ -217,27 +271,33 @@ export default function SettingsPage() {
 
         <Section title="Media Sosial">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InputField
+            <SocialInputField
               label="Instagram"
               value={formData.social_instagram}
               onChange={handleInputChange("social_instagram")}
               placeholder="@username"
+              icon={Camera}
             />
-            <InputField
+            <SocialInputField
               label="Facebook"
               value={formData.social_facebook}
               onChange={handleInputChange("social_facebook")}
               placeholder="Page name"
+              icon={Share2}
             />
-            <InputField
+            <SocialInputField
               label="TikTok"
               value={formData.social_tiktok}
               onChange={handleInputChange("social_tiktok")}
+              placeholder="@username"
+              icon={TikTokIcon}
             />
-            <InputField
+            <SocialInputField
               label="YouTube"
               value={formData.social_youtube}
               onChange={handleInputChange("social_youtube")}
+              placeholder="channel name"
+              icon={Video}
             />
           </div>
         </Section>
