@@ -40,15 +40,6 @@ export async function getLeadsLogs(params: GetLeadsLogsParams) {
       skip,
       take: limit,
       orderBy: { createdAt: 'desc' },
-      include: {
-        project: {
-          select: {
-            id: true,
-            title: true,
-            slug: true
-          }
-        }
-      }
     }),
     prisma.leadsLog.count({ where })
   ])

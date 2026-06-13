@@ -25,15 +25,6 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
         orderBy,
-        include: {
-          project: {
-            select: {
-              id: true,
-              title: true,
-              slug: true
-            }
-          }
-        }
       }),
       prisma.leadsLog.count({ where }),
     ])
@@ -109,15 +100,6 @@ export async function POST(request: NextRequest) {
         pageUrl: pageUrl || null, 
         ipAddress: finalIp || null, 
         userAgent: finalUserAgent || null 
-      },
-      include: {
-        project: {
-          select: {
-            id: true,
-            title: true,
-            slug: true
-          }
-        }
       }
     })
     

@@ -142,17 +142,24 @@ export async function createTestimonial(data: TestimonialInput) {
     if (!project) throw new Error("Project not found")
   }
   
+  const testimonialData: any = {
+    clientName: data.clientName,
+    content: data.content,
+    platform: data.platform || "MANUAL",
+    sourceUrl: data.sourceUrl || null,
+    avatar: data.avatar || null,
+    published: data.published ?? false,
+  }
+  
+  if (validatedRating !== null) {
+    testimonialData.rating = validatedRating
+  }
+  if (data.projectId) {
+    testimonialData.projectId = data.projectId
+  }
+  
   const testimonial = await prisma.testimonial.create({
-    data: {
-      clientName: data.clientName,
-      content: data.content,
-      rating: validatedRating,
-      platform: data.platform || "MANUAL",
-      sourceUrl: data.sourceUrl || null,
-      avatar: data.avatar || null,
-      published: data.published ?? false,
-      projectId: data.projectId || null,
-    },
+    data: testimonialData,
     include: {
       project: {
         select: {
@@ -173,7 +180,7 @@ export async function updateTestimonial(id: string, data: TestimonialUpdateInput
   if (!existing) throw new Error("Testimonial not found")
   
   // Validate rating if provided
-  let validatedRating = existing.rating
+  let validatedRating: number | null = existing.rating
   if (data.rating !== undefined) {
     validatedRating = validateRating(data.rating)
   }
@@ -192,7 +199,8 @@ export async function updateTestimonial(id: string, data: TestimonialUpdateInput
     where: { id },
     data: {
       ...restData,
-      ...(rating !== undefined && { rating: validatedRating }),
+      ...(rating !== undefined && { rating: validatedRating ?? undefined }),
+      projectId: data.projectId,
     },
     include: {
       project: {

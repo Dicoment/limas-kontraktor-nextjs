@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     } = validatedData
 
     // Validate rating
-    let validatedRating = null
+    let validatedRating: number | null = null
     if (rating !== null && rating !== undefined) {
       try {
         validatedRating = validateRating(rating)
@@ -111,17 +111,24 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const testimonialData: any = {
+      clientName,
+      content,
+      platform: platform || "MANUAL",
+      sourceUrl: sourceUrl || null,
+      avatar: avatar || null,
+      published: published ?? false,
+    }
+    
+    if (validatedRating !== null) {
+      testimonialData.rating = validatedRating
+    }
+    if (projectId) {
+      testimonialData.projectId = projectId
+    }
+    
     const testimonial = await prisma.testimonial.create({
-      data: {
-        clientName,
-        content,
-        rating: validatedRating,
-        platform: platform || "MANUAL",
-        sourceUrl: sourceUrl || null,
-        avatar: avatar || null,
-        published: published ?? false,
-        projectId: projectId || null,
-      },
+      data: testimonialData,
       include: {
         project: {
           select: {

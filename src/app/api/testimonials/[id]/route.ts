@@ -62,7 +62,7 @@ export async function PUT(
     if (!existingTestimonial) return notFoundResponse("Testimonial")
     
     // Validate rating if provided
-    let validatedRating = existingTestimonial.rating
+    let validatedRating: number | null = existingTestimonial.rating
     if (validatedData.rating !== undefined) {
       try {
         validatedRating = validateRating(validatedData.rating)
@@ -89,7 +89,7 @@ export async function PUT(
       where: { id },
       data: {
         ...restData,
-        rating: validatedRating,
+        rating: validatedRating ?? undefined,
       },
       include: {
         project: {
@@ -142,7 +142,7 @@ export async function PATCH(
     if (!existingTestimonial) return notFoundResponse("Testimonial")
     
     // Validate rating if provided
-    let validatedRating = existingTestimonial.rating
+    let validatedRating: number | null = existingTestimonial.rating
     if (validatedData.rating !== undefined) {
       try {
         validatedRating = validateRating(validatedData.rating)
@@ -169,7 +169,8 @@ export async function PATCH(
       where: { id },
       data: {
         ...restData,
-        ...(rating !== undefined && { rating: validatedRating }),
+        ...(rating !== undefined && { rating: validatedRating ?? undefined }),
+        projectId: validatedData.projectId,
       },
       include: {
         project: {

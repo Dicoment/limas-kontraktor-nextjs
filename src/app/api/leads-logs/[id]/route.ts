@@ -13,16 +13,7 @@ export async function GET(
     const { id } = await params
     
     const lead = await prisma.leadsLog.findUnique({ 
-      where: { id },
-      include: {
-        project: {
-          select: {
-            id: true,
-            title: true,
-            slug: true
-          }
-        }
-      }
+      where: { id }
     })
     
     if (!lead) return notFoundResponse("LeadsLog")
@@ -54,16 +45,7 @@ export async function PUT(
     
     // Check if leads log exists
     const existingLead = await prisma.leadsLog.findUnique({
-      where: { id },
-      include: {
-        project: {
-          select: {
-            id: true,
-            title: true,
-            slug: true
-          }
-        }
-      }
+      where: { id }
     })
     
     if (!existingLead) return notFoundResponse("LeadsLog")
@@ -92,15 +74,6 @@ export async function PUT(
         pageUrl: pageUrl || null,
         ipAddress: ipAddress || null,
         userAgent: userAgent || null,
-      },
-      include: {
-        project: {
-          select: {
-            id: true,
-            title: true,
-            slug: true
-          }
-        }
       }
     })
     
@@ -137,16 +110,7 @@ export async function PATCH(
     
     // Check if leads log exists
     const existingLead = await prisma.leadsLog.findUnique({
-      where: { id },
-      include: {
-        project: {
-          select: {
-            id: true,
-            title: true,
-            slug: true
-          }
-        }
-      }
+      where: { id }
     })
     
     if (!existingLead) return notFoundResponse("LeadsLog")
@@ -165,16 +129,7 @@ export async function PATCH(
     
     const lead = await prisma.leadsLog.update({ 
       where: { id }, 
-      data: validatedData,
-      include: {
-        project: {
-          select: {
-            id: true,
-            title: true,
-            slug: true
-          }
-        }
-      }
+      data: validatedData
     })
     
     const formattedLead = formatLeadsLog(lead)
@@ -200,16 +155,7 @@ export async function DELETE(
     
     // Check if leads log exists
     const existingLead = await prisma.leadsLog.findUnique({
-      where: { id },
-      include: {
-        project: {
-          select: {
-            id: true,
-            title: true,
-            slug: true
-          }
-        }
-      }
+      where: { id }
     })
     
     if (!existingLead) return notFoundResponse("LeadsLog")
