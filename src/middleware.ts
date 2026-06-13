@@ -1,18 +1,26 @@
 import { auth } from "@/lib/auth.edge"
 import { NextResponse, type NextRequest } from "next/server"
 
-const publicRoutes = ["/login"]
+const authRoutes = ["/login", "/register", "/forgot-password"]
 const publicPatterns = [/^\/api\/auth/, /^\/_next/, /^\/favicon\.ico/, /\.(svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot|css)$/]
 
 export default auth(async (req: NextRequest) => {
   const session = await auth()
   const isAuthenticated = !!session
-  const { pathname } = req.nextUrl
+  const { nextUrl } = req
 
-  const isPublicRoute = publicRoutes.includes(pathname) || publicPatterns.some((p) => p.test(pathname))
+  const isAuthRoute = authRoutes.some(route => nextUrl.pathname.startsWith(route))
+  const isPublicPattern = publicPatterns.some((p) => p.test(nextUrl.pathname))
 
-  if (!isPublicRoute && pathname.startsWith("/dashboard") && !isAuthenticated) {
-    return NextResponse.redirect(new URL("/login", req.url))
+  if (isAuthRoute) {
+    if (isAuthenticated) {
+      return Response.redirect(new URL("/dashboard", nextUrl))
+    }
+    return null
+  }
+
+  if (!isPublicPattern && nextUrl.pathname.startsWith("/dashboard") && !isAuthenticated) {
+    return Response.redirect(new URL("/login", nextUrl))
   }
 
   return NextResponse.next()
