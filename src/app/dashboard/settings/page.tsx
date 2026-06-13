@@ -143,10 +143,10 @@ export default function SettingsPage() {
       const res = await fetch("/api/settings")
       if (res.ok) {
         const json = await res.json()
-        if (json.data) {
+        if (json.data && json.data.data) {
           setFormData(prev => ({
             ...prev,
-            ...json.data,
+            ...json.data.data,
           }))
         }
       }
@@ -180,11 +180,19 @@ export default function SettingsPage() {
       })
 
       const json = await res.json()
-      if (json.success) {
+      
+      if (res.ok && json.success !== false) {
         setSuccess(true)
         setTimeout(() => setSuccess(false), 3000)
       } else {
-        setError(json.error || "Gagal menyimpan pengaturan")
+        let errorMsg = json.error || json.message || "Gagal menyimpan pengaturan"
+        if (json.errors) {
+          const fieldErrors = Object.entries(json.errors)
+            .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`)
+            .join(" | ")
+          errorMsg = `${errorMsg} - ${fieldErrors}`
+        }
+        setError(errorMsg)
       }
     } catch (err) {
       setError("Terjadi kesalahan saat menyimpan")

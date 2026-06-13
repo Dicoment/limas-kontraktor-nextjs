@@ -6,17 +6,6 @@ datasource db {
   provider = "postgresql"
 }
 
-enum ProjectStatus {
-  DRAFT
-  ONGOING
-  COMPLETED
-}
-
-enum TestimonialPlatform {
-  MANUAL
-  SOCIAL_MEDIA
-}
-
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -30,43 +19,40 @@ model User {
 }
 
 model Project {
-  id             String        @id @default(cuid())
-  title          String
-  slug           String        @unique
-  description    String        @db.Text
-  location       String?
-  client         String?
-  limasRole      String?       @map("limas_role")
-  coverImage     String?       @map("cover_image")
-  gallery        Json?         @default("[]")
-  status         ProjectStatus @default(DRAFT)
-  seoTitle       String?       @map("seo_title")
-  seoDescription String?       @map("seo_description")
-  createdAt      DateTime      @default(now()) @map("created_at")
-  updatedAt      DateTime      @updatedAt @map("updated_at")
-
+  id               String            @id @default(cuid())
+  title            String
+  slug             String            @unique
+  description      String
+  location         String?
+  client           String?
+  limasRole        String?           @map("limas_role")
+  coverImage       String?           @map("cover_image")
+  gallery          Json?             @default("[]")
+  status           ProjectStatus     @default(DRAFT)
+  seoTitle         String?           @map("seo_title")
+  seoDescription   String?           @map("seo_description")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  categoryProjects CategoryProject[]
   projectTeams     ProjectTeam[]
   testimonials     Testimonial[]
-  leadsLogs        LeadsLog[]
-  categoryProjects CategoryProject[]
 
   @@map("projects")
 }
 
 model BlogPost {
-  id             String    @id @default(cuid())
-  title          String
-  slug           String    @unique
-  content        String    @db.Text
-  excerpt        String?   @db.Text
-  coverImage     String?   @map("cover_image")
-  seoTitle       String?   @map("seo_title")
-  seoDescription String?   @map("seo_description")
-  published      Boolean   @default(false)
-  publishedAt    DateTime? @map("published_at")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-
+  id                 String             @id @default(cuid())
+  title              String
+  slug               String             @unique
+  content            String
+  excerpt            String?
+  coverImage         String?            @map("cover_image")
+  seoTitle           String?            @map("seo_title")
+  seoDescription     String?            @map("seo_description")
+  published          Boolean            @default(false)
+  publishedAt        DateTime?          @map("published_at")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
   blogPostCategories BlogPostCategory[]
   blogPostTags       BlogPostTag[]
 
@@ -77,7 +63,7 @@ model Page {
   id             String   @id @default(cuid())
   title          String
   slug           String   @unique
-  content        String   @db.Text
+  content        String
   seoTitle       String?  @map("seo_title")
   seoDescription String?  @map("seo_description")
   published      Boolean  @default(false)
@@ -88,31 +74,29 @@ model Page {
 }
 
 model Team {
-  id           String   @id @default(cuid())
+  id           String        @id @default(cuid())
   name         String
   position     String?
-  bio          String?  @db.Text
+  bio          String?
   avatar       String?
   email        String?
   phone        String?
-  displayOrder Int      @default(0)
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
+  displayOrder Int           @default(0)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
   projectTeams ProjectTeam[]
 
   @@map("teams")
 }
 
 model Category {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  type        String
-  description String?  @db.Text
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
+  id                 String             @id @default(cuid())
+  name               String
+  slug               String             @unique
+  type               String
+  description        String?
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
   blogPostCategories BlogPostCategory[]
   categoryProjects   CategoryProject[]
 
@@ -120,31 +104,29 @@ model Category {
 }
 
 model Tag {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
+  id           String        @id @default(cuid())
+  name         String
+  slug         String        @unique
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
   blogPostTags BlogPostTag[]
 
   @@map("tags")
 }
 
 model Testimonial {
-  id          String              @id @default(cuid())
-  clientName  String
-  content     String              @db.Text
-  rating      Int?
-  platform    TestimonialPlatform @default(MANUAL)
-  sourceUrl   String?
-  avatar      String?
-  published   Boolean             @default(false)
-  projectId   String?
-  createdAt   DateTime            @default(now()) @map("created_at")
-  updatedAt   DateTime            @updatedAt @map("updated_at")
-
-  project Project? @relation(fields: [projectId], references: [id])
+  id         String              @id @default(cuid())
+  clientName String
+  content    String
+  rating     Int
+  platform   TestimonialPlatform @default(MANUAL)
+  sourceUrl  String?
+  avatar     String?
+  published  Boolean             @default(false)
+  projectId  String?
+  createdAt  DateTime            @default(now()) @map("created_at")
+  updatedAt  DateTime            @updatedAt @map("updated_at")
+  project    Project?            @relation(fields: [projectId], references: [id])
 
   @@map("testimonials")
 }
@@ -153,14 +135,12 @@ model LeadsLog {
   id        String   @id @default(cuid())
   name      String?
   phone     String?
-  message   String?  @db.Text
+  message   String?
   projectId String?
   pageUrl   String?
   ipAddress String?
   userAgent String?
   createdAt DateTime @default(now()) @map("created_at")
-
-  project Project? @relation(fields: [projectId], references: [id])
 
   @@map("leads_logs")
 }
@@ -168,7 +148,7 @@ model LeadsLog {
 model Setting {
   id        String   @id @default(cuid())
   key       String   @unique
-  value     String   @db.Text
+  value     String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -181,9 +161,8 @@ model ProjectTeam {
   teamId    String
   role      String?
   createdAt DateTime @default(now()) @map("created_at")
-
-  projEntry Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  teamEntry Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  projEntry Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  teamEntry Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, teamId])
   @@map("project_teams")
@@ -194,9 +173,8 @@ model BlogPostCategory {
   blogPostId String
   categoryId String
   createdAt  DateTime @default(now()) @map("created_at")
-
-  catEntry  Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  postEntry BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  postEntry  BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  catEntry   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@unique([blogPostId, categoryId])
   @@map("blog_post_categories")
@@ -207,9 +185,8 @@ model BlogPostTag {
   blogPostId String
   tagId      String
   createdAt  DateTime @default(now()) @map("created_at")
-
-  tagEntry  Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  postEntry BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  postEntry  BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  tagEntry   Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@unique([blogPostId, tagId])
   @@map("blog_post_tags")
@@ -220,10 +197,20 @@ model CategoryProject {
   categoryId String
   projectId  String
   createdAt  DateTime @default(now()) @map("created_at")
-
-  catEntry  Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  projEntry Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  catEntry   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  projEntry  Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@unique([categoryId, projectId])
   @@map("category_projects")
+}
+
+enum ProjectStatus {
+  DRAFT
+  ONGOING
+  COMPLETED
+}
+
+enum TestimonialPlatform {
+  MANUAL
+  SOCIAL_MEDIA
 }
