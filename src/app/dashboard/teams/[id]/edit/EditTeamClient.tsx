@@ -69,7 +69,7 @@ export default function EditTeamClient({ team }: { team: any }) {
     })
     const json = await res.json()
     if (json.success) {
-      router.push("/admin/teams")
+      router.push("/dashboard/teams")
       router.refresh()
     } else {
       setError(json.error || "Failed to update team member")

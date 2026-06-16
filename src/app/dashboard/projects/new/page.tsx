@@ -1,8 +1,7 @@
 import { getAllCategories, getAllTeams } from "@/actions/project.actions"
+import MediaPicker from "@/components/ui/MediaPicker"
 
 export const dynamic = "force-dynamic"
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024
 
 export default async function NewProjectPage() {
   const [categories, teams] = await Promise.all([getAllCategories(), getAllTeams()])
@@ -10,7 +9,7 @@ export default async function NewProjectPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       <h1 className="text-xl font-bold text-slate-800">New Project</h1>
-      <form action="/api/projects" method="POST" className="bg-white rounded-lg shadow p-6 space-y-6" encType="multipart/form-data" onSubmit={validateAndSubmit}>
+      <form action="/api/projects" method="POST" className="bg-white rounded-lg shadow p-6 space-y-6">
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-4">
             <Field label="Title">
@@ -29,7 +28,8 @@ export default async function NewProjectPage() {
               <input name="limasRole" className="w-full px-3 py-2 border border-slate-300 rounded" />
             </Field>
             <Field label="Cover Image">
-              <input name="image" type="file" accept="image/*" className="w-full px-3 py-2 border border-slate-300 rounded" />
+              <input name="coverImage" id="coverImage" className="w-full px-3 py-2 border border-slate-300 rounded" />
+              <p className="text-xs text-slate-400 mt-1">Use Media Library or enter URL directly</p>
             </Field>
           </div>
           <div className="space-y-4">
@@ -70,9 +70,8 @@ export default async function NewProjectPage() {
           <textarea name="description" rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required />
         </Field>
 
-        <Field label="Gallery Images">
-          <input name="gallery" type="file" accept="image/*" multiple className="w-full px-3 py-2 border border-slate-300 rounded" />
-          <p className="text-xs text-slate-400 mt-1">Select multiple images for gallery</p>
+        <Field label="Gallery URLs (JSON array)">
+          <textarea name="gallery" rows={3} className="w-full px-3 py-2 border border-slate-300 rounded text-sm font-mono" placeholder='["/uploads/image1.jpg", "/uploads/image2.jpg"]' />
         </Field>
 
         <div className="flex gap-3">
@@ -93,20 +92,4 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       {children}
     </div>
   )
-}
-
-function validateAndSubmit(e: React.FormEvent<HTMLFormElement>) {
-  const form = e.currentTarget
-  const inputs = form.querySelectorAll('input[type="file"]') as NodeListOf<HTMLInputElement>
-  
-  Array.from(inputs).forEach((input: HTMLInputElement) => {
-    if (input.files && input.files.length > 0) {
-      Array.from(input.files).forEach((file: File) => {
-        if (file.size > MAX_FILE_SIZE) {
-          e.preventDefault()
-          alert(`File "${file.name}" exceeds 5MB limit`)
-        }
-      })
-    }
-  })
 }

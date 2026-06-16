@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024
+
 export default function EditBlogPostClient({
   post,
   categories,
@@ -21,7 +23,8 @@ export default function EditBlogPostClient({
   const [slug, setSlug] = useState(post.slug)
   const [content, setContent] = useState(post.content)
   const [excerpt, setExcerpt] = useState(post.excerpt || "")
-  const [coverImage, setCoverImage] = useState(post.coverImage || "")
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState(post.coverImage || "")
   const [seoTitle, setSeoTitle] = useState(post.seoTitle || "")
   const [seoDescription, setSeoDescription] = useState(post.seoDescription || "")
   const [published, setPublished] = useState(post.published)
@@ -38,15 +41,55 @@ export default function EditBlogPostClient({
     setTagIds(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id])
   }
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > MAX_FILE_SIZE) {
+      setError(`File size exceeds maximum of ${MAX_FILE_SIZE / 1024 / 1024}MB`)
+      return
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setError("Only image files are allowed")
+      return
+    }
+
+    setCoverImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+    setError("")
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
 
+    if (coverImageFile && coverImageFile.size > MAX_FILE_SIZE) {
+      setError(`File size exceeds maximum of ${MAX_FILE_SIZE / 1024 / 1024}MB`)
+      setLoading(false)
+      return
+    }
+
+    const formData = new FormData()
+    formData.append("title", title)
+    formData.append("slug", slug)
+    formData.append("content", content)
+    formData.append("excerpt", excerpt || "")
+    formData.append("published", published.toString())
+    formData.append("publishedAt", publishedAt || "")
+    formData.append("categoryIds", JSON.stringify(categoryIds))
+    formData.append("tagIds", JSON.stringify(tagIds))
+    
+    if (coverImageFile) {
+      formData.append("image", coverImageFile)
+    } else if (imagePreview) {
+      formData.append("coverImage", imagePreview)
+    }
+
     const res = await fetch(`/api/blog-posts/${post.id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, slug, content, excerpt, coverImage, seoTitle, seoDescription, published, publishedAt: publishedAt || null, categoryIds, tagIds }),
+      body: formData,
     })
     const json = await res.json()
     if (json.success) {
@@ -59,14 +102,24 @@ export default function EditBlogPostClient({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-5xl">
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-5xl" encType="multipart/form-data">
       <h1 className="text-xl font-bold text-slate-800">Edit Blog Post</h1>
       {error && <div className="bg-red-50 text-red-600 p-3 rounded">{error}</div>}
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
           <Field label="Title" value={title} onChange={setTitle} required />
           <Field label="Slug" value={slug} onChange={setSlug} required />
-          <Field label="Cover Image URL" value={coverImage} onChange={setCoverImage} type="url" />
+          <Field label="Cover Image">
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleImageChange}
+              className="w-full px-3 py-2 border border-slate-300 rounded" 
+            />
+            {imagePreview && (
+              <img src={imagePreview} alt="Preview" className="mt-2 h-20 object-cover rounded" />
+            )}
+          </Field>
           <Field label="SEO Title" value={seoTitle} onChange={setSeoTitle} />
           <Field label="Excerpt" value={excerpt} onChange={setExcerpt} type="textarea" />
         </div>

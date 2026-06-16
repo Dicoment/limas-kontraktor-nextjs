@@ -41,6 +41,7 @@ function TestimonialForm({ testimonial, projects, isEdit = false }: { testimonia
           </select>
         </div>
         <div><label className="block text-sm font-medium text-slate-700 mb-1">Source URL</label><input name="sourceUrl" defaultValue={testimonial?.sourceUrl || ""} type="url" className="w-full px-3 py-2 border border-slate-300 rounded" /></div>
+        <p className="text-sm text-gray-500 mt-1">Masukkan tautan ulasan asli (contoh: Link ulasan Google Review, Facebook, dsb).</p>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Avatar</label>
           <input name="avatar" type="file" accept="image/*" className="w-full px-3 py-2 border border-slate-300 rounded" />
