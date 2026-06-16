@@ -8,7 +8,7 @@ export default async function NewProjectPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       <h1 className="text-xl font-bold text-slate-800">New Project</h1>
-      <form action="/api/projects" method="POST" className="bg-white rounded-lg shadow p-6 space-y-6">
+      <form action="/api/projects" method="POST" className="bg-white rounded-lg shadow p-6 space-y-6" encType="multipart/form-data">
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-4">
             <Field label="Title">
@@ -26,8 +26,8 @@ export default async function NewProjectPage() {
             <Field label="Limas Role">
               <input name="limasRole" className="w-full px-3 py-2 border border-slate-300 rounded" />
             </Field>
-            <Field label="Cover Image URL">
-              <input name="coverImage" className="w-full px-3 py-2 border border-slate-300 rounded" type="url" />
+            <Field label="Cover Image">
+              <input name="image" type="file" accept="image/*" className="w-full px-3 py-2 border border-slate-300 rounded" />
             </Field>
           </div>
           <div className="space-y-4">

@@ -4,6 +4,8 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024
+
 export default function EditProjectClient({
   project,
   categories,
@@ -25,6 +27,8 @@ export default function EditProjectClient({
   const [client, setClient] = useState(project.client || "")
   const [limasRole, setLimasRole] = useState(project.limasRole || "")
   const [coverImage, setCoverImage] = useState(project.coverImage || "")
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState(project.coverImage || "")
   const [status, setStatus] = useState(project.status)
   const [seoTitle, setSeoTitle] = useState(project.seoTitle || "")
   const [seoDescription, setSeoDescription] = useState(project.seoDescription || "")
@@ -48,10 +52,35 @@ export default function EditProjectClient({
     setTeamRoles(prev => ({ ...prev, [id]: role }))
   }
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > MAX_FILE_SIZE) {
+      setError(`File size exceeds maximum of ${MAX_FILE_SIZE / 1024 / 1024}MB`)
+      return
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setError("Only image files are allowed")
+      return
+    }
+
+    setCoverImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+    setError("")
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
+
+    if (coverImageFile && coverImageFile.size > MAX_FILE_SIZE) {
+      setError(`File size exceeds maximum of ${MAX_FILE_SIZE / 1024 / 1024}MB`)
+      setLoading(false)
+      return
+    }
 
     let parsedGallery: string[] = []
     try {
@@ -66,13 +95,29 @@ export default function EditProjectClient({
       .filter(([, role]) => role)
       .map(([id, role]) => ({ teamId: id, role }))
 
+    const formData = new FormData()
+    formData.append("title", title)
+    formData.append("slug", slug)
+    formData.append("description", description)
+    formData.append("location", location || "")
+    formData.append("client", client || "")
+    formData.append("limasRole", limasRole || "")
+    formData.append("status", status)
+    formData.append("seoTitle", seoTitle || "")
+    formData.append("seoDescription", seoDescription || "")
+    formData.append("gallery", JSON.stringify(parsedGallery))
+    formData.append("categoryIds", JSON.stringify(categoryIds))
+    formData.append("teamIds", JSON.stringify(teamIds))
+    
+    if (coverImageFile) {
+      formData.append("image", coverImageFile)
+    } else if (coverImage) {
+      formData.append("coverImage", coverImage)
+    }
+
     const res = await fetch(`/api/projects/${project.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        title, slug, description, location, client, limasRole, coverImage, 
-        status, seoTitle, seoDescription, gallery: parsedGallery, categoryIds, teamIds 
-      }),
+      method: "POST",
+      body: formData,
     })
     const json = await res.json()
     if (json.success) {
@@ -85,7 +130,7 @@ export default function EditProjectClient({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-5xl">
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-5xl" encType="multipart/form-data">
       <h1 className="text-xl font-bold text-slate-800">Edit Project</h1>
       {error && <div className="bg-red-50 text-red-600 p-3 rounded">{error}</div>}
       
@@ -96,7 +141,17 @@ export default function EditProjectClient({
           <Field label="Location" value={location} onChange={setLocation} />
           <Field label="Client" value={client} onChange={setClient} />
           <Field label="Limas Role" value={limasRole} onChange={setLimasRole} />
-          <Field label="Cover Image URL" value={coverImage} onChange={setCoverImage} type="url" />
+          <Field label="Cover Image">
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleImageChange}
+              className="w-full px-3 py-2 border border-slate-300 rounded" 
+            />
+            {imagePreview && (
+              <img src={imagePreview} alt="Preview" className="mt-2 h-20 object-cover rounded" />
+            )}
+          </Field>
         </div>
         <div className="space-y-4">
           <Field label="Status" type="select" value={status} onChange={setStatus} options={["DRAFT", "ONGOING", "COMPLETED"]} />

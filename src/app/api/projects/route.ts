@@ -11,6 +11,12 @@ import {
   getSortParams,
   validateGallery
 } from "@/helpers/project-helpers"
+import fs from "fs"
+import path from "path"
+import crypto from "crypto"
+
+const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"]
+const MAX_FILE_SIZE = 5 * 1024 * 1024
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,7 +43,6 @@ export async function GET(request: NextRequest) {
     const formattedData = formatProjects(data)
     const totalPages = Math.ceil(total / limit)
     
-    // Consistent response format
     return successResponse({
       items: formattedData,
       pagination: {
@@ -57,23 +62,125 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    let body
-    try {
-      body = await request.json()
-    } catch (error) {
-      return errorResponse("Invalid JSON body", 400)
+    const contentType = request.headers.get("content-type") || ""
+    
+    if (!contentType.includes("multipart/form-data")) {
+      return errorResponse("Content-Type must be multipart/form-data", 400)
     }
+
+    const boundary = contentType.split("boundary=")[1]
+    if (!boundary) {
+      return errorResponse("No boundary found in content-type", 400)
+    }
+
+    const body = await request.arrayBuffer()
+    const buffer = Buffer.from(body)
     
-    // Validate with zod schema
-    const validatedData = projectSchema.parse(body)
+    const boundaryBuffer = Buffer.from(`--${boundary}`)
     
+    const fields: Record<string, string> = {}
+    const fileField = { name: "", data: null as Buffer | null, type: "", originalName: "" }
+    
+    let pos = 0
+    while (pos < buffer.length) {
+      const partStart = buffer.indexOf(boundaryBuffer, pos)
+      if (partStart === -1) break
+      
+      const headerEnd = buffer.indexOf(boundaryBuffer, partStart + boundaryBuffer.length)
+      if (headerEnd === -1) break
+      
+      const headersRaw = buffer.slice(partStart + boundaryBuffer.length, headerEnd).toString()
+      
+      const contentDispositionMatch = headersRaw.match(/Content-Disposition: form-data; name="([^"]+)"(?:; filename="([^"]+)")?/)
+      if (!contentDispositionMatch) {
+        pos = headerEnd + boundaryBuffer.length
+        continue
+      }
+      
+      const fieldName = contentDispositionMatch[1]
+      const filename = contentDispositionMatch[2]
+      
+      const bodyStart = headerEnd + boundaryBuffer.length
+      const bodyEnd = buffer.indexOf(boundaryBuffer, bodyStart)
+      
+      let content = buffer.slice(bodyStart, bodyEnd)
+      if (content[0] === 0x0d) content = content.slice(1)
+      if (content[0] === 0x0a) content = content.slice(1)
+      if (content[content.length - 1] === 0x0d) content = content.slice(0, content.length - 1)
+      if (content[content.length - 1] === 0x0a) content = content.slice(0, content.length - 1)
+      
+      if (filename) {
+        const mimeMatch = headersRaw.match(/Content-Type: ([^\r\n]+)/)
+        fileField.name = fieldName
+        fileField.data = content
+        fileField.type = mimeMatch ? mimeMatch[1].trim() : ""
+        fileField.originalName = filename
+      } else {
+        fields[fieldName] = content.toString()
+      }
+      
+      pos = headerEnd + boundaryBuffer.length
+    }
+
+    const validatedData = projectSchema.parse({
+      title: fields.title,
+      slug: fields.slug,
+      description: fields.description,
+      location: fields.location || null,
+      client: fields.client || null,
+      limasRole: fields.limasRole || null,
+      coverImage: fields.coverImage || null,
+      gallery: fields.gallery ? JSON.parse(fields.gallery) : [],
+      status: fields.status,
+      seoTitle: fields.seoTitle || null,
+      seoDescription: fields.seoDescription || null,
+      categoryIds: fields.categoryIds ? JSON.parse(fields.categoryIds) : [],
+      teamIds: fields.teamIds ? JSON.parse(fields.teamIds) : [],
+    })
+
+    if (fileField.data) {
+      if (!ALLOWED_MIME_TYPES.includes(fileField.type)) {
+        return errorResponse(`File type '${fileField.type}' not allowed. Allowed types: ${ALLOWED_MIME_TYPES.join(", ")}`, 400)
+      }
+      if (fileField.data.length > MAX_FILE_SIZE) {
+        return errorResponse(`File size exceeds maximum of ${MAX_FILE_SIZE / 1024 / 1024}MB`, 400)
+      }
+    }
+
+    let coverImageUrl: string | null = validatedData.coverImage || null
+    
+    if (fileField.data && fileField.type) {
+      const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), "public", "uploads")
+      
+      try {
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true })
+        }
+      } catch (error) {
+        console.error("Gagal membuat direktori upload. Cek permission Docker volume:", error)
+        return errorResponse("Server storage configuration error", 500)
+      }
+
+      const fileExtension = path.extname(fileField.originalName) || getFileExtensionFromMime(fileField.type)
+      const uniqueFileName = `${generateId()}${fileExtension}`
+      const filePath = path.join(uploadDir, uniqueFileName)
+
+      try {
+        fs.writeFileSync(filePath, fileField.data)
+      } catch (error) {
+        console.error("Gagal menyimpan file:", error)
+        return errorResponse("Failed to save file", 500)
+      }
+
+      coverImageUrl = `/uploads/${uniqueFileName}`
+    }
+
     const { 
       title, slug, description, location, client, limasRole, 
-      coverImage, gallery, status, seoTitle, seoDescription, 
+      gallery, status, seoTitle, seoDescription, 
       categoryIds, teamIds 
     } = validatedData
 
-    // Check for existing slug
     const existing = await prisma.project.findUnique({ 
       where: { slug } 
     })
@@ -82,7 +189,6 @@ export async function POST(request: NextRequest) {
       return errorResponse("Project with this slug already exists", 409)
     }
 
-    // Validate gallery URLs
     const validatedGallery = validateGallery(gallery)
 
     const project = await prisma.project.create({
@@ -93,7 +199,7 @@ export async function POST(request: NextRequest) {
         location: location || null,
         client: client || null,
         limasRole: limasRole || null,
-        coverImage: coverImage || null,
+        coverImage: coverImageUrl,
         gallery: validatedGallery,
         status: status || "DRAFT",
         seoTitle: seoTitle || null,
@@ -123,4 +229,19 @@ export async function POST(request: NextRequest) {
     console.error("POST /api/projects error:", error)
     return errorResponse("Failed to create project", 500)
   }
+}
+
+function getFileExtensionFromMime(mimeType: string): string {
+  const mimeToExt: Record<string, string> = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+    "image/gif": ".gif",
+    "image/svg+xml": ".svg",
+  }
+  return mimeToExt[mimeType] || ".bin"
+}
+
+function generateId(): string {
+  return crypto.randomBytes(16).toString("hex")
 }
