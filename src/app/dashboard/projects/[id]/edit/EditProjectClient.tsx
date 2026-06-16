@@ -29,6 +29,7 @@ export default function EditProjectClient({
   const [coverImage, setCoverImage] = useState(project.coverImage || "")
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState(project.coverImage || "")
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([])
   const [status, setStatus] = useState(project.status)
   const [seoTitle, setSeoTitle] = useState(project.seoTitle || "")
   const [seoDescription, setSeoDescription] = useState(project.seoDescription || "")
@@ -71,16 +72,31 @@ export default function EditProjectClient({
     setError("")
   }
 
+  const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    const validFiles: File[] = []
+    for (const file of Array.from(files)) {
+      if (file.size > MAX_FILE_SIZE) {
+        setError(`File "${file.name}" exceeds 5MB limit`)
+        return
+      }
+      if (!file.type.startsWith("image/")) {
+        setError(`File "${file.name}" is not an image`)
+        return
+      }
+      validFiles.push(file)
+    }
+
+    setGalleryFiles(validFiles)
+    setError("")
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
-
-    if (coverImageFile && coverImageFile.size > MAX_FILE_SIZE) {
-      setError(`File size exceeds maximum of ${MAX_FILE_SIZE / 1024 / 1024}MB`)
-      setLoading(false)
-      return
-    }
 
     let parsedGallery: string[] = []
     try {
@@ -113,6 +129,10 @@ export default function EditProjectClient({
       formData.append("image", coverImageFile)
     } else if (coverImage) {
       formData.append("coverImage", coverImage)
+    }
+
+    for (const file of galleryFiles) {
+      formData.append("galleryFiles", file)
     }
 
     const res = await fetch(`/api/projects/${project.id}`, {
@@ -206,7 +226,17 @@ export default function EditProjectClient({
       </div>
 
       <Field label="Description" value={description} onChange={setDescription} type="textarea" required />
-      <Field label="Gallery URLs (JSON array)" value={gallery} onChange={setGallery} type="textarea" placeholder='["url1", "url2"]' />
+      
+      <Field label="Gallery Images">
+        <input 
+          type="file" 
+          accept="image/*" 
+          multiple 
+          onChange={handleGalleryChange}
+          className="w-full px-3 py-2 border border-slate-300 rounded" 
+        />
+        <p className="text-xs text-slate-400 mt-1">Select multiple images to replace gallery</p>
+      </Field>
 
       <div className="flex gap-3">
         <button type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 cursor-pointer">

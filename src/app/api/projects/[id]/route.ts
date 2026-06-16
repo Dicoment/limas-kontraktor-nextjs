@@ -48,6 +48,7 @@ export async function PUT(
     
     let body: any
     let coverImageUrl: string | null | undefined = undefined
+    let galleryUrls: string[] | undefined = undefined
     
     if (contentType.includes("multipart/form-data")) {
       const boundary = contentType.split("boundary=")[1]
@@ -60,7 +61,7 @@ export async function PUT(
       const boundaryBuffer = Buffer.from(`--${boundary}`)
       
       const fields: Record<string, string> = {}
-      const fileField = { name: "", data: null as Buffer | null, type: "", originalName: "" }
+      const files: Array<{ name: string; data: Buffer; type: string; originalName: string }> = []
       
       let pos = 0
       while (pos < buffer.length) {
@@ -92,10 +93,12 @@ export async function PUT(
         
         if (filename) {
           const mimeMatch = headersRaw.match(/Content-Type: ([^\r\n]+)/)
-          fileField.name = fieldName
-          fileField.data = content
-          fileField.type = mimeMatch ? mimeMatch[1].trim() : ""
-          fileField.originalName = filename
+          files.push({
+            name: fieldName,
+            data: content,
+            type: mimeMatch ? mimeMatch[1].trim() : "",
+            originalName: filename
+          })
         } else {
           fields[fieldName] = content.toString()
         }
@@ -103,38 +106,64 @@ export async function PUT(
         pos = headerEnd + boundaryBuffer.length
       }
 
-      if (fileField.data) {
-        if (!ALLOWED_MIME_TYPES.includes(fileField.type)) {
-          return errorResponse(`File type '${fileField.type}' not allowed. Allowed types: ${ALLOWED_MIME_TYPES.join(", ")}`, 400)
+      const imageFile = files.find(f => f.name === "image")
+      const galleryFiles = files.filter(f => f.name === "galleryFiles")
+      
+      const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), "public", "uploads")
+      try {
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true })
         }
-        if (fileField.data.length > MAX_FILE_SIZE) {
-          return errorResponse(`File size exceeds maximum of ${MAX_FILE_SIZE / 1024 / 1024}MB`, 400)
+      } catch (error) {
+        console.error("Gagal membuat direktori upload. Cek permission Docker volume:", error)
+        return errorResponse("Server storage configuration error", 500)
+      }
+
+      if (imageFile) {
+        if (!ALLOWED_MIME_TYPES.includes(imageFile.type)) {
+          return errorResponse(`File type '${imageFile.type}' not allowed. Allowed types: ${ALLOWED_MIME_TYPES.join(", ")}`, 400)
+        }
+        if (imageFile.data.length > MAX_FILE_SIZE) {
+          return errorResponse(`Cover image size exceeds maximum of ${MAX_FILE_SIZE / 1024 / 1024}MB`, 400)
         }
         
-        const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), "public", "uploads")
-        try {
-          if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true })
-          }
-        } catch (error) {
-          console.error("Gagal membuat direktori upload. Cek permission Docker volume:", error)
-          return errorResponse("Server storage configuration error", 500)
-        }
-
-        const fileExtension = path.extname(fileField.originalName) || getFileExtensionFromMime(fileField.type)
+        const fileExtension = path.extname(imageFile.originalName) || getFileExtensionFromMime(imageFile.type)
         const uniqueFileName = `${generateId()}${fileExtension}`
         const filePath = path.join(uploadDir, uniqueFileName)
 
         try {
-          fs.writeFileSync(filePath, fileField.data)
+          fs.writeFileSync(filePath, imageFile.data)
         } catch (error) {
           console.error("Gagal menyimpan file:", error)
-          return errorResponse("Failed to save file", 500)
+          return errorResponse("Failed to save cover image", 500)
         }
 
         coverImageUrl = `/uploads/${uniqueFileName}`
       } else if (fields.coverImage) {
         coverImageUrl = fields.coverImage
+      }
+
+      galleryUrls = []
+      for (const gf of galleryFiles) {
+        if (!ALLOWED_MIME_TYPES.includes(gf.type)) {
+          return errorResponse(`Gallery file type '${gf.type}' not allowed. Allowed types: ${ALLOWED_MIME_TYPES.join(", ")}`, 400)
+        }
+        if (gf.data.length > MAX_FILE_SIZE) {
+          return errorResponse(`Gallery file size exceeds maximum of ${MAX_FILE_SIZE / 1024 / 1024}MB`, 400)
+        }
+        
+        const fileExtension = path.extname(gf.originalName) || getFileExtensionFromMime(gf.type)
+        const uniqueFileName = `${generateId()}${fileExtension}`
+        const filePath = path.join(uploadDir, uniqueFileName)
+
+        try {
+          fs.writeFileSync(filePath, gf.data)
+        } catch (error) {
+          console.error("Gagal menyimpan gallery file:", error)
+          return errorResponse("Failed to save gallery image", 500)
+        }
+
+        galleryUrls.push(`/uploads/${uniqueFileName}`)
       }
 
       body = {
@@ -144,7 +173,7 @@ export async function PUT(
         location: fields.location || null,
         client: fields.client || null,
         limasRole: fields.limasRole || null,
-        gallery: fields.gallery ? JSON.parse(fields.gallery) : [],
+        gallery: galleryUrls,
         status: fields.status,
         seoTitle: fields.seoTitle || null,
         seoDescription: fields.seoDescription || null,

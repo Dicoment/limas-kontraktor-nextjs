@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024
+
 export default function NewBlogPostClient({
   categories,
   tags,
@@ -15,7 +17,8 @@ export default function NewBlogPostClient({
   const [slug, setSlug] = useState("")
   const [content, setContent] = useState("")
   const [excerpt, setExcerpt] = useState("")
-  const [coverImage, setCoverImage] = useState("")
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState("")
   const [seoTitle, setSeoTitle] = useState("")
   const [seoDescription, setSeoDescription] = useState("")
   const [published, setPublished] = useState(false)
@@ -32,15 +35,47 @@ export default function NewBlogPostClient({
     setTagIds(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id])
   }
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > MAX_FILE_SIZE) {
+      setError(`File size exceeds maximum of ${MAX_FILE_SIZE / 1024 / 1024}MB`)
+      return
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setError("Only image files are allowed")
+      return
+    }
+
+    setCoverImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+    setError("")
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
 
+    const formData = new FormData()
+    formData.append("title", title)
+    formData.append("slug", slug)
+    formData.append("content", content)
+    formData.append("excerpt", excerpt || "")
+    formData.append("published", published.toString())
+    formData.append("publishedAt", publishedAt || "")
+    formData.append("categoryIds", JSON.stringify(categoryIds))
+    formData.append("tagIds", JSON.stringify(tagIds))
+    
+    if (coverImageFile) {
+      formData.append("image", coverImageFile)
+    }
+
     const res = await fetch("/api/blog-posts", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, slug, content, excerpt, coverImage, seoTitle, seoDescription, published, publishedAt: publishedAt || null, categoryIds, tagIds }),
+      body: formData,
     })
     const json = await res.json()
     if (json.success) {
@@ -53,14 +88,24 @@ export default function NewBlogPostClient({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-5xl">
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-5xl" encType="multipart/form-data">
       <h1 className="text-xl font-bold text-slate-800">New Blog Post</h1>
       {error && <div className="bg-red-50 text-red-600 p-3 rounded">{error}</div>}
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
           <Field label="Title" name="title" value={title} onChange={setTitle} required />
           <Field label="Slug" name="slug" value={slug} onChange={setSlug} required />
-          <Field label="Cover Image URL" name="coverImage" value={coverImage} onChange={setCoverImage} type="url" />
+          <Field label="Cover Image">
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleImageChange}
+              className="w-full px-3 py-2 border border-slate-300 rounded" 
+            />
+            {imagePreview && (
+              <img src={imagePreview} alt="Preview" className="mt-2 h-20 object-cover rounded" />
+            )}
+          </Field>
           <Field label="SEO Title" name="seoTitle" value={seoTitle} onChange={setSeoTitle} />
           <Field label="Excerpt" name="excerpt" value={excerpt} onChange={setExcerpt} type="textarea" />
         </div>
@@ -107,7 +152,7 @@ export default function NewBlogPostClient({
 }
 
 function Field({ label, name, value, onChange, type = "text", required, children }:
-  { label: string; name: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; children?: React.ReactNode }) {
+  { label: string; name?: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; children?: React.ReactNode }) {
   const inputElement = children || (type === "textarea" ? (
     <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} />
   ) : (
@@ -117,7 +162,7 @@ function Field({ label, name, value, onChange, type = "text", required, children
   return (
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
-      {Array.isArray(inputElement) ? inputElement[0] : inputElement}
+      {inputElement}
     </div>
   )
 }

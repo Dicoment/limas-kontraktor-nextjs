@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma"
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024
+
 export const dynamic = "force-dynamic"
 
 export default async function NewTestimonialPage() {
@@ -24,7 +26,7 @@ function TestimonialForm({ testimonial, projects, isEdit = false }: { testimonia
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-bold text-slate-800">{isEdit ? "Edit" : "New"} Testimonial</h1>
-      <form action={isEdit ? `/api/testimonials/${testimonial!.id}` : "/api/testimonials"} method={isEdit ? "PUT" : "POST"} className="bg-white rounded-lg shadow p-6 space-y-4 max-w-2xl">
+      <form action={isEdit ? `/api/testimonials/${testimonial!.id}` : "/api/testimonials"} method={isEdit ? "PUT" : "POST"} encType="multipart/form-data" className="bg-white rounded-lg shadow p-6 space-y-4 max-w-2xl">
         <div><label className="block text-sm font-medium text-slate-700 mb-1">Client Name</label><input name="clientName" defaultValue={testimonial?.clientName || ""} className="w-full px-3 py-2 border border-slate-300 rounded" required /></div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Content</label>
@@ -39,7 +41,10 @@ function TestimonialForm({ testimonial, projects, isEdit = false }: { testimonia
           </select>
         </div>
         <div><label className="block text-sm font-medium text-slate-700 mb-1">Source URL</label><input name="sourceUrl" defaultValue={testimonial?.sourceUrl || ""} type="url" className="w-full px-3 py-2 border border-slate-300 rounded" /></div>
-        <div><label className="block text-sm font-medium text-slate-700 mb-1">Avatar URL</label><input name="avatar" defaultValue={testimonial?.avatar || ""} type="url" className="w-full px-3 py-2 border border-slate-300 rounded" /></div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Avatar</label>
+          <input name="avatar" type="file" accept="image/*" className="w-full px-3 py-2 border border-slate-300 rounded" />
+        </div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Related Project</label>
           <select name="projectId" defaultValue={testimonial?.projectId || ""} className="w-full px-3 py-2 border border-slate-300 rounded">
