@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import MediaPicker from "@/components/ui/MediaPicker"
 
 export default function EditProjectClient({
   project,
@@ -97,13 +98,7 @@ export default function EditProjectClient({
           <Field label="Client" value={client} onChange={setClient} />
           <Field label="Limas Role" value={limasRole} onChange={setLimasRole} />
           <Field label="Cover Image">
-            <input 
-              type="text" 
-              value={coverImage} 
-              onChange={setCoverImage}
-              placeholder="/uploads/cover.jpg"
-              className="w-full px-3 py-2 border border-slate-300 rounded" 
-            />
+            <MediaPicker value={coverImage} onChange={setCoverImage} />
           </Field>
         </div>
         <div className="space-y-4">

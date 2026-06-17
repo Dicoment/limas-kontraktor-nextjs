@@ -17,21 +17,15 @@ export default function MediaPicker({ value, onChange, placeholder = "Select an 
   const [isOpen, setIsOpen] = useState(false)
   const [files, setFiles] = useState<MediaFile[]>([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
 
   const fetchMedia = async () => {
     setLoading(true)
-    setError("")
     try {
       const res = await fetch("/api/media")
       const data = await res.json()
-      if (data.success) {
-        setFiles(data.files)
-      } else {
-        setError(data.error || "Failed to load media")
-      }
+      setFiles(data.files || [])
     } catch (err) {
-      setError("Failed to load media")
+      // silent fail
     } finally {
       setLoading(false)
     }
@@ -54,7 +48,6 @@ export default function MediaPicker({ value, onChange, placeholder = "Select an 
         <input
           type="text"
           value={value || ""}
-          onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           className="flex-1 px-3 py-2 border border-slate-300 rounded"
           readOnly
@@ -72,7 +65,6 @@ export default function MediaPicker({ value, onChange, placeholder = "Select an 
           <img src={value} alt="Selected" className="h-20 object-cover rounded" />
         </div>
       )}
-      {error && <p className="text-sm text-red-500">{error}</p>}
 
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
