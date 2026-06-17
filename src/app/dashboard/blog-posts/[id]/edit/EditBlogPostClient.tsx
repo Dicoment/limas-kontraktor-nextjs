@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import MediaPicker from "@/components/ui/MediaPicker"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
@@ -24,7 +25,7 @@ export default function EditBlogPostClient({
   const [content, setContent] = useState(post.content)
   const [excerpt, setExcerpt] = useState(post.excerpt || "")
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState(post.coverImage || "")
+  const [coverImageUrl, setCoverImageUrl] = useState(post.coverImage || "")
   const [seoTitle, setSeoTitle] = useState(post.seoTitle || "")
   const [seoDescription, setSeoDescription] = useState(post.seoDescription || "")
   const [published, setPublished] = useState(post.published)
@@ -56,7 +57,7 @@ export default function EditBlogPostClient({
     }
 
     setCoverImageFile(file)
-    setImagePreview(URL.createObjectURL(file))
+    setCoverImageUrl(URL.createObjectURL(file))
     setError("")
   }
 
@@ -83,8 +84,8 @@ export default function EditBlogPostClient({
     
     if (coverImageFile) {
       formData.append("image", coverImageFile)
-    } else if (imagePreview) {
-      formData.append("coverImage", imagePreview)
+    } else if (coverImageUrl) {
+      formData.append("coverImage", coverImageUrl)
     }
 
     const res = await fetch(`/api/blog-posts/${post.id}`, {
@@ -110,14 +111,21 @@ export default function EditBlogPostClient({
           <Field label="Title" value={title} onChange={setTitle} required />
           <Field label="Slug" value={slug} onChange={setSlug} required />
           <Field label="Cover Image">
+            <MediaPicker 
+              value={coverImageUrl} 
+              onChange={(url) => {
+                setCoverImageUrl(url)
+                setCoverImageFile(null)
+              }} 
+            />
             <input 
               type="file" 
               accept="image/*" 
               onChange={handleImageChange}
-              className="w-full px-3 py-2 border border-slate-300 rounded" 
+              className="w-full px-3 py-2 border border-slate-300 rounded mt-2" 
             />
-            {imagePreview && (
-              <img src={imagePreview} alt="Preview" className="mt-2 h-20 object-cover rounded" />
+            {coverImageUrl && (
+              <img src={coverImageUrl} alt="Preview" className="mt-2 h-20 object-cover rounded" />
             )}
           </Field>
           <Field label="SEO Title" value={seoTitle} onChange={setSeoTitle} />

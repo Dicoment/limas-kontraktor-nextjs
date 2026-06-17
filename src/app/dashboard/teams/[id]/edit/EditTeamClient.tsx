@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import MediaPicker from "@/components/ui/MediaPicker"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
@@ -12,42 +13,17 @@ export default function EditTeamClient({ team }: { team: any }) {
   const [position, setPosition] = useState(team.position || "")
   const [bio, setBio] = useState(team.bio || "")
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
-  const [avatarPreview, setAvatarPreview] = useState(team.avatar || "")
+  const [avatarUrl, setAvatarUrl] = useState(team.avatar || "")
   const [email, setEmail] = useState(team.email || "")
   const [phone, setPhone] = useState(team.phone || "")
   const [displayOrder, setDisplayOrder] = useState(team.displayOrder ?? 0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    if (file.size > MAX_FILE_SIZE) {
-      setError(`File size exceeds maximum of ${MAX_FILE_SIZE / 1024 / 1024}MB`)
-      return
-    }
-
-    if (!file.type.startsWith("image/")) {
-      setError("Only image files are allowed")
-      return
-    }
-
-    setAvatarFile(file)
-    setAvatarPreview(URL.createObjectURL(file))
-    setError("")
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
-
-    if (avatarFile && avatarFile.size > MAX_FILE_SIZE) {
-      setError(`File size exceeds maximum of ${MAX_FILE_SIZE / 1024 / 1024}MB`)
-      setLoading(false)
-      return
-    }
 
     const formData = new FormData()
     formData.append("name", name)
@@ -59,8 +35,8 @@ export default function EditTeamClient({ team }: { team: any }) {
     
     if (avatarFile) {
       formData.append("avatar", avatarFile)
-    } else if (avatarPreview) {
-      formData.append("avatarUrl", avatarPreview)
+    } else if (avatarUrl) {
+      formData.append("avatarUrl", avatarUrl)
     }
 
     const res = await fetch(`/api/teams/${team.id}`, {
@@ -87,14 +63,35 @@ export default function EditTeamClient({ team }: { team: any }) {
         <Field label="Position" value={position} onChange={setPosition} />
         <Field label="Bio" value={bio} onChange={setBio} type="textarea" />
         <Field label="Avatar">
+          <MediaPicker 
+            value={avatarUrl} 
+            onChange={(url) => {
+              setAvatarUrl(url)
+              setAvatarFile(null)
+            }} 
+          />
           <input 
             type="file" 
             accept="image/*" 
-            onChange={handleAvatarChange}
-            className="w-full px-3 py-2 border border-slate-300 rounded" 
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (!file) return
+              if (file.size > MAX_FILE_SIZE) {
+                setError(`File size exceeds maximum of ${MAX_FILE_SIZE / 1024 / 1024}MB`)
+                return
+              }
+              if (!file.type.startsWith("image/")) {
+                setError("Only image files are allowed")
+                return
+              }
+              setAvatarFile(file)
+              setAvatarUrl(URL.createObjectURL(file))
+              setError("")
+            }}
+            className="w-full px-3 py-2 border border-slate-300 rounded mt-2" 
           />
-          {avatarPreview && (
-            <img src={avatarPreview} alt="Preview" className="mt-2 h-20 object-cover rounded" />
+          {avatarUrl && (
+            <img src={avatarUrl} alt="Preview" className="mt-2 h-20 object-cover rounded" />
           )}
         </Field>
         <Field label="Email" value={email} onChange={setEmail} type="email" />

@@ -23,7 +23,7 @@ export default function MediaPicker({ value, onChange, placeholder = "Select an 
     try {
       const res = await fetch("/api/media")
       const data = await res.json()
-      setFiles(data.files || [])
+      setFiles(data.data || [])
     } catch (err) {
       // silent fail
     } finally {

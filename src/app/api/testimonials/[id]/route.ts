@@ -112,7 +112,7 @@ export async function PUT(
 
       const avatarFile = files.find(f => f.name === "avatar")
       
-      const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), "public", "uploads")
+      const uploadDir = path.join(process.cwd(), "public", "uploads")
       try {
         if (!fs.existsSync(uploadDir)) {
           fs.mkdirSync(uploadDir, { recursive: true })
@@ -152,7 +152,7 @@ export async function PUT(
         rating: fields.rating ? parseInt(fields.rating) : null,
         platform: fields.platform || "MANUAL",
         sourceUrl: fields.sourceUrl || null,
-        avatar: avatarUrl,
+        avatar: avatarUrl ?? fields.avatarUrl ?? null,
         published: fields.published === "true",
         projectId: fields.projectId || null,
       }

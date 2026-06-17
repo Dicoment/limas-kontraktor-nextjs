@@ -1,28 +1,44 @@
-import { NextRequest, NextResponse } from "next/server"
-import fs from "fs"
-import path from "path"
+import { NextResponse } from 'next/server';
+import fs from 'fs/promises';
+import path from 'path';
 
-const ALLOWED_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"]
-const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), "public", "uploads")
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    if (!fs.existsSync(uploadDir)) {
-      return NextResponse.json({ success: true, files: [] })
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads'); 
+    
+    try {
+      await fs.access(uploadDir);
+    } catch {
+      return NextResponse.json({ data: [] });
     }
 
-    const entries = fs.readdirSync(uploadDir, { withFileTypes: true })
-    const files = entries
-      .filter(entry => entry.isFile())
-      .filter(entry => ALLOWED_IMAGE_EXTENSIONS.includes(path.extname(entry.name).toLowerCase()))
-      .map(entry => ({
-        url: `/uploads/${entry.name}`,
-        name: entry.name,
-      }))
+    const filenames = await fs.readdir(uploadDir);
+    
+    const files = await Promise.all(
+      filenames.map(async (name) => {
+        const fullPath = path.join(uploadDir, name);
+        const stats = await fs.stat(fullPath);
+        // Hanya proses jika file biasa (bukan direktori)
+        if (stats.isFile() && /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(name)) {
+          return {
+            id: name,
+            name: name,
+            size: stats.size,
+            url: `/uploads/${name}`, // Next.js otomatis melayani ini dari public/uploads
+            createdAt: stats.birthtime
+          };
+        }
+        return null;
+      })
+    );
 
-    return NextResponse.json({ success: true, files })
-  } catch (error) {
-    console.error("Error reading media directory:", error)
-    return NextResponse.json({ success: false, error: "Failed to read media directory" }, { status: 500 })
+    // Filter null dan urutkan dari yang terbaru
+    const validFiles = files.filter(Boolean) as any[];
+    validFiles.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    return NextResponse.json({ data: validFiles });
+  } catch (err: any) {
+    console.error("Media API Error:", err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

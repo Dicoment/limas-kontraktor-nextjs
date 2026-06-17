@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import MediaPicker from "@/components/ui/MediaPicker"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
@@ -18,7 +19,7 @@ export default function NewBlogPostClient({
   const [content, setContent] = useState("")
   const [excerpt, setExcerpt] = useState("")
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState("")
+  const [coverImageUrl, setCoverImageUrl] = useState("")
   const [seoTitle, setSeoTitle] = useState("")
   const [seoDescription, setSeoDescription] = useState("")
   const [published, setPublished] = useState(false)
@@ -50,7 +51,7 @@ export default function NewBlogPostClient({
     }
 
     setCoverImageFile(file)
-    setImagePreview(URL.createObjectURL(file))
+    setCoverImageUrl(URL.createObjectURL(file))
     setError("")
   }
 
@@ -96,14 +97,21 @@ export default function NewBlogPostClient({
           <Field label="Title" name="title" value={title} onChange={setTitle} required />
           <Field label="Slug" name="slug" value={slug} onChange={setSlug} required />
           <Field label="Cover Image">
+            <MediaPicker 
+              value={coverImageUrl} 
+              onChange={(url) => {
+                setCoverImageUrl(url)
+                setCoverImageFile(null)
+              }} 
+            />
             <input 
               type="file" 
               accept="image/*" 
               onChange={handleImageChange}
-              className="w-full px-3 py-2 border border-slate-300 rounded" 
+              className="w-full px-3 py-2 border border-slate-300 rounded mt-2" 
             />
-            {imagePreview && (
-              <img src={imagePreview} alt="Preview" className="mt-2 h-20 object-cover rounded" />
+            {coverImageUrl && (
+              <img src={coverImageUrl} alt="Preview" className="mt-2 h-20 object-cover rounded" />
             )}
           </Field>
           <Field label="SEO Title" name="seoTitle" value={seoTitle} onChange={setSeoTitle} />

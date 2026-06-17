@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), "public", "uploads")
+      const uploadDir = path.join(process.cwd(), "public", "uploads")
       
       try {
         if (!fs.existsSync(uploadDir)) {
@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
         slug: fields.slug,
         content: fields.content,
         excerpt: fields.excerpt || null,
-        coverImage: coverImageUrl,
+        coverImage: coverImageUrl ?? fields.coverImageUrl ?? null,
         seoTitle: fields.seoTitle || null,
         seoDescription: fields.seoDescription || null,
         published: fields.published === "true",

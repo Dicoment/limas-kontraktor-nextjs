@@ -106,7 +106,7 @@ export async function PUT(
 
       const imageFile = files.find(f => f.name === "image")
 
-      const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), "public", "uploads")
+      const uploadDir = path.join(process.cwd(), "public", "uploads")
       try {
         if (!fs.existsSync(uploadDir)) {
           fs.mkdirSync(uploadDir, { recursive: true })
@@ -149,12 +149,17 @@ export async function PUT(
         publishedAt: fields.publishedAt || null,
         categoryIds: fields.categoryIds ? JSON.parse(fields.categoryIds) : [],
         tagIds: fields.tagIds ? JSON.parse(fields.tagIds) : [],
+        coverImage: fields.coverImage ?? null,
       }
     } else {
       try {
         body = await request.json()
       } catch (error) {
         return errorResponse("Invalid JSON body", 400)
+      }
+      
+      if (body.coverImage) {
+        body.coverImage = body.coverImage
       }
     }
     

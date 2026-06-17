@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), "public", "uploads")
+      const uploadDir = path.join(process.cwd(), "public", "uploads")
       
       try {
         if (!fs.existsSync(uploadDir)) {
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
         name: fields.name,
         position: fields.position || null,
         bio: fields.bio || null,
-        avatar: avatarUrl,
+        avatar: avatarUrl ?? fields.avatarUrl ?? null,
         email: fields.email || null,
         phone: fields.phone || null,
         displayOrder: fields.displayOrder ? parseInt(fields.displayOrder) : 0,
@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    const validatedData = teamSchema.parse(body)
+    const validatedData = teamSchema.parse({ ...body, avatar: avatarUrl })
     
     const { name, position, bio, avatar, email, phone, displayOrder } = validatedData
 
