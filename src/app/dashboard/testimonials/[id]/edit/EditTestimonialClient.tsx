@@ -97,7 +97,7 @@ export default function EditTestimonialClient({ testimonial, projects }: any) {
           )}
         </Field>
         <Field label="Related Project" value={projectId} onChange={setProjectId} type="select" 
-          options={[{ value: "", label: "— None —" }, ...projects.map((p: any) => ({ value: p.id, label: p.title }))]} />
+          options={[{ value: "", label: "— None —" }, ...(projects || []).map((p: any) => ({ value: p.id, label: p.title }))]} />
         <div className="flex items-center gap-2">
           <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} className="accent-blue-600" />
           <label className="text-sm font-medium text-slate-700">Published</label>

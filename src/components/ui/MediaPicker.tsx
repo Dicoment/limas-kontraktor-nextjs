@@ -83,7 +83,7 @@ export default function MediaPicker({ value, onChange, placeholder = "Select an 
               <p className="text-slate-500">Loading...</p>
             ) : (
               <div className="grid grid-cols-4 gap-4">
-                {files.map((file) => (
+                {(files || []).map((file) => (
                   <button
                     key={file.name}
                     type="button"

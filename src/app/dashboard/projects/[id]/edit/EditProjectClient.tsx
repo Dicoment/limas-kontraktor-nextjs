@@ -32,7 +32,7 @@ export default function EditProjectClient({
   const [gallery, setGallery] = useState(project.gallery ? JSON.stringify(project.gallery) : "")
   const [categoryIds, setCategoryIds] = useState<string[]>(initialCategoryIds)
   const [teamRoles, setTeamRoles] = useState<Record<string, string>>(
-    teams.reduce((acc: Record<string, string>, t: any) => {
+    (teams || []).reduce((acc: Record<string, string>, t: any) => {
       const existing = (project as any).teams?.find((pt: any) => pt.id === t.id)
       acc[t.id] = existing?.role || ""
       return acc
@@ -115,7 +115,7 @@ export default function EditProjectClient({
               }} 
               className="w-full px-3 py-2 border border-slate-300 rounded h-24"
             >
-              {categories.map((c: any) => (
+              {(categories || []).map((c: any) => (
                 <option key={c.id} value={c.id}>{c.name} ({c.type})</option>
               ))}
             </select>
@@ -123,7 +123,7 @@ export default function EditProjectClient({
           </Field>
           <Field label="Team">
             <div className="border border-slate-300 rounded p-2 max-h-40 overflow-y-auto space-y-1">
-              {teams.map((t: any) => (
+              {(teams || []).map((t: any) => (
                 <label key={t.id} className="flex items-center gap-2 mb-1 cursor-pointer">
                   <input 
                     type="checkbox" 

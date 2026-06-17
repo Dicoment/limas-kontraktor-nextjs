@@ -126,7 +126,7 @@ export default function NewBlogPostClient({
           </Field>
           <Field label="Categories" name="categoryIds">
             <div className="border border-slate-300 rounded p-2 max-h-40 overflow-y-auto space-y-1">
-              {categories.filter((c) => c.type === "blog").map((c) => (
+              {(categories || []).filter((c) => c.type === "blog").map((c) => (
                 <label key={c.id} className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" checked={categoryIds.includes(c.id)} onChange={() => toggleCategory(c.id)} className="accent-blue-600" />
                   <span className="text-sm">{c.name}</span>
@@ -136,7 +136,7 @@ export default function NewBlogPostClient({
           </Field>
           <Field label="Tags" name="tagIds">
             <div className="border border-slate-300 rounded p-2 max-h-40 overflow-y-auto space-y-1">
-              {tags.map((t) => (
+              {(tags || []).map((t) => (
                 <label key={t.id} className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" checked={tagIds.includes(t.id)} onChange={() => toggleTag(t.id)} className="accent-blue-600" />
                   <span className="text-sm">{t.name}</span>

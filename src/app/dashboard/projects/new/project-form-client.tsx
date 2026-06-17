@@ -52,14 +52,14 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
           </Field>
           <Field label="Categories">
             <select name="categoryIds" multiple className="w-full px-3 py-2 border border-slate-300 rounded h-24">
-              {categories.map((c: any) => (
+              {(categories || []).map((c: any) => (
                 <option key={c.id} value={c.id}>{c.name} ({c.type})</option>
               ))}
             </select>
             <p className="text-xs text-slate-400">Ctrl+Click for multiple</p>
           </Field>
           <Field label="Team">
-            {teams.map((team: any) => (
+            {(teams || []).map((team: any) => (
               <div key={team.id} className="flex gap-2 items-center mb-1">
                 <input type="checkbox" name="teamIds" value={team.id} className="accent-blue-600" />
                 <span className="text-sm w-24">{team.name}</span>

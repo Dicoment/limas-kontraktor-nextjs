@@ -118,7 +118,7 @@ export default function TestimonialForm({ testimonial, projects, isEdit = false 
           <label className="block text-sm font-medium text-slate-700 mb-1">Related Project</label>
           <select name="projectId" value={projectId} onChange={(e) => setProjectId(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded">
             <option value="">— None —</option>
-            {projects.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}
+            {(projects || []).map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}
           </select>
         </div>
         <div className="flex items-center gap-2">
