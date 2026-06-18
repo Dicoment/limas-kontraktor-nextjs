@@ -29,35 +29,51 @@ export default function Button({
   ...props
 }: ButtonProps) {
   
-  const baseStyles = "inline-flex items-center justify-center font-semibold rounded-xl transition-colors focus:outline-none select-none text-center"
+  // Base styles dibuat lebih modern dengan tracking dan font-medium/semibold yang seimbang
+  const baseStyles = "inline-flex items-center justify-center font-bold rounded-xl transition-all duration-300 focus:outline-none select-none text-center transform tracking-wide capitalize"
   const widthStyle = fullWidth ? "w-full" : "w-auto"
 
   const sizeStyles = {
-    sm: "px-4 py-2 text-xs",
-    md: "px-5 py-2.5 text-sm",
-    lg: "px-6 py-3.5 text-base",
+    sm: "px-5 py-2.5 text-xs",
+    md: "px-6 py-3.5 text-sm",
+    lg: "px-8 py-4 text-base",
   }
 
   const variantStyles = {
-    primary: "bg-[#E87722] text-white hover:bg-[#d06a1a] shadow-lg shadow-orange-600/10",
-    secondary: "bg-[#1B3A6B] text-white hover:bg-[#142b52] shadow-lg shadow-blue-900/10",
-    outline: "border-2 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-[#1B3A6B] hover:border-[#1B3A6B]",
-    white: "bg-white text-[#1B3A6B] hover:bg-slate-50 shadow-md",
+    // Primary: Orange khas Limas Kontraktor dengan shadow glow kontras
+    primary: "bg-[#E87722] text-white hover:bg-orange-600 shadow-lg shadow-orange-900/20 hover:shadow-orange-900/40 border border-transparent",
+    
+    // Secondary: Menyesuaikan warna Navy utama (#0F2340)
+    secondary: "bg-[#0F2340] text-white hover:bg-[#16325c] shadow-lg shadow-blue-950/20 hover:shadow-blue-950/40 border border-transparent",
+    
+    // Outline: Lebih tipis dan elegan, hover bertransisi ke Navy
+    outline: "border border-white/20 text-gray-300 hover:bg-white hover:text-[#0F2340] hover:border-white",
+    
+    // White: Mewah, clean, cocok untuk dipasang di atas background gelap
+    white: "bg-white text-[#0F2340] hover:bg-gray-50 shadow-lg shadow-black/5 hover:shadow-black/10 border border-transparent",
   }
 
   const combinedClasses = `${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]} ${widthStyle} ${className}`
 
-  // Menggunakan 'as const' di bagian type agar TypeScript membacanya sebagai literal value "spring", bukan string biasa
+  // Animasi spring dibuat sedikit lebih responsif dan snappy (ala website tech/premium modern)
   const animationProps = {
-    whileHover: { scale: 1.02, y: -1 },
+    whileHover: { scale: 1.02, y: -1.5 },
     whileTap: { scale: 0.98 },
-    transition: { type: "spring" as const, stiffness: 400, damping: 15 },
+    transition: { type: "spring" as const, stiffness: 500, damping: 18 },
   }
 
   if (href) {
     return (
-      <motion.div {...animationProps} className={fullWidth ? "w-full" : "inline-block"}>
-        <Link href={href} target={target} rel={rel} className={combinedClasses}>
+      <motion.div 
+        {...animationProps} 
+        className={fullWidth ? "w-full flex" : "inline-flex"}
+      >
+        <Link 
+          href={href} 
+          target={target} 
+          rel={rel} 
+          className={combinedClasses}
+        >
           {children}
         </Link>
       </motion.div>
