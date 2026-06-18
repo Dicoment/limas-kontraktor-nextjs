@@ -5,6 +5,7 @@ import LayananSection from "@/components/sections/home/LayananSection"
 import ExcellenceSection from "@/components/sections/home/ExcellenceSection"
 import PortfolioSection from "@/components/sections/home/PortfolioSection"
 
+export const dynamic = "force-dynamic"
 // ==========================================
 // CONFIGURASI META TAG UNTUK SEO MAXIMAL
 // ==========================================

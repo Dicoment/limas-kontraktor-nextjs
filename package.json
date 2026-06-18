@@ -2,9 +2,9 @@
   "name": "limas-kontraktor",
   "version": "1.0.0",
   "private": true,
-  "scripts": {
+ "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start -p 8000",
     "lint": "next lint",
     "db:generate": "prisma generate",
