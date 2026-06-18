@@ -48,6 +48,7 @@ export default function NewPageClient() {
             className="w-full px-3 py-2 border border-slate-300 rounded" 
             required 
           />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">Minimal 3 karakter, maksimal 200 karakter.</p>
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Slug</label>
@@ -58,6 +59,7 @@ export default function NewPageClient() {
             className="w-full px-3 py-2 border border-slate-300 rounded" 
             required 
           />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">Minimal 2 karakter, maksimal 100 karakter. Hanya huruf kecil, angka, dan strip.</p>
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Content</label>
@@ -68,6 +70,7 @@ export default function NewPageClient() {
             rows={6} 
             className="w-full px-3 py-2 border border-slate-300 rounded" 
           />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">Minimal 10 karakter, maksimal 100.000 karakter.</p>
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">SEO Title</label>
@@ -77,6 +80,7 @@ export default function NewPageClient() {
             onChange={(e) => setSeoTitle(e.target.value)} 
             className="w-full px-3 py-2 border border-slate-300 rounded" 
           />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">Maksimal 60 karakter (Opsional).</p>
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">SEO Description</label>
@@ -87,6 +91,7 @@ export default function NewPageClient() {
             rows={2} 
             className="w-full px-3 py-2 border border-slate-300 rounded" 
           />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">Maksimal 160 karakter (Opsional).</p>
         </div>
         <div className="flex items-center gap-2">
           <input 

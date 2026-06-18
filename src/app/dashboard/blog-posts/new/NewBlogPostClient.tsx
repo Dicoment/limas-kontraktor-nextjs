@@ -94,8 +94,8 @@ export default function NewBlogPostClient({
       {error && <div className="bg-red-50 text-red-600 p-3 rounded">{error}</div>}
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Field label="Title" name="title" value={title} onChange={setTitle} required />
-          <Field label="Slug" name="slug" value={slug} onChange={setSlug} required />
+          <Field label="Title" name="title" value={title} onChange={setTitle} required description="Minimal 3 karakter." />
+          <Field label="Slug" name="slug" value={slug} onChange={setSlug} required description="Minimal 3 karakter. Hanya huruf kecil, angka, dan strip." />
           <Field label="Cover Image">
             <MediaPicker 
               value={coverImageUrl} 
@@ -146,7 +146,7 @@ export default function NewBlogPostClient({
           </Field>
         </div>
       </div>
-      <Field label="Content" name="content" value={content} onChange={setContent} type="textarea" required />
+      <Field label="Content" name="content" value={content} onChange={setContent} type="textarea" required description="Minimal 10 karakter." />
       <Field label="SEO Description" name="seoDescription" value={seoDescription} onChange={setSeoDescription} type="textarea" />
 
       <div className="flex gap-3">
@@ -159,18 +159,23 @@ export default function NewBlogPostClient({
   )
 }
 
-function Field({ label, name, value, onChange, type = "text", required, children }:
-  { label: string; name?: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; children?: React.ReactNode }) {
+function Field({ label, name, value, onChange, type = "text", required, placeholder, description, children }:
+  { label: string; name?: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; placeholder?: string; description?: string; children?: React.ReactNode }) {
   const inputElement = children || (type === "textarea" ? (
-    <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} />
+    <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} placeholder={placeholder} />
+  ) : type === "select" ? (
+    <select value={value} onChange={(e) => onChange?.(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" required={required}>
+      {(options || []).map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
+    </select>
   ) : (
-    <input type={type} value={value} onChange={(e) => onChange?.(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} />
+    <input type={type} value={value} onChange={(e) => onChange?.(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} placeholder={placeholder} />
   ))
 
   return (
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       {inputElement}
+      {description && <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">{description}</p>}
     </div>
   )
 }

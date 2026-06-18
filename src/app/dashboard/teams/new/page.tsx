@@ -54,11 +54,20 @@ export default function NewTeamPage() {
       <h1 className="text-xl font-bold text-slate-800">New Team Member</h1>
       {error && <div className="bg-red-50 text-red-600 p-3 rounded">{error}</div>}
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-4" encType="multipart/form-data">
-        <div><label className="block text-sm font-medium text-slate-700 mb-1">Name</label><input name="name" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" required /></div>
-        <div><label className="block text-sm font-medium text-slate-700 mb-1">Position</label><input name="position" value={position} onChange={(e) => setPosition(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" /></div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+          <input name="name" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" required />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">Minimal 2 karakter, maksimal 100 karakter.</p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Position</label>
+          <input name="position" value={position} onChange={(e) => setPosition(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">Maksimal 100 karakter (Opsional).</p>
+        </div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Bio</label>
           <textarea name="bio" value={bio} onChange={(e) => setBio(e.target.value)} rows={3} className="w-full px-3 py-2 border border-slate-300 rounded" />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">Maksimal 5.000 karakter (Opsional).</p>
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Avatar</label>
@@ -93,11 +102,20 @@ export default function NewTeamPage() {
             <img src={avatarUrl} alt="Preview" className="mt-2 h-20 object-cover rounded" />
           )}
         </div>
-        <div><label className="block text-sm font-medium text-slate-700 mb-1">Email</label><input name="email" value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="w-full px-3 py-2 border border-slate-300 rounded" /></div>
-        <div><label className="block text-sm font-medium text-slate-700 mb-1">Phone</label><input name="phone" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" /></div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <input name="email" value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="w-full px-3 py-2 border border-slate-300 rounded" />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">Format email tidak valid (Opsional).</p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+          <input name="phone" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">8-20 digit. Hanya angka, plus (+), strip (-), dan spasi yang diizinkan (Opsional).</p>
+        </div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Display Order</label>
           <input name="displayOrder" type="number" value={displayOrder} onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-slate-300 rounded" />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">Bilangan bulat. Minimal 0, maksimal 999. Default: 0.</p>
         </div>
         <div className="flex gap-3">
           <button type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer">{loading ? "Creating..." : "Create"}</button>

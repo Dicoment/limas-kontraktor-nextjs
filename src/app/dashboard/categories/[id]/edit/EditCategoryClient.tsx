@@ -39,15 +39,16 @@ export default function EditCategoryClient({ category }: { category: any }) {
       {error && <div className="bg-red-50 text-red-600 p-3 rounded">{error}</div>}
       
       <div className="space-y-4">
-        <Field label="Name" value={name} onChange={setName} required />
-        <Field label="Slug" value={slug} onChange={setSlug} required />
+        <Field label="Name" value={name} onChange={setName} required description="Minimal 2 karakter, maksimal 100 karakter. Hanya huruf, angka, spasi, dan strip." />
+        <Field label="Slug" value={slug} onChange={setSlug} required description="Minimal 2 karakter, maksimal 100 karakter. Hanya huruf kecil, angka, dan strip." />
         <Field label="Type">
           <select value={type} onChange={(e) => setType(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded">
             <option value="blog">Blog</option>
             <option value="project">Project</option>
           </select>
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">Pilihan: blog atau project.</p>
         </Field>
-        <Field label="Description" value={description} onChange={setDescription} type="textarea" />
+        <Field label="Description" value={description} onChange={setDescription} type="textarea" description="Maksimal 500 karakter (Opsional)." />
       </div>
 
       <div className="flex gap-3">
@@ -60,8 +61,8 @@ export default function EditCategoryClient({ category }: { category: any }) {
   )
 }
 
-function Field({ label, value, onChange, type = "text", required, children }: 
-  { label: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; children?: React.ReactNode }) {
+function Field({ label, value, onChange, type = "text", required, description, children }: 
+  { label: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; description?: string; children?: React.ReactNode }) {
   const inputElement = children || (type === "textarea" ? (
     <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={3} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} />
   ) : (
@@ -72,6 +73,7 @@ function Field({ label, value, onChange, type = "text", required, children }:
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       {inputElement}
+      {description && <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">{description}</p>}
     </div>
   )
 }

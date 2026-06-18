@@ -16,19 +16,19 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
       <input type="hidden" name="coverImage" value={coverImage} />
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Field label="Title">
+          <Field label="Title" description="Panjang judul antara 3 hingga 200 karakter.">
             <input name="title" className="w-full px-3 py-2 border border-slate-300 rounded" required />
           </Field>
-          <Field label="Slug">
+          <Field label="Slug" description="3-100 karakter. Hanya boleh berisi huruf kecil, angka, dan strip (contoh: proyek-baru-1).">
             <input name="slug" className="w-full px-3 py-2 border border-slate-300 rounded" required />
           </Field>
-          <Field label="Location">
+          <Field label="Location" description="Maksimal 255 karakter (Opsional).">
             <input name="location" className="w-full px-3 py-2 border border-slate-300 rounded" />
           </Field>
-          <Field label="Client">
+          <Field label="Client" description="Maksimal 255 karakter (Opsional).">
             <input name="client" className="w-full px-3 py-2 border border-slate-300 rounded" />
           </Field>
-          <Field label="Limas Role">
+          <Field label="Limas Role" description="Maksimal 255 karakter (Opsional).">
             <input name="limasRole" className="w-full px-3 py-2 border border-slate-300 rounded" />
           </Field>
           <Field label="Cover Image">
@@ -70,7 +70,7 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
         </div>
       </div>
 
-      <Field label="Description">
+      <Field label="Description" description="Panjang deskripsi antara 10 hingga 10.000 karakter.">
         <textarea name="description" rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required />
       </Field>
 
@@ -88,11 +88,12 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
   )
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children, description }: { label: string; children: React.ReactNode; description?: string }) {
   return (
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       {children}
+      {description && <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">{description}</p>}
     </div>
   )
 }

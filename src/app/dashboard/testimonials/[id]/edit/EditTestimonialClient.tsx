@@ -58,12 +58,13 @@ export default function EditTestimonialClient({ testimonial, projects }: any) {
       {error && <div className="bg-red-50 text-red-600 p-3 rounded">{error}</div>}
       
       <div className="space-y-4">
-        <Field label="Client Name" value={clientName} onChange={setClientName} required />
-        <Field label="Content" value={content} onChange={setContent} type="textarea" required />
-        <Field label="Rating (1-5)" value={rating} onChange={setRating} type="number" min={1} max={5} />
+        <Field label="Client Name" value={clientName} onChange={setClientName} required description="Minimal 2 karakter, maksimal 100 karakter." />
+        <Field label="Content" value={content} onChange={setContent} type="textarea" required description="Minimal 10 karakter, maksimal 5.000 karakter." />
+        <Field label="Rating (1-5)" value={rating} onChange={setRating} type="number" min={1} max={5} description="Bilangan bulat. Minimal 1, maksimal 5 (Opsional)." />
         <Field label="Platform" value={platform} onChange={setPlatform} type="select" 
-          options={[{ value: "MANUAL", label: "Manual" }, { value: "SOCIAL_MEDIA", label: "Social Media" }]} />
-        <Field label="Source URL" value={sourceUrl} onChange={setSourceUrl} type="url" />
+          options={[{ value: "MANUAL", label: "Manual" }, { value: "SOCIAL_MEDIA", label: "Social Media" }]} 
+          description="Pilihan: Manual atau Social Media. Default: Manual." />
+        <Field label="Source URL" value={sourceUrl} onChange={setSourceUrl} type="url" description="URL tidak valid jika diisi, maksimal 500 karakter (Opsional)." />
         <Field label="Avatar">
           <MediaPicker 
             value={avatarUrl} 
@@ -72,6 +73,7 @@ export default function EditTestimonialClient({ testimonial, projects }: any) {
               setAvatarFile(null)
             }} 
           />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">URL avatar tidak valid, maksimal 500 karakter (Opsional).</p>
           <input 
             type="file" 
             accept="image/*" 
@@ -97,7 +99,8 @@ export default function EditTestimonialClient({ testimonial, projects }: any) {
           )}
         </Field>
         <Field label="Related Project" value={projectId} onChange={setProjectId} type="select" 
-          options={[{ value: "", label: "— None —" }, ...(projects || []).map((p: any) => ({ value: p.id, label: p.title }))]} />
+          options={[{ value: "", label: "— None —" }, ...(projects || []).map((p: any) => ({ value: p.id, label: p.title }))]} 
+          description="Format ID tidak valid jika diisi (Opsional)." />
         <div className="flex items-center gap-2">
           <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} className="accent-blue-600" />
           <label className="text-sm font-medium text-slate-700">Published</label>
@@ -114,8 +117,8 @@ export default function EditTestimonialClient({ testimonial, projects }: any) {
   )
 }
 
-function Field({ label, value, onChange, type = "text", required, min, max, options, children }: 
-  { label: string; value?: string | number; onChange?: (v: string) => void; type?: string; required?: boolean; min?: number; max?: number; options?: any[]; children?: React.ReactNode }) {
+function Field({ label, value, onChange, type = "text", required, min, max, description, options, children }: 
+  { label: string; value?: string | number; onChange?: (v: string) => void; type?: string; required?: boolean; min?: number; max?: number; description?: string; options?: any[]; children?: React.ReactNode }) {
   let inputElement: React.ReactNode
   
   if (children) {
@@ -140,6 +143,7 @@ function Field({ label, value, onChange, type = "text", required, min, max, opti
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       {inputElement}
+      {description && <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">{description}</p>}
     </div>
   )
 }

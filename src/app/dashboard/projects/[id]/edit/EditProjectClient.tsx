@@ -92,13 +92,14 @@ export default function EditProjectClient({
       
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Field label="Title" value={title} onChange={setTitle} required />
-          <Field label="Slug" value={slug} onChange={setSlug} required />
-          <Field label="Location" value={location} onChange={setLocation} />
-          <Field label="Client" value={client} onChange={setClient} />
-          <Field label="Limas Role" value={limasRole} onChange={setLimasRole} />
+          <Field label="Title" value={title} onChange={setTitle} required description="Panjang judul antara 3 hingga 200 karakter." />
+          <Field label="Slug" value={slug} onChange={setSlug} required description="Panjang slug antara 3 hingga 100 karakter. Hanya huruf kecil, angka, dan strip." />
+          <Field label="Location" value={location} onChange={setLocation} description="Maksimal 255 karakter (Opsional)." />
+          <Field label="Client" value={client} onChange={setClient} description="Maksimal 255 karakter (Opsional)." />
+          <Field label="Limas Role" value={limasRole} onChange={setLimasRole} description="Maksimal 255 karakter (Opsional)." />
           <Field label="Cover Image">
             <MediaPicker value={coverImage} onChange={setCoverImage} />
+            <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">URL gambar tidak valid jika diisi (Opsional).</p>
           </Field>
         </div>
         <div className="space-y-4">
@@ -153,8 +154,8 @@ export default function EditProjectClient({
         </div>
       </div>
 
-      <Field label="Description" value={description} onChange={setDescription} type="textarea" required />
-      <Field label="Gallery URLs (JSON array)" value={gallery} onChange={setGallery} type="textarea" placeholder='["url1", "url2"]' />
+      <Field label="Description" value={description} onChange={setDescription} type="textarea" required description="Panjang deskripsi antara 10 hingga 10.000 karakter." />
+      <Field label="Gallery URLs (JSON array)" value={gallery} onChange={setGallery} type="textarea" placeholder='["url1", "url2"]' description="Maksimal 50 gambar, URL harus valid." />
 
       <div className="flex gap-3">
         <button type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 cursor-pointer">
@@ -166,8 +167,8 @@ export default function EditProjectClient({
   )
 }
 
-function Field({ label, value, onChange, type = "text", required, placeholder, options, children }: 
-  { label: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; placeholder?: string; options?: string[]; children?: React.ReactNode }) {
+function Field({ label, value, onChange, type = "text", required, placeholder, options, description, children }: 
+  { label: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; placeholder?: string; options?: string[]; description?: string; children?: React.ReactNode }) {
   const inputElement = children || (type === "textarea" ? (
     <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} placeholder={placeholder} />
   ) : type === "select" ? (
@@ -182,6 +183,7 @@ function Field({ label, value, onChange, type = "text", required, placeholder, o
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       {inputElement}
+      {description && <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">{description}</p>}
     </div>
   )
 }

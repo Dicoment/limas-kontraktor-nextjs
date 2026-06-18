@@ -108,8 +108,8 @@ export default function EditBlogPostClient({
       {error && <div className="bg-red-50 text-red-600 p-3 rounded">{error}</div>}
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Field label="Title" value={title} onChange={setTitle} required />
-          <Field label="Slug" value={slug} onChange={setSlug} required />
+          <Field label="Title" value={title} onChange={setTitle} required description="Minimal 3 karakter, maksimal 200 karakter." />
+          <Field label="Slug" value={slug} onChange={setSlug} required description="Minimal 3 karakter. Hanya huruf kecil, angka, dan strip." />
           <Field label="Cover Image">
             <MediaPicker 
               value={coverImageUrl} 
@@ -118,6 +118,7 @@ export default function EditBlogPostClient({
                 setCoverImageFile(null)
               }} 
             />
+            <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">URL gambar tidak valid jika diisi (Opsional).</p>
             <input 
               type="file" 
               accept="image/*" 
@@ -128,8 +129,8 @@ export default function EditBlogPostClient({
               <img src={coverImageUrl} alt="Preview" className="mt-2 h-20 object-cover rounded" />
             )}
           </Field>
-          <Field label="SEO Title" value={seoTitle} onChange={setSeoTitle} />
-          <Field label="Excerpt" value={excerpt} onChange={setExcerpt} type="textarea" />
+          <Field label="SEO Title" value={seoTitle} onChange={setSeoTitle} description="Maksimal 60 karakter (Opsional)." />
+          <Field label="Excerpt" value={excerpt} onChange={setExcerpt} type="textarea" description="Opsional." />
         </div>
         <div className="space-y-4">
           <Field label="Published" name="published">
@@ -160,8 +161,8 @@ export default function EditBlogPostClient({
           </Field>
         </div>
       </div>
-      <Field label="Content" value={content} onChange={setContent} type="textarea" required />
-      <Field label="SEO Description" value={seoDescription} onChange={setSeoDescription} type="textarea" />
+      <Field label="Content" value={content} onChange={setContent} type="textarea" required description="Minimal 10 karakter." />
+      <Field label="SEO Description" value={seoDescription} onChange={setSeoDescription} type="textarea" description="Maksimal 160 karakter (Opsional)." />
 
       <div className="flex gap-3">
         <button type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 cursor-pointer">
@@ -173,8 +174,8 @@ export default function EditBlogPostClient({
   )
 }
 
-function Field({ label, name, value, onChange, type = "text", required, children }: 
-  { label: string; name?: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; children?: React.ReactNode }) {
+function Field({ label, name, value, onChange, type = "text", required, description, children }: 
+  { label: string; name?: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; description?: string; children?: React.ReactNode }) {
   const inputElement = children || (type === "textarea" ? (
     <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} />
   ) : (
@@ -185,6 +186,7 @@ function Field({ label, name, value, onChange, type = "text", required, children
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       {inputElement}
+      {description && <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">{description}</p>}
     </div>
   )
 }

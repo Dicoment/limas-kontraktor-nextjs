@@ -59,9 +59,9 @@ export default function EditTeamClient({ team }: { team: any }) {
       {error && <div className="bg-red-50 text-red-600 p-3 rounded">{error}</div>}
       
       <div className="space-y-4">
-        <Field label="Name" value={name} onChange={setName} required />
-        <Field label="Position" value={position} onChange={setPosition} />
-        <Field label="Bio" value={bio} onChange={setBio} type="textarea" />
+        <Field label="Name" value={name} onChange={setName} required description="Minimal 2 karakter, maksimal 100 karakter." />
+        <Field label="Position" value={position} onChange={setPosition} description="Maksimal 100 karakter (Opsional)." />
+        <Field label="Bio" value={bio} onChange={setBio} type="textarea" description="Maksimal 5.000 karakter (Opsional)." />
         <Field label="Avatar">
           <MediaPicker 
             value={avatarUrl} 
@@ -70,6 +70,7 @@ export default function EditTeamClient({ team }: { team: any }) {
               setAvatarFile(null)
             }} 
           />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">URL avatar tidak valid, maksimal 500 karakter (Opsional).</p>
           <input 
             type="file" 
             accept="image/*" 
@@ -94,9 +95,9 @@ export default function EditTeamClient({ team }: { team: any }) {
             <img src={avatarUrl} alt="Preview" className="mt-2 h-20 object-cover rounded" />
           )}
         </Field>
-        <Field label="Email" value={email} onChange={setEmail} type="email" />
-        <Field label="Phone" value={phone} onChange={setPhone} />
-        <Field label="Display Order" value={displayOrder?.toString()} onChange={(v) => setDisplayOrder(parseInt(v) || 0)} type="number" />
+        <Field label="Email" value={email} onChange={setEmail} type="email" description="Format email tidak valid (Opsional)." />
+        <Field label="Phone" value={phone} onChange={setPhone} description="8-20 digit. Hanya angka, plus (+), strip (-), dan spasi yang diizinkan (Opsional)." />
+        <Field label="Display Order" value={displayOrder?.toString()} onChange={(v) => setDisplayOrder(parseInt(v) || 0)} type="number" description="Bilangan bulat. Minimal 0, maksimal 999. Default: 0." />
       </div>
 
       <div className="flex gap-3">
@@ -109,8 +110,8 @@ export default function EditTeamClient({ team }: { team: any }) {
   )
 }
 
-function Field({ label, value, onChange, type = "text", required, children }: 
-  { label: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; children?: React.ReactNode }) {
+function Field({ label, value, onChange, type = "text", required, description, children }: 
+  { label: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; description?: string; children?: React.ReactNode }) {
   const inputElement = children || (type === "textarea" ? (
     <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={3} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} />
   ) : (
@@ -121,6 +122,7 @@ function Field({ label, value, onChange, type = "text", required, children }:
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       {inputElement}
+      {description && <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">{description}</p>}
     </div>
   )
 }

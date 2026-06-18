@@ -65,20 +65,24 @@ export default function TestimonialForm({ testimonial, projects, isEdit = false 
       <h1 className="text-xl font-bold text-slate-800">{isEdit ? "Edit" : "New"} Testimonial</h1>
       {error && <div className="bg-red-50 text-red-600 p-3 rounded">{error}</div>}
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-4 max-w-2xl">
-        <div><label className="block text-sm font-medium text-slate-700 mb-1">Client Name</label><input name="clientName" value={clientName} onChange={(e) => setClientName(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" required /></div>
+        <div><label className="block text-sm font-medium text-slate-700 mb-1">Client Name</label><input name="clientName" value={clientName} onChange={(e) => setClientName(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" required />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">Minimal 2 karakter, maksimal 100 karakter.</p>
+        </div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Content</label>
           <textarea name="content" value={content} onChange={(e) => setContent(e.target.value)} rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">Minimal 10 karakter, maksimal 5.000 karakter.</p>
         </div>
-        <div><label className="block text-sm font-medium text-slate-700 mb-1">Rating (1-5)</label><input name="rating" type="number" min={1} max={5} value={rating} onChange={(e) => setRating(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" /></div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Platform</label>
-          <select name="platform" value={platform} onChange={(e) => setPlatform(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded">
-            <option value="MANUAL">Manual</option>
-            <option value="SOCIAL_MEDIA">Social Media</option>
-          </select>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Rating (1-5)</label>
+          <input name="rating" type="number" min={1} max={5} value={rating} onChange={(e) => setRating(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">Bilangan bulat. Minimal 1, maksimal 5 (Opsional).</p>
         </div>
-        <div><label className="block text-sm font-medium text-slate-700 mb-1">Source URL</label><input name="sourceUrl" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} type="url" className="w-full px-3 py-2 border border-slate-300 rounded" /></div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Source URL</label>
+          <input name="sourceUrl" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} type="url" className="w-full px-3 py-2 border border-slate-300 rounded" />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">URL tidak valid jika diisi, maksimal 500 karakter (Opsional).</p>
+        </div>
         <p className="text-sm text-gray-500 mt-1">Masukkan tautan ulasan asli (contoh: Link ulasan Google Review, Facebook, dsb).</p>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Avatar</label>
@@ -90,6 +94,7 @@ export default function TestimonialForm({ testimonial, projects, isEdit = false 
             }} 
             placeholder="Select an avatar"
           />
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">URL avatar tidak valid, maksimal 500 karakter (Opsional).</p>
           <input 
             type="file" 
             accept="image/*" 
@@ -114,12 +119,13 @@ export default function TestimonialForm({ testimonial, projects, isEdit = false 
             <img src={avatarUrl} alt="Preview" className="mt-2 h-20 object-cover rounded" />
           )}
         </div>
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Related Project</label>
-          <select name="projectId" value={projectId} onChange={(e) => setProjectId(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded">
-            <option value="">— None —</option>
-            {(projects || []).map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}
+<div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Platform</label>
+          <select name="platform" value={platform} onChange={(e) => setPlatform(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded">
+            <option value="MANUAL">Manual</option>
+            <option value="SOCIAL_MEDIA">Social Media</option>
           </select>
+          <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">Pilihan: Manual atau Social Media. Default: Manual.</p>
         </div>
         <div className="flex items-center gap-2">
           <input type="checkbox" name="published" checked={published} onChange={(e) => setPublished(e.target.checked)} className="accent-blue-600" />

@@ -36,6 +36,7 @@ function InputField({
   placeholder = "",
   required,
   textarea,
+  description,
 }: {
   label: string
   value: string
@@ -43,6 +44,7 @@ function InputField({
   placeholder?: string
   required?: boolean
   textarea?: boolean
+  description?: string
 }) {
   return (
     <div>
@@ -69,6 +71,7 @@ function InputField({
           className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
         />
       )}
+      {description && <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">{description}</p>}
     </div>
   )
 }
@@ -234,22 +237,24 @@ export default function SettingsPage() {
               value={formData.company_name}
               onChange={handleInputChange("company_name")}
               required
+              description="Tidak boleh kosong (minimal 1 karakter)."
             />
-          </div>
-          <InputField
-            label="Deskripsi"
-            value={formData.company_description}
-            onChange={handleInputChange("company_description")}
-            textarea
-            required
-          />
-          <InputField
-            label="Alamat"
-            value={formData.company_address}
-            onChange={handleInputChange("company_address")}
-            textarea
-            required
-          />
+            <InputField
+              label="Deskripsi"
+              value={formData.company_description}
+              onChange={handleInputChange("company_description")}
+              textarea
+              required
+              description="Tidak boleh kosong (minimal 1 karakter)."
+            />
+            <InputField
+              label="Alamat"
+              value={formData.company_address}
+              onChange={handleInputChange("company_address")}
+              textarea
+              required
+              description="Opsional."
+            />
         </Section>
 
         <Section title="Kontak">
@@ -260,12 +265,14 @@ export default function SettingsPage() {
               onChange={handleInputChange("contact_phone1")}
               placeholder="0821-xxxx-xxxx"
               required
+              description="Format nomor telepon tidak ditentukan, maksimal 255 karakter."
             />
             <InputField
               label="Nomor Telepon 2"
               value={formData.contact_phone2}
               onChange={handleInputChange("contact_phone2")}
               placeholder="0812-xxxx-xxxx"
+              description="Format nomor telepon tidak ditentukan, maksimal 255 karakter (Opsional)."
             />
             <InputField
               label="Email"
@@ -273,6 +280,7 @@ export default function SettingsPage() {
               onChange={handleInputChange("contact_email")}
               placeholder="email@perusahaan.com"
               required
+              description="Format email tidak valid jika diisi (Opsional)."
             />
           </div>
         </Section>
