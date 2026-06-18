@@ -159,8 +159,8 @@ export default function NewBlogPostClient({
   )
 }
 
-function Field({ label, name, value, onChange, type = "text", required, placeholder, description, children }:
-  { label: string; name?: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; placeholder?: string; description?: string; children?: React.ReactNode }) {
+function Field({ label, name, value, onChange, type = "text", required, placeholder, description, options, children }:
+  { label: string; name?: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; placeholder?: string; description?: string; options?: string[]; children?: React.ReactNode }) {
   const inputElement = children || (type === "textarea" ? (
     <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} placeholder={placeholder} />
   ) : type === "select" ? (

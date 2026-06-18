@@ -239,22 +239,23 @@ export default function SettingsPage() {
               required
               description="Tidak boleh kosong (minimal 1 karakter)."
             />
-            <InputField
-              label="Deskripsi"
-              value={formData.company_description}
-              onChange={handleInputChange("company_description")}
-              textarea
-              required
-              description="Tidak boleh kosong (minimal 1 karakter)."
-            />
-            <InputField
-              label="Alamat"
-              value={formData.company_address}
-              onChange={handleInputChange("company_address")}
-              textarea
-              required
-              description="Opsional."
-            />
+          </div>
+          <InputField
+            label="Deskripsi"
+            value={formData.company_description}
+            onChange={handleInputChange("company_description")}
+            textarea
+            required
+            description="Tidak boleh kosong (minimal 1 karakter)."
+          />
+          <InputField
+            label="Alamat"
+            value={formData.company_address}
+            onChange={handleInputChange("company_address")}
+            textarea
+            required
+            description="Opsional."
+          />
         </Section>
 
         <Section title="Kontak">
