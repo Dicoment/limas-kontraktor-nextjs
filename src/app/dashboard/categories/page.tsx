@@ -1,15 +1,16 @@
 import { getCategories } from "@/actions/category.actions"
+import { SearchForm, Pagination } from "@/components/admin/BlogTableComponents"
 import Link from "next/link"
-import { redirect } from "next/navigation"
 
 export const dynamic = "force-dynamic"
 
-export default async function AdminCategoriesPage({ searchParams }: { searchParams: { page?: string; type?: string } }) {
+export default async function AdminCategoriesPage({ searchParams }: { searchParams: { page?: string; type?: string; search?: string } }) {
   const type = searchParams.type
   const data = await getCategories({
     page: searchParams.page ? parseInt(searchParams.page) : 1,
     limit: 20,
     type: type || undefined,
+    search: searchParams.search,
   }) as Awaited<ReturnType<typeof getCategories>>
 
   return (
@@ -22,6 +23,10 @@ export default async function AdminCategoriesPage({ searchParams }: { searchPara
           {(!type || type === "blog") ? null : <Link href={`?type=project`} className="text-sm text-blue-600">Show Projects</Link>}
         </div>
         <Link href="/dashboard/categories/new" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium">+ New Category</Link>
+      </div>
+
+      <div className="flex items-center justify-between bg-white border border-slate-100 p-3 rounded-md">
+        <SearchForm placeholder="Cari kategori..." />
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -55,6 +60,8 @@ export default async function AdminCategoriesPage({ searchParams }: { searchPara
           </tbody>
         </table>
       </div>
+
+      <Pagination currentPage={(data as any).page} totalPages={(data as any).totalPages} />
     </div>
   )
 }

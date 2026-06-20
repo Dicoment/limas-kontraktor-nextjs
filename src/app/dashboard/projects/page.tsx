@@ -1,6 +1,5 @@
 import { getProjects } from "@/actions/project.actions"
-import { getAllCategories } from "@/actions/project.actions"
-import { getAllTeams } from "@/actions/project.actions"
+import { SearchForm, Pagination } from "@/components/admin/BlogTableComponents"
 import Link from "next/link"
 
 export const dynamic = "force-dynamic"
@@ -24,15 +23,9 @@ export default async function AdminProjectsPage({ searchParams }: { searchParams
         </Link>
       </div>
 
-      <form method="GET" className="flex gap-2">
-        <input
-          name="search"
-          defaultValue={searchParams.search || ""}
-          placeholder="Cari project..."
-          className="px-3 py-2 border border-slate-300 rounded-md text-sm w-64"
-        />
-        <button type="submit" className="px-4 py-2 bg-slate-800 text-white rounded-md text-sm">Search</button>
-      </form>
+      <div className="flex items-center justify-between bg-white border border-slate-100 p-3 rounded-md">
+        <SearchForm placeholder="Cari project..." />
+      </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full">
@@ -75,25 +68,6 @@ export default async function AdminProjectsPage({ searchParams }: { searchParams
       </div>
 
       <Pagination currentPage={(projectsData as any).page} totalPages={(projectsData as any).totalPages} />
-    </div>
-  )
-}
-
-function Pagination({ currentPage, totalPages }: { currentPage: number; totalPages: number }) {
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
-  return (
-    <div className="flex items-center gap-2 justify-center">
-      {pages.map((p) => (
-        <a
-          key={p}
-          href={`?page=${p}`}
-          className={`px-3 py-1 rounded text-sm ${
-            p === currentPage ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-          }`}
-        >
-          {p}
-        </a>
-      ))}
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { getTeams } from "@/actions/misc.actions"
+import { SearchForm, Pagination } from "@/components/admin/BlogTableComponents"
 import Link from "next/link"
 
 export const dynamic = "force-dynamic"
@@ -16,10 +17,9 @@ export default async function AdminTeamsPage({ searchParams }: { searchParams: {
         <h1 className="text-xl font-bold text-slate-800">Teams</h1>
         <Link href="/dashboard/teams/new" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium">+ New Team</Link>
       </div>
-      <form method="GET" className="flex gap-2">
-        <input name="search" defaultValue={searchParams.search || ""} placeholder="Cari..." className="px-3 py-2 border border-slate-300 rounded-md text-sm w-64" />
-        <button type="submit" className="px-4 py-2 bg-slate-800 text-white rounded-md text-sm">Search</button>
-      </form>
+      <div className="flex items-center justify-between bg-white border border-slate-100 p-3 rounded-md">
+        <SearchForm placeholder="Cari tim..." />
+      </div>
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full">
           <thead className="bg-slate-50 border-b">
@@ -46,6 +46,7 @@ export default async function AdminTeamsPage({ searchParams }: { searchParams: {
           </tbody>
         </table>
       </div>
+      <Pagination currentPage={(data as any).page} totalPages={(data as any).totalPages} />
     </div>
   )
 }

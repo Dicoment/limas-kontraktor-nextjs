@@ -10,6 +10,7 @@ import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, 
   CartesianGrid, Tooltip, Legend 
 } from "recharts"
+import { StatCard, QuickLink } from "@/components/admin/DashboardCards"
 
 // MASTER DATA SIMULASI (Contoh data mentah dari database yang memiliki properti tanggal lengkap)
 const MASTER_DATA_LOG = [
@@ -73,11 +74,11 @@ export default function AdminDashboardPage() {
 
       {/* BARIS 1: 5 KARTU INDIKATOR ATAS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <MiniStatCard title="Total Projects" value={dataRekap.projects} icon={<Briefcase size={16} />} color="blue" />
-        <MiniStatCard title="Published" value={dataRekap.published} icon={<CheckCircle2 size={16} />} color="green" />
-        <MiniStatCard title="Blog Posts" value={dataRekap.blogs} icon={<FileText size={16} />} color="purple" />
-        <MiniStatCard title="Total Leads" value={dataRekap.leads} icon={<Users size={16} />} color="orange" />
-        <MiniStatCard title="Client Reviews" value={dataRekap.reviews} icon={<MessageSquare size={16} />} color="yellow" />
+        <StatCard title="Total Projects" value={dataRekap.projects} icon={<Briefcase size={16} />} variant="blue" />
+        <StatCard title="Published" value={dataRekap.published} icon={<CheckCircle2 size={16} />} variant="green" />
+        <StatCard title="Blog Posts" value={dataRekap.blogs} icon={<FileText size={16} />} variant="purple" />
+        <StatCard title="Total Leads" value={dataRekap.leads} icon={<Users size={16} />} variant="orange" />
+        <StatCard title="Client Reviews" value={dataRekap.reviews} icon={<MessageSquare size={16} />} variant="yellow" />
       </div>
 
       {/* BARIS 2: GRAFIK GARIS DENGAN SELEKSI RENTANG TANGGAL */}
@@ -209,58 +210,14 @@ export default function AdminDashboardPage() {
           <h3 className="text-sm font-bold text-gray-900 mb-1">Akses Cepat</h3>
           <p className="text-[11px] text-gray-400 mb-4">Pintas kilat manajemen data.</p>
           <div className="flex-1 flex flex-col gap-2.5 justify-center">
-            <VerticalQuickLink href="/dashboard/projects/new" label="Tambah Proyek Baru" variant="blue" />
-            <VerticalQuickLink href="/dashboard/blog-posts/new" label="Buat Artikel Blog" variant="green" />
-            <VerticalQuickLink href="/dashboard/teams/new" label="Daftarkan Tim Baru" variant="purple" />
-            <VerticalQuickLink href="/dashboard/leads-logs" label="Lihat Data Leads Log" variant="orange" isView />
+            <QuickLink href="/dashboard/projects/new" label="Tambah Proyek Baru" variant="blue" />
+            <QuickLink href="/dashboard/blog-posts/new" label="Buat Artikel Blog" variant="green" />
+            <QuickLink href="/dashboard/teams/new" label="Daftarkan Tim Baru" variant="purple" />
+            <QuickLink href="/dashboard/leads-logs" label="Lihat Data Leads Log" variant="orange" isView />
           </div>
         </div>
 
       </div>
     </div>
-  )
-}
-
-// --- SUB KOMPONEN KECIL PENDUKUNG ---
-
-function MiniStatCard({ title, value, icon, color }: { title: string, value: number, icon: React.ReactNode, color: string }) {
-  const styles: any = {
-    blue: "bg-blue-50/60 text-blue-600 border-blue-100",
-    green: "bg-green-50/60 text-green-600 border-green-100",
-    purple: "bg-purple-50/60 text-purple-600 border-purple-100",
-    orange: "bg-orange-50/60 text-orange-600 border-orange-100",
-    yellow: "bg-yellow-50/60 text-yellow-600 border-yellow-100",
-  }
-  return (
-    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
-      <div className="space-y-1">
-        <p className="text-[11px] font-semibold text-gray-400 tracking-tight">{title}</p>
-        <p className="text-2xl font-bold text-gray-900 tracking-tight">{value}</p>
-      </div>
-      <div className={`p-2 rounded-lg border ${styles[color]}`}>
-        {icon}
-      </div>
-    </div>
-  )
-}
-
-function VerticalQuickLink({ href, label, variant, isView = false }: any) {
-  const styles: any = {
-    blue: "hover:bg-blue-50 border-gray-200 text-gray-700 hover:text-blue-600 hover:border-blue-200",
-    green: "hover:bg-green-50 border-gray-200 text-gray-700 hover:text-green-600 hover:border-green-200",
-    purple: "hover:bg-purple-50 border-gray-200 text-gray-700 hover:text-purple-600 hover:border-purple-200",
-    orange: "hover:bg-orange-50 border-gray-200 text-gray-700 hover:text-orange-600 hover:border-orange-200",
-  }
-  return (
-    <Link 
-      href={href}
-      className={`w-full flex items-center justify-between p-3 border rounded-xl text-xs font-bold transition-all active:scale-[0.99] bg-white shadow-sm ${styles[variant]}`}
-    >
-      <div className="flex items-center gap-2">
-        {!isView ? <PlusCircle size={14} className="opacity-70" /> : <ArrowRight size={14} className="opacity-70" />}
-        <span>{label}</span>
-      </div>
-      <span className="text-gray-300 font-normal text-sm">➔</span>
-    </Link>
   )
 }

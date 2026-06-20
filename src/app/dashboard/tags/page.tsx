@@ -1,5 +1,5 @@
 import { getTags } from "@/actions/misc.actions"
-import { SearchForm } from "../../../components/admin/BlogTableComponents"
+import { SearchForm, Pagination } from "@/components/admin/BlogTableComponents"
 import Link from "next/link"
 
 export const dynamic = "force-dynamic"
@@ -43,6 +43,7 @@ export default async function AdminTagsPage({ searchParams }: { searchParams: { 
           </tbody>
         </table>
       </div>
+      <Pagination currentPage={(data as any).page} totalPages={(data as any).totalPages} />
     </div>
   )
 }
