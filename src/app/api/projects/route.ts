@@ -56,11 +56,35 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    let body
-    try {
-      body = await request.json()
-    } catch (error) {
-      return errorResponse("Invalid JSON body", 400)
+    const formData = await request.formData()
+    
+    const body: Record<string, any> = {}
+    for (const [key, value] of (formData as any).entries()) {
+      if (typeof value === "string") {
+        body[key] = value
+      }
+    }
+    
+    if (typeof body.gallery === "string") {
+      try {
+        body.gallery = JSON.parse(body.gallery)
+      } catch {
+        body.gallery = []
+      }
+    }
+    if (typeof body.categoryIds === "string") {
+      try {
+        body.categoryIds = JSON.parse(body.categoryIds)
+      } catch {
+        body.categoryIds = []
+      }
+    }
+    if (typeof body.teamIds === "string") {
+      try {
+        body.teamIds = JSON.parse(body.teamIds)
+      } catch {
+        body.teamIds = []
+      }
     }
     
     const validatedData = projectSchema.parse(body)

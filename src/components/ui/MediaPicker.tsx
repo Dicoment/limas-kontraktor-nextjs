@@ -62,7 +62,7 @@ export default function MediaPicker({ value, onChange, placeholder = "Select an 
       </div>
       {value && (
         <div className="mt-2">
-          <img src={value} alt="Selected" className="h-20 object-cover rounded" />
+          <img src={value} alt="Selected" className="h-20 object-contain bg-gray-100 p-1 rounded border border-[#F6BF03]" />
         </div>
       )}
 
@@ -88,10 +88,10 @@ export default function MediaPicker({ value, onChange, placeholder = "Select an 
                     key={file.name}
                     type="button"
                     onClick={() => handleSelect(file.url)}
-                    className="border border-slate-200 rounded p-2 hover:bg-slate-50 text-center"
+                    className={`border rounded p-2 hover:bg-slate-50 text-center ${value === file.url ? 'border-[#F6BF03]' : 'border-slate-200'}`}
                   >
-                    <img src={file.url} alt={file.name} className="w-full h-20 object-cover rounded mb-1" />
-                    <p className="text-xs truncate">{file.name}</p>
+                    <img src={file.url} alt={file.name} className="w-full h-20 object-contain bg-gray-100 p-1 rounded" />
+                    <p className="text-xs truncate mt-1">{file.name}</p>
                   </button>
                 ))}
               </div>

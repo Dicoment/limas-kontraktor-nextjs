@@ -41,24 +41,24 @@ export async function PUT(
   try {
     const { id } = await params
     
-    let body
-    try {
-      body = await request.json()
-    } catch (error) {
-      return errorResponse("Invalid JSON body", 400)
+    const formData = await request.formData()
+    
+    const body: Record<string, any> = {}
+    for (const [key, value] of (formData as any).entries()) {
+      if (typeof value === "string") {
+        body[key] = value
+      }
     }
     
-    // Validate with update schema
-    const validatedData = categoryUpdateSchema.parse(body)
+    const textSchema = categoryUpdateSchema.partial()
+    const validatedData = textSchema.parse(body)
     
-    // Check if category exists
     const existingCategory = await prisma.category.findUnique({
       where: { id }
     })
     
     if (!existingCategory) return notFoundResponse("Category")
     
-    // If slug is being changed, check for uniqueness
     if (validatedData.slug && validatedData.slug !== existingCategory.slug) {
       const slugExists = await prisma.category.findUnique({
         where: { slug: validatedData.slug }
@@ -69,7 +69,6 @@ export async function PUT(
       }
     }
     
-    // Update category
     const category = await prisma.category.update({
       where: { id },
       data: validatedData,
@@ -104,24 +103,24 @@ export async function PATCH(
   try {
     const { id } = await params
     
-    let body
-    try {
-      body = await request.json()
-    } catch (error) {
-      return errorResponse("Invalid JSON body", 400)
+    const formData = await request.formData()
+    
+    const body: Record<string, any> = {}
+    for (const [key, value] of (formData as any).entries()) {
+      if (typeof value === "string") {
+        body[key] = value
+      }
     }
     
-    // Validate partial update
-    const validatedData = categoryUpdateSchema.parse(body)
+    const textSchema = categoryUpdateSchema.partial()
+    const validatedData = textSchema.parse(body)
     
-    // Check if category exists
     const existingCategory = await prisma.category.findUnique({
       where: { id }
     })
     
     if (!existingCategory) return notFoundResponse("Category")
     
-    // If slug is being changed, check for uniqueness
     if (validatedData.slug && validatedData.slug !== existingCategory.slug) {
       const slugExists = await prisma.category.findUnique({
         where: { slug: validatedData.slug }
@@ -132,7 +131,6 @@ export async function PATCH(
       }
     }
     
-    // Update category
     const category = await prisma.category.update({
       where: { id },
       data: validatedData,

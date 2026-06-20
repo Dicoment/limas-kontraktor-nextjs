@@ -40,27 +40,24 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
     ).map((el) => (el as HTMLOptionElement).value)
 
     const formData = new FormData(e.target as HTMLFormElement)
-    const data = {
-      title: formData.get("title") as string,
-      slug: formData.get("slug") as string,
-      description: formData.get("description") as string,
-      location: formData.get("location") as string,
-      client: formData.get("client") as string,
-      limasRole: formData.get("limasRole") as string,
-      coverImage,
-      gallery,
-      status: formData.get("status") as string,
-      seoTitle: formData.get("seoTitle") as string,
-      seoDescription: formData.get("seoDescription") as string,
-      categoryIds,
-      teamIds,
-    }
+    formData.append("title", (formData.get("title") || "") as string)
+    formData.append("slug", (formData.get("slug") || "") as string)
+    formData.append("description", (formData.get("description") || "") as string)
+    formData.append("location", (formData.get("location") || "") as string)
+    formData.append("client", (formData.get("client") || "") as string)
+    formData.append("limasRole", (formData.get("limasRole") || "") as string)
+    formData.append("coverImage", coverImage ?? "")
+    formData.append("gallery", JSON.stringify(gallery))
+    formData.append("status", (formData.get("status") || "DRAFT") as string)
+    formData.append("seoTitle", (formData.get("seoTitle") || "") as string)
+    formData.append("seoDescription", (formData.get("seoDescription") || "") as string)
+    formData.append("categoryIds", JSON.stringify(categoryIds))
+    formData.append("teamIds", JSON.stringify(teamIds))
 
     try {
       const res = await fetch("/api/projects", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: formData,
       })
       const json = await res.json()
       if (json.success) {

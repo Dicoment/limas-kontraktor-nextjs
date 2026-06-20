@@ -59,22 +59,38 @@ export default function EditProjectClient({
       .filter(([, role]) => role)
       .map(([id, role]) => ({ teamId: id, role }))
 
-    const res = await fetch(`/api/projects/${project.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        title, slug, description, location, client, limasRole, coverImage, 
-        status, seoTitle, seoDescription, gallery, categoryIds, teamIds 
-      }),
-    })
-    const json = await res.json()
-    if (json.success) {
-      router.push("/dashboard/projects")
-      router.refresh()
-    } else {
-      setError(json.error || "Failed to update project")
+    const formData = new FormData(e.target as HTMLFormElement)
+    formData.append("title", title)
+    formData.append("slug", slug)
+    formData.append("description", description)
+    formData.append("location", location)
+    formData.append("client", client)
+    formData.append("limasRole", limasRole)
+    formData.append("coverImage", coverImage)
+    formData.append("gallery", JSON.stringify(gallery))
+    formData.append("status", status)
+    formData.append("seoTitle", seoTitle)
+    formData.append("seoDescription", seoDescription)
+    formData.append("categoryIds", JSON.stringify(categoryIds))
+    formData.append("teamIds", JSON.stringify(teamIds))
+
+    try {
+      const res = await fetch(`/api/projects/${project.id}`, {
+        method: "PUT",
+        body: formData,
+      })
+      const json = await res.json()
+      if (json.success) {
+        router.push("/dashboard/projects")
+        router.refresh()
+      } else {
+        setError(json.error || "Failed to update project")
+      }
+    } catch (err) {
+      setError("Network error")
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (

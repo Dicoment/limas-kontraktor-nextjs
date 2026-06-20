@@ -33,24 +33,24 @@ export async function PUT(
   try {
     const { id } = await params
     
-    let body
-    try {
-      body = await request.json()
-    } catch (error) {
-      return errorResponse("Invalid JSON body", 400)
+    const formData = await request.formData()
+    
+    const body: Record<string, any> = {}
+    for (const [key, value] of (formData as any).entries()) {
+      if (typeof value === "string") {
+        body[key] = value
+      }
     }
     
-    // Validate with update schema
-    const validatedData = pageUpdateSchema.parse(body)
+    const textSchema = pageUpdateSchema.partial()
+    const validatedData = textSchema.parse(body)
     
-    // Check if page exists
     const existingPage = await prisma.page.findUnique({
       where: { id }
     })
     
     if (!existingPage) return notFoundResponse("Page")
     
-    // If slug is being changed, check for uniqueness
     if (validatedData.slug && validatedData.slug !== existingPage.slug) {
       const slugExists = await prisma.page.findUnique({
         where: { slug: validatedData.slug }
@@ -61,7 +61,6 @@ export async function PUT(
       }
     }
     
-    // Update page
     const page = await prisma.page.update({ 
       where: { id }, 
       data: validatedData 
@@ -87,24 +86,24 @@ export async function PATCH(
   try {
     const { id } = await params
     
-    let body
-    try {
-      body = await request.json()
-    } catch (error) {
-      return errorResponse("Invalid JSON body", 400)
+    const formData = await request.formData()
+    
+    const body: Record<string, any> = {}
+    for (const [key, value] of (formData as any).entries()) {
+      if (typeof value === "string") {
+        body[key] = value
+      }
     }
     
-    // Validate partial update
-    const validatedData = pageUpdateSchema.parse(body)
+    const textSchema = pageUpdateSchema.partial()
+    const validatedData = textSchema.parse(body)
     
-    // Check if page exists
     const existingPage = await prisma.page.findUnique({
       where: { id }
     })
     
     if (!existingPage) return notFoundResponse("Page")
     
-    // If slug is being changed, check for uniqueness
     if (validatedData.slug && validatedData.slug !== existingPage.slug) {
       const slugExists = await prisma.page.findUnique({
         where: { slug: validatedData.slug }
@@ -115,7 +114,6 @@ export async function PATCH(
       }
     }
     
-    // Update page
     const page = await prisma.page.update({ 
       where: { id }, 
       data: validatedData 

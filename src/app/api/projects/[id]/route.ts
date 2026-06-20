@@ -38,14 +38,39 @@ export async function PUT(
   try {
     const { id } = await params
     
-    let body
-    try {
-      body = await request.json()
-    } catch (error) {
-      return errorResponse("Invalid JSON body", 400)
+    const formData = await request.formData()
+    
+    const body: Record<string, any> = {}
+    for (const [key, value] of (formData as any).entries()) {
+      if (typeof value === "string") {
+        body[key] = value
+      }
     }
     
-    const validatedData = projectUpdateSchema.parse(body)
+    if (typeof body.gallery === "string") {
+      try {
+        body.gallery = JSON.parse(body.gallery)
+      } catch {
+        body.gallery = []
+      }
+    }
+    if (typeof body.categoryIds === "string") {
+      try {
+        body.categoryIds = JSON.parse(body.categoryIds)
+      } catch {
+        body.categoryIds = []
+      }
+    }
+    if (typeof body.teamIds === "string") {
+      try {
+        body.teamIds = JSON.parse(body.teamIds)
+      } catch {
+        body.teamIds = []
+      }
+    }
+    
+    const textSchema = projectUpdateSchema.partial()
+    const validatedData = textSchema.parse(body)
     
     const existingProject = await prisma.project.findUnique({
       where: { id }
@@ -67,8 +92,11 @@ export async function PUT(
     
     const validatedGallery = gallery !== undefined ? validateGallery(gallery) : undefined
     
+    const coverImage = updateData.coverImage === "" ? null : updateData.coverImage
+    
     const updatePayload: any = {
       ...updateData,
+      coverImage,
       ...(validatedGallery !== undefined && { gallery: validatedGallery }),
     }
     

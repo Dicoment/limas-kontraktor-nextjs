@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
+import Button from "@/components/ui/Button"
 
 interface MultipleMediaPickerProps {
   value: string[];
@@ -32,7 +32,10 @@ export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPicke
       {value && value.length > 0 && (
         <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
           {value.map(url => (
-            <img key={url} src={url} alt="Gallery item" className="aspect-square object-cover rounded-md border" />
+            <div key={url} className="border border-[#F6BF03] rounded-md overflow-hidden">
+              <img src={url} alt="Gallery item" className="aspect-square object-contain bg-gray-100 p-1 w-full" />
+              <p className="text-xs truncate px-1 pb-1 text-center">{url.split('/').pop()}</p>
+            </div>
           ))}
         </div>
       )}
@@ -56,10 +59,10 @@ export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPicke
                   <div 
                     key={file.id} 
                     onClick={() => toggleSelect(file.url)}
-                    className={`relative aspect-square border-4 rounded-md overflow-hidden cursor-pointer transition-all ${isSelected ? 'border-green-500' : 'border-transparent'}`}
+                    className={`relative aspect-square border-4 rounded-md overflow-hidden cursor-pointer transition-all ${isSelected ? 'border-[#F6BF03]' : 'border-transparent'}`}
                   >
-                    <img src={file.url} alt={file.name} className="object-cover w-full h-full" />
-                    {isSelected && <div className="absolute inset-0 bg-green-500/220 flex items-center justify-center"><span className="text-white text-3xl font-bold drop-shadow-md">✓</span></div>}
+                    <img src={file.url} alt={file.name} className="object-contain bg-gray-100 p-1 w-full h-full" />
+                    {isSelected && <div className="absolute inset-0 bg-[#F6BF03]/20 flex items-center justify-center"><span className="text-white text-3xl font-bold drop-shadow-md">✓</span></div>}
                   </div>
                 )
               })}
