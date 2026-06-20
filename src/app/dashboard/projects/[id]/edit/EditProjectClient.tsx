@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import MediaPicker from "@/components/ui/MediaPicker"
+import { MultipleMediaPicker } from "@/components/ui/multiple-media-picker"
 
 export default function EditProjectClient({
   project,
@@ -26,10 +27,10 @@ export default function EditProjectClient({
   const [client, setClient] = useState(project.client || "")
   const [limasRole, setLimasRole] = useState(project.limasRole || "")
   const [coverImage, setCoverImage] = useState(project.coverImage || "")
+  const [gallery, setGallery] = useState<string[]>(project.gallery || [])
   const [status, setStatus] = useState(project.status)
   const [seoTitle, setSeoTitle] = useState(project.seoTitle || "")
   const [seoDescription, setSeoDescription] = useState(project.seoDescription || "")
-  const [gallery, setGallery] = useState(project.gallery ? JSON.stringify(project.gallery) : "")
   const [categoryIds, setCategoryIds] = useState<string[]>(initialCategoryIds)
   const [teamRoles, setTeamRoles] = useState<Record<string, string>>(
     (teams || []).reduce((acc: Record<string, string>, t: any) => {
@@ -54,15 +55,6 @@ export default function EditProjectClient({
     setLoading(true)
     setError("")
 
-    let parsedGallery: string[] = []
-    try {
-      if (gallery) parsedGallery = JSON.parse(gallery)
-    } catch (err) {
-      setError("Gallery must be valid JSON array")
-      setLoading(false)
-      return
-    }
-
     const teamIds = Object.entries(teamRoles)
       .filter(([, role]) => role)
       .map(([id, role]) => ({ teamId: id, role }))
@@ -72,7 +64,7 @@ export default function EditProjectClient({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
         title, slug, description, location, client, limasRole, coverImage, 
-        status, seoTitle, seoDescription, gallery: parsedGallery, categoryIds, teamIds 
+        status, seoTitle, seoDescription, gallery, categoryIds, teamIds 
       }),
     })
     const json = await res.json()
@@ -155,7 +147,10 @@ export default function EditProjectClient({
       </div>
 
       <Field label="Description" value={description} onChange={setDescription} type="textarea" required description="Panjang deskripsi antara 10 hingga 10.000 karakter." />
-      <Field label="Gallery URLs (JSON array)" value={gallery} onChange={setGallery} type="textarea" placeholder='["url1", "url2"]' description="Maksimal 50 gambar, URL harus valid." />
+      <Field label="Gallery">
+        <MultipleMediaPicker value={gallery} onChange={setGallery} />
+        <p className="text-xs text-slate-400 mt-1">Pilih banyak gambar dari FileGator</p>
+      </Field>
 
       <div className="flex gap-3">
         <button type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 cursor-pointer">

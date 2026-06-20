@@ -40,7 +40,7 @@ export default function EditTeamClient({ team }: { team: any }) {
     }
 
     const res = await fetch(`/api/teams/${team.id}`, {
-      method: "POST",
+      method: "PUT",
       body: formData,
     })
     const json = await res.json()

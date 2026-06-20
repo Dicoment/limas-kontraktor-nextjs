@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import MediaPicker from "@/components/ui/MediaPicker"
+import { MultipleMediaPicker } from "@/components/ui/multiple-media-picker"
 
 interface ProjectFormClientProps {
   categories: any[]
@@ -10,10 +11,75 @@ interface ProjectFormClientProps {
 
 export default function ProjectFormClient({ categories, teams }: ProjectFormClientProps) {
   const [coverImage, setCoverImage] = useState("")
+  const [gallery, setGallery] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError("")
+
+    const selectedTeamIds = Array.from(
+      document.querySelectorAll('input[name="teamIds"]:checked')
+    ).map((el) => (el as HTMLInputElement).value)
+
+    const teamRoles: Record<string, string> = {}
+    selectedTeamIds.forEach(id => {
+      const roleInput = document.querySelector(`input[name="teamRoles"][data-team="${id}"]`) as HTMLInputElement
+      if (roleInput?.value) teamRoles[id] = roleInput.value
+    })
+
+    const teamIds = selectedTeamIds.map(teamId => ({
+      teamId,
+      role: teamRoles[teamId] || ""
+    }))
+
+    const categoryIds = Array.from(
+      document.querySelectorAll('select[name="categoryIds"] option:checked')
+    ).map((el) => (el as HTMLOptionElement).value)
+
+    const formData = new FormData(e.target as HTMLFormElement)
+    const data = {
+      title: formData.get("title") as string,
+      slug: formData.get("slug") as string,
+      description: formData.get("description") as string,
+      location: formData.get("location") as string,
+      client: formData.get("client") as string,
+      limasRole: formData.get("limasRole") as string,
+      coverImage,
+      gallery,
+      status: formData.get("status") as string,
+      seoTitle: formData.get("seoTitle") as string,
+      seoDescription: formData.get("seoDescription") as string,
+      categoryIds,
+      teamIds,
+    }
+
+    try {
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+      const json = await res.json()
+      if (json.success) {
+        window.location.href = "/dashboard/projects"
+      } else {
+        setError(json.error || "Failed to create project")
+      }
+    } catch (err) {
+      setError("Network error")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <form action="/api/projects" method="POST" className="bg-white rounded-lg shadow p-6 space-y-6">
-      <input type="hidden" name="coverImage" value={coverImage} />
+    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
+      <h1 className="text-xl font-bold text-slate-800">Create Project</h1>
+      {error && <div className="bg-red-50 text-red-600 p-3 rounded">{error}</div>}
+      
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
           <Field label="Title" description="Panjang judul antara 3 hingga 200 karakter.">
@@ -63,7 +129,7 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
               <div key={team.id} className="flex gap-2 items-center mb-1">
                 <input type="checkbox" name="teamIds" value={team.id} className="accent-blue-600" />
                 <span className="text-sm w-24">{team.name}</span>
-                <input name="teamRoles" placeholder="Role" className="flex-1 px-2 py-1 border border-slate-300 rounded text-sm" />
+                <input data-team={team.id} name="teamRoles" placeholder="Role" className="flex-1 px-2 py-1 border border-slate-300 rounded text-sm" />
               </div>
             ))}
           </Field>
@@ -74,13 +140,14 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
         <textarea name="description" rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required />
       </Field>
 
-      <Field label="Gallery URLs (JSON array)">
-        <textarea name="gallery" rows={3} className="w-full px-3 py-2 border border-slate-300 rounded text-sm font-mono" placeholder='["/uploads/image1.jpg", "/uploads/image2.jpg"]' />
+      <Field label="Gallery">
+        <MultipleMediaPicker value={gallery} onChange={setGallery} />
+        <p className="text-xs text-slate-400 mt-1">Pilih banyak gambar dari FileGator</p>
       </Field>
 
       <div className="flex gap-3">
-        <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer">
-          Create Project
+        <button type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 cursor-pointer">
+          {loading ? "Creating..." : "Create Project"}
         </button>
         <a href="/dashboard/projects" className="px-6 py-2 border border-slate-300 rounded hover:bg-slate-50">Cancel</a>
       </div>
