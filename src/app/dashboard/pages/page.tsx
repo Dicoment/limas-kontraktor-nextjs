@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import { SearchForm, Pagination } from "@/components/admin/BlogTableComponents"
 
@@ -33,7 +33,9 @@ export default function AdminPagesClient({ searchParams }: { searchParams: { pag
         <Link href="/dashboard/pages/new" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium">+ New Page</Link>
       </div>
       <div className="flex items-center justify-between bg-white border border-slate-100 p-3 rounded-md">
-        <SearchForm placeholder="Cari halaman..." />
+        <Suspense fallback={<div className="p-4 text-center text-sm text-gray-500">Memuat pencarian...</div>}>
+          <SearchForm placeholder="Cari halaman..." />
+        </Suspense>
       </div>
       {loading ? (
         <div className="p-6">Loading...</div>
@@ -68,7 +70,9 @@ export default function AdminPagesClient({ searchParams }: { searchParams: { pag
               </tbody>
             </table>
           </div>
-          <Pagination currentPage={data?.page} totalPages={data?.totalPages} />
+          <Suspense fallback={<div className="p-4 text-center text-sm text-gray-500">Memuat pagination...</div>}>
+            <Pagination currentPage={data?.page} totalPages={data?.totalPages} />
+          </Suspense>
         </>
       )}
     </div>
