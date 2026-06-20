@@ -214,3 +214,13 @@ enum TestimonialPlatform {
   MANUAL
   SOCIAL_MEDIA
 }
+model Faq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  published Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("faqs")
+}

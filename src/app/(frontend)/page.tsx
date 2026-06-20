@@ -4,7 +4,9 @@ import HeroSection from "@/components/sections/home/HeroSection"
 import LayananSection from "@/components/sections/home/LayananSection"
 import ExcellenceSection from "@/components/sections/home/ExcellenceSection"
 import PortfolioSection from "@/components/sections/home/PortfolioSection"
-
+import AlurKerjaSection from "@/components/sections/home/AlurKerjaSection"
+import TestimonialSection from "@/components/sections/home/TestimonialSection"
+import FaqSection from "@/components/sections/home/FaqSection"
 export const dynamic = "force-dynamic"
 // ==========================================
 // CONFIGURASI META TAG UNTUK SEO MAXIMAL
@@ -70,6 +72,12 @@ export default async function HomePage() {
       <ExcellenceSection />
       {/* 4. Portfolio Section */}
       <PortfolioSection />
+      {/* 5. Alur Kerja Section */}
+      <AlurKerjaSection />
+      {/* 6. Testimonial Section */}
+      <TestimonialSection />
+      {/* 7. FAQ Section */}
+      <FaqSection />
     </main>
   )
 }
