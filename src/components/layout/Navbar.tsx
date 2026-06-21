@@ -3,28 +3,31 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Menu, X, ChevronDown, Phone } from "lucide-react"
+import { Menu, X, ChevronDown, Phone, ShieldCheck } from "lucide-react"
 import { motion, AnimatePresence, Variants } from "framer-motion"
 import Button from "@/components/ui/Button"
 
+const tigaLayanan = [
+  { 
+    label: "Konstruksi & Bangun Baru", 
+    href: "/layanan/bangun-baru", 
+    desc: "Pembangunan dari nol untuk rumah tinggal, ruko komersial, kantor, hingga fasilitas umum dengan manajemen struktur presisi." 
+  },
+  { 
+    label: "Renovasi Total & Parsial", 
+    href: "/layanan/renovasi-rumah", 
+    desc: "Solusi peremajaan properti, penambahan lantai, perbaikan struktur dinding/atap, hingga rekonstruksi tata ruang." 
+  },
+  { 
+    label: "Desain Arsitektur & RAB", 
+    href: "/layanan/desain-rab", 
+    desc: "Pembuatan konsep visual arsitektur 3D eksterior-interior terintegrasi dengan penyusunan RAB yang jujur dan transparan." 
+  },
+]
+
 const navLinks = [
   { label: "Beranda", href: "/" },
-  {
-    label: "Layanan",
-    href: "/layanan",
-    children: [
-      { label: "Jasa Bangun Rumah", href: "/layanan/bangun-rumah" },
-      { label: "Jasa Bangun Interior", href: "/layanan/bangun-interior" },
-      { label: "Jasa Bangun Lainnya", href: "/layanan/bangun-lainnya" },
-      { label: "Jasa Renovasi Rumah", href: "/layanan/renovasi-rumah" },
-      { label: "Jasa Desain Rumah", href: "/layanan/desain-rumah" },
-      { label: "Jasa Desain Interior", href: "/layanan/desain-interior" },
-      { label: "Jasa Desain Rumah + Interior", href: "/layanan/desain-all" },
-      { label: "Jasa Desain Bangunan Lainnya", href: "/layanan/desain-lainnya" },
-      { label: "Jasa Pembuatan RAB", href: "/layanan/rab" },
-      { label: "Jasa Pembuatan IMB/PBG", href: "/layanan/imb-pbg" },
-    ],
-  },
+  { label: "Layanan", href: "/layanan", isMega: true },
   { label: "Proyek", href: "/proyek" },
   { label: "Tentang", href: "/tentang" },
   { label: "Blog", href: "/blog" },
@@ -34,9 +37,9 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const [megaOpen, setMegaOpen] = useState(false)
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState<string | null>(null)
-  const [whatsappNumber, setWhatsappNumber] = useState("628123456789")
+  const [whatsappNumber, setWhatsappNumber] = useState("6282320721150")
 
   useEffect(() => {
     async function fetchWhatsappSetting() {
@@ -62,10 +65,11 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
+  // Lock scroll body saat menu mobile terbuka
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = "hidden"
@@ -76,77 +80,92 @@ export default function Navbar() {
   }, [mobileOpen])
 
   const menuVariants: Variants = {
-    hidden: { opacity: 0, y: -20 },
-    visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.08, duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
-    exit: { opacity: 0, y: -15, transition: { duration: 0.25, ease: "easeInOut" } }
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.05, duration: 0.25 } },
+    exit: { opacity: 0, transition: { duration: 0.2 } }
   }
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, x: -10 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.3 } }
-  }
-
-  const dropdownVariants: Variants = {
-    hidden: { opacity: 0, height: 0, marginTop: 0 },
-    visible: { opacity: 1, height: "auto", marginTop: 4, transition: { duration: 0.3, ease: "easeInOut" } },
-    exit: { opacity: 0, height: 0, marginTop: 0, transition: { duration: 0.2, ease: "easeInOut" } }
+    hidden: { opacity: 0, y: 15 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
   }
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled || mobileOpen ? "bg-white shadow-md py-3" : "bg-transparent py-5"
+        scrolled || mobileOpen
+          ? "bg-slate-950 border-b border-white/10 py-4 shadow-2xl"
+          : "bg-transparent py-5"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-
-        <Link href="/" onClick={() => setMobileOpen(false)}>
+      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between relative z-50">
+        
+        {/* LOGO BRANDING (Tetap Aman di Atas Karena Background Selalu Gelap) */}
+        <Link href="/" onClick={() => setMobileOpen(false)} className="relative block">
           <Image
-            src={scrolled || mobileOpen ? "/logo-biru.png" : "/logo-putih.png"}
+            src="/logo-putih.png"
             alt="Limas Kontraktor"
-            width={120}
-            height={48}
-            className="object-contain transition-all duration-300"
+            width={145}
+            height={55}
+            className="object-contain"
             priority
           />
         </Link>
 
-        <nav className="hidden md:flex items-center gap-7">
+        {/* DESKTOP NAVIGATION */}
+        <nav className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => {
-            if (link.children) {
+            if (link.isMega) {
               return (
                 <div
                   key={link.label}
                   className="relative"
-                  onMouseEnter={() => setOpenDropdown(link.label)}
-                  onMouseLeave={() => setOpenDropdown(null)}
+                  onMouseEnter={() => setMegaOpen(true)}
+                  onMouseLeave={() => setMegaOpen(false)}
                 >
-                  <button
-                    className={`flex items-center gap-1 text-md font-medium transition-colors ${
-                      scrolled ? "text-slate-700 hover:text-[#1B3A6B]" : "text-white/90 hover:text-white"
-                    }`}
-                  >
-                    {link.label}
-                    <ChevronDown size={14} className={`transition-transform duration-300 ${openDropdown === link.label ? "rotate-180" : ""}`} />
+                  <button className="flex items-center gap-1 text-sm font-semibold uppercase tracking-wider text-white hover:text-[#E87722] transition-colors py-2 cursor-pointer">
+                    <span>{link.label}</span>
+                    <ChevronDown size={14} className={`transition-transform duration-300 ${megaOpen ? "rotate-180 text-[#E87722]" : ""}`} />
                   </button>
+
+                  {/* DESKTOP MEGA MENU - UKURAN BESAR DAN LEBIH LEBAR */}
                   <AnimatePresence>
-                    {openDropdown === link.label && (
+                    {megaOpen && (
                       <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 5, scale: 0.95 }}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-50 max-h-[400px] overflow-y-auto"
+                        className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-[720px] bg-slate-900 border border-white/15 p-6 rounded-2xl shadow-2xl z-50 grid grid-cols-12 gap-6"
                       >
-                        {link.children.map((child) => (
-                          <Link
-                            key={child.href}
-                            href={child.href}
-                            className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-[#1B3A6B] transition-colors"
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
+                        {/* Kiri - 3 Layanan Utama */}
+                        <div className="col-span-7 space-y-4">
+                          <p className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-white/10 pb-2">Layanan Utama</p>
+                          <div className="space-y-3">
+                            {tigaLayanan.map((item) => (
+                              <Link
+                                key={item.href}
+                                href={item.href}
+                                className="block p-3 rounded-xl hover:bg-white/[0.05] transition-all group"
+                              >
+                                <p className="text-base font-bold text-white group-hover:text-[#E87722] transition-colors">{item.label}</p>
+                                <p className="text-sm text-slate-200 font-light mt-1.5 leading-relaxed">{item.desc}</p>
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Kanan - Card Tambahan */}
+                        <div className="col-span-5 bg-white/[0.03] border border-white/10 rounded-xl p-5 flex flex-col justify-between">
+                          <div className="space-y-3">
+                            <div className="text-[#E87722]"><ShieldCheck size={26} /></div>
+                            <p className="text-base font-bold text-white uppercase tracking-tight">Transparan & Aman</p>
+                            <p className="text-sm text-slate-200 font-light leading-relaxed">
+                              Dari perencanaan konsep hingga eksekusi struktural akhir, kami memastikan proyek Anda bergaransi resmi.
+                            </p>
+                          </div>
+                          <Link href="/layanan" className="text-sm font-bold text-[#E87722] uppercase tracking-wider hover:underline block">Selengkapnya →</Link>
+                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -157,9 +176,7 @@ export default function Navbar() {
               <Link
                 key={link.label}
                 href={link.href}
-                className={`text-md font-medium transition-colors ${
-                  scrolled ? "text-slate-700 hover:text-[#1B3A6B]" : "text-white/90 hover:text-white"
-                }`}
+                className="text-sm font-semibold uppercase tracking-wider text-white hover:text-[#E87722] transition-colors py-2"
               >
                 {link.label}
               </Link>
@@ -167,27 +184,31 @@ export default function Navbar() {
           })}
         </nav>
 
+        {/* DESKTOP CTA */}
         <div className="hidden md:flex items-center">
           <Button
             href={`https://wa.me/${whatsappNumber}`}
             target="_blank"
             rel="noopener noreferrer"
-            variant={scrolled ? "primary" : "white"}
+            variant="primary"
+            className="bg-[#E87722] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider px-5 py-2.5 shadow-lg"
           >
-            <Phone size={15} className="mr-1" />
-            Konsultasi
+            <Phone size={13} className="mr-2 inline" />
+            <span>Konsultasi Proyek</span>
           </Button>
         </div>
 
+        {/* MOBILE HAMBURGER BUTTON (Sengaja Dibuat Mencolok Putih/Orange) */}
         <button
-          className={`md:hidden p-1 z-50 relative transition-colors ${scrolled || mobileOpen ? "text-slate-700" : "text-white"}`}
+          className="md:hidden p-2 text-white hover:text-[#E87722] active:text-[#E87722] transition-colors cursor-pointer"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Toggle Menu"
         >
-          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+          {mobileOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
 
+      {/* MOBILE FULLSCREEN OVERLAY - KEMBALI KE DARK MODE SOLID BIAR KELIHATAN */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -195,42 +216,46 @@ export default function Navbar() {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="fixed inset-x-0 top-[57px] bottom-0 bg-white z-40 px-6 py-6 flex flex-col justify-between overflow-y-auto md:hidden shadow-inner border-t border-slate-50"
+            className="fixed inset-0 bg-slate-950 text-white z-40 px-6 pt-28 pb-10 flex flex-col justify-between md:hidden"
           >
-            <div className="space-y-2">
+            {/* Navigasi Utama Mobile */}
+            <div className="space-y-1 overflow-y-auto max-h-[calc(100vh-220px)] pr-1 no-scrollbar flex-1 mt-4">
               {navLinks.map((link) => (
-                <motion.div variants={itemVariants} key={link.label} className="border-b border-slate-100/60 pb-1">
-                  {link.children ? (
+                <motion.div variants={itemVariants} key={link.label} className="border-b border-white/10 pb-1">
+                  {link.isMega ? (
                     <>
                       <button
                         onClick={() => setMobileDropdownOpen(mobileDropdownOpen === link.label ? null : link.label)}
-                        className="flex items-center justify-between w-full py-3 text-base font-semibold text-slate-800 hover:text-[#1B3A6B]"
+                        className="flex items-center justify-between w-full py-4 text-2xl font-black text-white uppercase tracking-wide text-left"
                       >
                         <span>{link.label}</span>
                         <ChevronDown
-                          size={18}
-                          className={`text-slate-400 transition-transform duration-300 ${mobileDropdownOpen === link.label ? "rotate-180" : ""}`}
+                          size={24}
+                          className={`text-slate-400 transition-transform duration-300 ${mobileDropdownOpen === link.label ? "rotate-180 text-[#E87722]" : ""}`}
                         />
                       </button>
+                      
+                      {/* Sub-menu Dropdown Mobile (Teks Diperbesar Parah Biar Terbaca) */}
                       <AnimatePresence>
                         {mobileDropdownOpen === link.label && (
                           <motion.div
-                            variants={dropdownVariants}
-                            initial="hidden"
-                            animate="visible"
-                            exit="exit"
-                            className="pl-4 pr-2 bg-slate-50 rounded-xl overflow-hidden mb-2"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="bg-white/[0.03] border border-white/10 rounded-xl overflow-hidden my-2"
                           >
-                            {link.children.map((child) => (
-                              <Link
-                                key={child.href}
-                                href={child.href}
-                                className="block py-3 text-sm font-medium text-slate-600 hover:text-[#1B3A6B] border-b border-slate-200/40 last:border-0"
-                                onClick={() => setMobileOpen(false)}
-                              >
-                                {child.label}
-                              </Link>
-                            ))}
+                            <div className="py-2 px-1 space-y-1">
+                              {tigaLayanan.map((child) => (
+                                <Link
+                                  key={child.href}
+                                  href={child.href}
+                                  className="block py-4 px-4 text-lg font-bold text-slate-200 hover:text-[#E87722] border-b border-white/5 last:border-none"
+                                  onClick={() => setMobileOpen(false)}
+                                >
+                                  {child.label}
+                                </Link>
+                              ))}
+                            </div>
                           </motion.div>
                         )}
                       </AnimatePresence>
@@ -238,7 +263,7 @@ export default function Navbar() {
                   ) : (
                     <Link
                       href={link.href}
-                      className="block py-3 text-base font-semibold text-slate-800 hover:text-[#1B3A6B]"
+                      className="block py-4 text-2xl font-black text-white uppercase tracking-wide"
                       onClick={() => setMobileOpen(false)}
                     >
                       {link.label}
@@ -247,6 +272,8 @@ export default function Navbar() {
                 </motion.div>
               ))}
             </div>
+
+            {/* CTA FIXED BOTTOM DI MOBILE */}
             <motion.div variants={itemVariants} className="pt-6 mt-auto">
               <Button
                 href={`https://wa.me/${whatsappNumber}`}
@@ -254,9 +281,11 @@ export default function Navbar() {
                 rel="noopener noreferrer"
                 variant="primary"
                 fullWidth
+                className="bg-[#E87722] text-white hover:bg-orange-600 border-none py-4 font-black text-base uppercase tracking-wider inline-flex items-center justify-center gap-2 shadow-2xl"
+                onClick={() => setMobileOpen(false)}
               >
-                <Phone size={16} className="mr-2" />
-                Konsultasi Gratis
+                <Phone size={18} className="animate-pulse" />
+                <span>Konsultasi Proyek Anda</span>
               </Button>
             </motion.div>
           </motion.div>
