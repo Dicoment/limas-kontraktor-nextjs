@@ -3,6 +3,8 @@
 import { useState } from "react"
 import MediaPicker from "@/components/ui/MediaPicker"
 import { MultipleMediaPicker } from "@/components/ui/multiple-media-picker"
+import Textarea from "@/components/ui/Textarea"
+import Input from "@/components/ui/Input"
 
 interface ProjectFormClientProps {
   categories: any[]
@@ -14,6 +16,26 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
   const [gallery, setGallery] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+
+  const handleAutoFill = () => {
+    const dummyTitle = "Proyek Dummy " + Math.floor(Math.random() * 1000)
+    const dummySlug = "proyek-dummy-" + Math.floor(Math.random() * 1000)
+    
+    const form = document.querySelector("form") as HTMLFormElement
+    if (!form) return
+    
+    (form.querySelector('[name="title"]') as HTMLInputElement).value = dummyTitle
+    ;(form.querySelector('[name="slug"]') as HTMLInputElement).value = dummySlug
+    ;(form.querySelector('[name="description"]') as HTMLTextAreaElement).value = "Deskripsi dummy untuk pengujian UI CMS."
+    ;(form.querySelector('[name="coverImage"]') as HTMLInputElement).value = "/uploads/dummy-cover.jpg"
+    ;(form.querySelector('[name="location"]') as HTMLInputElement).value = "Jakarta"
+    ;(form.querySelector('[name="client"]') as HTMLInputElement).value = "PT Dummy Test"
+    ;(form.querySelector('[name="seoDescription"]') as HTMLTextAreaElement).value = "Deskripsi SEO dummy untuk proyek pengujian."
+    ;(form.querySelector('[name="status"]') as HTMLSelectElement).value = "DRAFT"
+    
+    setCoverImage("/uploads/dummy-cover.jpg")
+    setGallery(["/uploads/dummy-1.jpg"])
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -80,19 +102,19 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
           <Field label="Title" description="Panjang judul antara 3 hingga 200 karakter.">
-            <input name="title" className="w-full px-3 py-2 border border-slate-300 rounded" required />
+            <Input name="title" required />
           </Field>
           <Field label="Slug" description="3-100 karakter. Hanya boleh berisi huruf kecil, angka, dan strip (contoh: proyek-baru-1).">
-            <input name="slug" className="w-full px-3 py-2 border border-slate-300 rounded" required />
+            <Input name="slug" required />
           </Field>
           <Field label="Location" description="Maksimal 255 karakter (Opsional).">
-            <input name="location" className="w-full px-3 py-2 border border-slate-300 rounded" />
+            <Input name="location" />
           </Field>
           <Field label="Client" description="Maksimal 255 karakter (Opsional).">
-            <input name="client" className="w-full px-3 py-2 border border-slate-300 rounded" />
+            <Input name="client" />
           </Field>
           <Field label="Limas Role" description="Maksimal 255 karakter (Opsional).">
-            <input name="limasRole" className="w-full px-3 py-2 border border-slate-300 rounded" />
+            <Input name="limasRole" />
           </Field>
           <Field label="Cover Image">
             <MediaPicker value={coverImage} onChange={setCoverImage} />
@@ -108,10 +130,10 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
             </select>
           </Field>
           <Field label="SEO Title">
-            <input name="seoTitle" className="w-full px-3 py-2 border border-slate-300 rounded" />
+            <Input name="seoTitle" />
           </Field>
           <Field label="SEO Description">
-            <input name="seoDescription" className="w-full px-3 py-2 border border-slate-300 rounded" />
+            <Textarea name="seoDescription" rows={3} />
           </Field>
           <Field label="Categories">
             <select name="categoryIds" multiple className="w-full px-3 py-2 border border-slate-300 rounded h-24">
@@ -134,7 +156,7 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
       </div>
 
       <Field label="Description" description="Panjang deskripsi antara 10 hingga 10.000 karakter.">
-        <textarea name="description" rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required />
+        <Textarea name="description" rows={4} required />
       </Field>
 
       <Field label="Gallery">
@@ -143,6 +165,9 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
       </Field>
 
       <div className="flex gap-3">
+        <button type="button" onClick={handleAutoFill} className="px-6 py-2 bg-[#F6BF03] text-black rounded hover:bg-[#F5C600]">
+          ⚡ Auto-Fill Dummy Data
+        </button>
         <button type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 cursor-pointer">
           {loading ? "Creating..." : "Create Project"}
         </button>
