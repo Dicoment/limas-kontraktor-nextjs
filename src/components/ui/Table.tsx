@@ -2,7 +2,7 @@ import type { ReactNode } from "react"
 
 interface TableHeader {
   key: string
-  label: string
+  label: string | ReactNode
   align?: "left" | "right" | "center"
   className?: string
 }

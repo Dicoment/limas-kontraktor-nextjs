@@ -89,12 +89,12 @@ export function Sidebar({
         <SidebarItem href="/dashboard/categories" icon={<Layers size={18} />} label="Categories" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/categories'} />
         <SidebarItem href="/dashboard/tags" icon={<Tags size={18} />} label="Tags" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/tags'} />
 
-        <SidebarLabel label="Data Agensi" collapsed={collapsed} mobileOpen={mobileOpen} />
+        <SidebarLabel label="Data Perusahaan" collapsed={collapsed} mobileOpen={mobileOpen} />
         <SidebarItem href="/dashboard/teams" icon={<Users size={18} />} label="Teams" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/teams'} />
         <SidebarItem href="/dashboard/testimonials" icon={<MessageSquare size={18} />} label="Testimonials" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/testimonials'} />
         <SidebarItem href="/dashboard/pages" icon={<Shapes size={18} />} label="Pages" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/pages'} />
 
-        <SidebarLabel label="Sistem & Prospektus" collapsed={collapsed} mobileOpen={mobileOpen} />
+        <SidebarLabel label="Sistem & Prospek" collapsed={collapsed} mobileOpen={mobileOpen} />
         <SidebarItem href="/dashboard/profile" icon={<User size={18} />} label="Profil" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/profile'} />
         <SidebarItem href="/dashboard/settings" icon={<Settings size={18} />} label="Settings" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/settings'} />
         <SidebarItem href="/dashboard/leads-logs" icon={<History size={18} />} label="Leads Log" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/leads-logs'} />
