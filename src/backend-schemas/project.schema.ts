@@ -1,5 +1,10 @@
 import { z } from "zod"
 
+const urlOrRelativePath = z.string().refine(
+  (val) => !val || val.startsWith("/") || val.startsWith("http://") || val.startsWith("https://"),
+  { message: "Harus URL valid atau path relatif (contoh: /uploads/image.jpg)" }
+)
+
 export const projectStatusEnum = z.enum(["DRAFT", "ONGOING", "COMPLETED"])
 
 export const projectSchema = z.object({
@@ -25,12 +30,10 @@ export const projectSchema = z.object({
     .max(255, "Limas role maksimal 255 karakter")
     .optional()
     .nullable(),
-  coverImage: z.string()
-    .url("URL gambar tidak valid")
+  coverImage: urlOrRelativePath
     .optional()
-    .nullable()
-    .or(z.literal("")),
-  gallery: z.array(z.string().url("URL gambar tidak valid"))
+    .nullable(),
+  gallery: z.array(urlOrRelativePath)
     .max(50, "Maksimal 50 gambar dalam gallery")
     .optional()
     .default([]),
