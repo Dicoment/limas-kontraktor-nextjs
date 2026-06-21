@@ -16,6 +16,7 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
   const [gallery, setGallery] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
 
   const handleAutoFill = () => {
     const dummyTitle = "Proyek Dummy " + Math.floor(Math.random() * 1000)
@@ -85,6 +86,9 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
       if (json.success) {
         window.location.href = "/dashboard/projects"
       } else {
+        if (json.fieldErrors) {
+          setFieldErrors(json.fieldErrors)
+        }
         setError(json.error || "Failed to create project")
       }
     } catch (err) {
@@ -101,20 +105,20 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
       
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Field label="Title" description="Panjang judul antara 3 hingga 200 karakter.">
-            <Input name="title" required />
+          <Field label="Title" description="Panjang judul antara 3 hingga 200 karakter." fieldName="title" fieldErrors={fieldErrors}>
+            <Input name="title" required error={!!fieldErrors.title} />
           </Field>
-          <Field label="Slug" description="3-100 karakter. Hanya boleh berisi huruf kecil, angka, dan strip (contoh: proyek-baru-1).">
-            <Input name="slug" required />
+          <Field label="Slug" description="3-100 karakter. Hanya boleh berisi huruf kecil, angka, dan strip (contoh: proyek-baru-1)." fieldName="slug" fieldErrors={fieldErrors}>
+            <Input name="slug" required error={!!fieldErrors.slug} />
           </Field>
-          <Field label="Location" description="Maksimal 255 karakter (Opsional).">
-            <Input name="location" />
+          <Field label="Location" description="Maksimal 255 karakter (Opsional)." fieldName="location" fieldErrors={fieldErrors}>
+            <Input name="location" error={!!fieldErrors.location} />
           </Field>
-          <Field label="Client" description="Maksimal 255 karakter (Opsional).">
-            <Input name="client" />
+          <Field label="Client" description="Maksimal 255 karakter (Opsional)." fieldName="client" fieldErrors={fieldErrors}>
+            <Input name="client" error={!!fieldErrors.client} />
           </Field>
-          <Field label="Limas Role" description="Maksimal 255 karakter (Opsional).">
-            <Input name="limasRole" />
+          <Field label="Limas Role" description="Maksimal 255 karakter (Opsional)." fieldName="limasRole" fieldErrors={fieldErrors}>
+            <Input name="limasRole" error={!!fieldErrors.limasRole} />
           </Field>
           <Field label="Cover Image">
             <MediaPicker value={coverImage} onChange={setCoverImage} />
@@ -129,11 +133,11 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
               <option value="COMPLETED">Completed</option>
             </select>
           </Field>
-          <Field label="SEO Title">
-            <Input name="seoTitle" />
+          <Field label="SEO Title" fieldName="seoTitle" fieldErrors={fieldErrors}>
+            <Input name="seoTitle" error={!!fieldErrors.seoTitle} />
           </Field>
-          <Field label="SEO Description">
-            <Textarea name="seoDescription" rows={3} />
+          <Field label="SEO Description" fieldName="seoDescription" fieldErrors={fieldErrors}>
+            <Textarea name="seoDescription" rows={3} error={!!fieldErrors.seoDescription} />
           </Field>
           <Field label="Categories">
             <select name="categoryIds" multiple className="w-full px-3 py-2 border border-slate-300 rounded h-24">
@@ -155,8 +159,8 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
         </div>
       </div>
 
-      <Field label="Description" description="Panjang deskripsi antara 10 hingga 10.000 karakter.">
-        <Textarea name="description" rows={4} required />
+      <Field label="Description" description="Panjang deskripsi antara 10 hingga 10.000 karakter." fieldName="description" fieldErrors={fieldErrors}>
+        <Textarea name="description" rows={4} required error={!!fieldErrors.description} />
       </Field>
 
       <Field label="Gallery">
@@ -177,11 +181,13 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
   )
 }
 
-function Field({ label, children, description }: { label: string; children: React.ReactNode; description?: string }) {
+function Field({ label, children, description, fieldName, fieldErrors }: { label: string; children: React.ReactNode; description?: string; fieldName?: string; fieldErrors?: Record<string, string[]> }) {
+  const hasError = fieldName && fieldErrors?.[fieldName]?.length > 0
   return (
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       {children}
+      {hasError && <p className="text-red-500 text-xs mt-1">{fieldErrors[fieldName]?.[0]}</p>}
       {description && <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">{description}</p>}
     </div>
   )
