@@ -17,6 +17,7 @@ export default function EditTestimonialClient({ testimonial, projects }: any) {
   const [published, setPublished] = useState(testimonial.published)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,6 +48,9 @@ export default function EditTestimonialClient({ testimonial, projects }: any) {
       router.push("/dashboard/testimonials")
       router.refresh()
     } else {
+      if (json.fieldErrors) {
+        setFieldErrors(json.fieldErrors)
+      }
       setError(json.error || "Failed to update testimonial")
     }
     setLoading(false)
@@ -58,13 +62,13 @@ export default function EditTestimonialClient({ testimonial, projects }: any) {
       {error && <div className="bg-red-50 text-red-600 p-3 rounded">{error}</div>}
       
       <div className="space-y-4">
-        <Field label="Client Name" value={clientName} onChange={setClientName} required description="Minimal 2 karakter, maksimal 100 karakter." />
-        <Field label="Content" value={content} onChange={setContent} type="textarea" required description="Minimal 10 karakter, maksimal 5.000 karakter." />
-        <Field label="Rating (1-5)" value={rating} onChange={setRating} type="number" min={1} max={5} description="Bilangan bulat. Minimal 1, maksimal 5 (Opsional)." />
-        <Field label="Platform" value={platform} onChange={setPlatform} type="select" 
+        <Field label="Client Name" name="clientName" value={clientName} onChange={setClientName} required description="Minimal 2 karakter, maksimal 100 karakter." fieldErrors={fieldErrors} />
+        <Field label="Content" name="content" value={content} onChange={setContent} type="textarea" required description="Minimal 10 karakter, maksimal 5.000 karakter." fieldErrors={fieldErrors} />
+        <Field label="Rating (1-5)" name="rating" value={rating} onChange={setRating} type="number" min={1} max={5} description="Bilangan bulat. Minimal 1, maksimal 5 (Opsional)." fieldErrors={fieldErrors} />
+        <Field label="Platform" name="platform" value={platform} onChange={setPlatform} type="select" 
           options={[{ value: "MANUAL", label: "Manual" }, { value: "SOCIAL_MEDIA", label: "Social Media" }]} 
-          description="Pilihan: Manual atau Social Media. Default: Manual." />
-        <Field label="Source URL" value={sourceUrl} onChange={setSourceUrl} type="url" description="URL tidak valid jika diisi, maksimal 500 karakter (Opsional)." />
+          description="Pilihan: Manual atau Social Media. Default: Manual." fieldErrors={fieldErrors} />
+        <Field label="Source URL" name="sourceUrl" value={sourceUrl} onChange={setSourceUrl} type="url" description="URL tidak valid jika diisi, maksimal 500 karakter (Opsional)." fieldErrors={fieldErrors} />
         <Field label="Avatar">
           <MediaPicker 
             value={avatarUrl} 
@@ -98,9 +102,9 @@ export default function EditTestimonialClient({ testimonial, projects }: any) {
             <img src={avatarUrl} alt="Preview" className="mt-2 h-20 object-cover rounded" />
           )}
         </Field>
-        <Field label="Related Project" value={projectId} onChange={setProjectId} type="select" 
+        <Field label="Related Project" name="projectId" value={projectId} onChange={setProjectId} type="select" 
           options={[{ value: "", label: "— None —" }, ...(projects || []).map((p: any) => ({ value: p.id, label: p.title }))]} 
-          description="Format ID tidak valid jika diisi (Opsional)." />
+          description="Format ID tidak valid jika diisi (Opsional)." fieldErrors={fieldErrors} />
         <div className="flex items-center gap-2">
           <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} className="accent-blue-600" />
           <label className="text-sm font-medium text-slate-700">Published</label>
@@ -117,17 +121,19 @@ export default function EditTestimonialClient({ testimonial, projects }: any) {
   )
 }
 
-function Field({ label, value, onChange, type = "text", required, min, max, description, options, children }: 
-  { label: string; value?: string | number; onChange?: (v: string) => void; type?: string; required?: boolean; min?: number; max?: number; description?: string; options?: any[]; children?: React.ReactNode }) {
+function Field({ label, name, value, onChange, type = "text", required, min, max, description, options, fieldErrors, children }: 
+  { label: string; name?: string; value?: string | number; onChange?: (v: string) => void; type?: string; required?: boolean; min?: number; max?: number; description?: string; options?: any[]; fieldErrors?: Record<string, string[]>; children?: React.ReactNode }) {
+  const hasError = !!name && (fieldErrors?.[name]?.length ?? 0) > 0
+  const errorClass = hasError ? "border-red-500" : "border-slate-300"
   let inputElement: React.ReactNode
   
   if (children) {
     inputElement = children
   } else if (type === "textarea") {
-    inputElement = <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} />
+    inputElement = <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={4} className={`w-full px-3 py-2 border rounded ${errorClass}`} required={required} />
   } else if (type === "select") {
     inputElement = (
-      <select value={value} onChange={(e) => onChange?.(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded">
+      <select value={value} onChange={(e) => onChange?.(e.target.value)} className={`w-full px-3 py-2 border rounded ${errorClass}`}>
         {options?.map((opt: any) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
@@ -136,13 +142,14 @@ function Field({ label, value, onChange, type = "text", required, min, max, desc
       </select>
     )
   } else {
-    inputElement = <input type={type} value={value} onChange={(e) => onChange?.(e.target.value)} min={min} max={max} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} />
+    inputElement = <input type={type} value={value} onChange={(e) => onChange?.(e.target.value)} min={min} max={max} className={`w-full px-3 py-2 border rounded ${errorClass}`} required={required} />
   }
 
   return (
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       {inputElement}
+      {hasError && <p className="text-red-500 text-xs mt-1">{fieldErrors?.[name]?.[0]}</p>}
       {description && <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">{description}</p>}
     </div>
   )

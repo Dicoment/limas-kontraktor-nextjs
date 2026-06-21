@@ -28,6 +28,7 @@ export default function NewBlogPostClient({
   const [tagIds, setTagIds] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
 
   const toggleCategory = (id: string) => {
     setCategoryIds(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id])
@@ -83,6 +84,9 @@ export default function NewBlogPostClient({
       router.push("/admin/blog-posts")
       router.refresh()
     } else {
+      if (json.fieldErrors) {
+        setFieldErrors(json.fieldErrors)
+      }
       setError(json.error || "Failed to create post")
     }
     setLoading(false)
@@ -94,8 +98,8 @@ export default function NewBlogPostClient({
       {error && <div className="bg-red-50 text-red-600 p-3 rounded">{error}</div>}
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Field label="Title" name="title" value={title} onChange={setTitle} required description="Minimal 3 karakter." />
-          <Field label="Slug" name="slug" value={slug} onChange={setSlug} required description="Minimal 3 karakter. Hanya huruf kecil, angka, dan strip." />
+          <Field label="Title" name="title" value={title} onChange={setTitle} required description="Minimal 3 karakter." fieldErrors={fieldErrors} />
+          <Field label="Slug" name="slug" value={slug} onChange={setSlug} required description="Minimal 3 karakter. Hanya huruf kecil, angka, dan strip." fieldErrors={fieldErrors} />
           <Field label="Cover Image">
             <MediaPicker 
               value={coverImageUrl} 
@@ -114,8 +118,8 @@ export default function NewBlogPostClient({
               <img src={coverImageUrl} alt="Preview" className="mt-2 h-20 object-cover rounded" />
             )}
           </Field>
-          <Field label="SEO Title" name="seoTitle" value={seoTitle} onChange={setSeoTitle} />
-          <Field label="Excerpt" name="excerpt" value={excerpt} onChange={setExcerpt} type="textarea" />
+          <Field label="SEO Title" name="seoTitle" value={seoTitle} onChange={setSeoTitle} fieldErrors={fieldErrors} />
+          <Field label="Excerpt" name="excerpt" value={excerpt} onChange={setExcerpt} type="textarea" fieldErrors={fieldErrors} />
         </div>
         <div className="space-y-4">
           <Field label="Published" name="published">
@@ -146,8 +150,8 @@ export default function NewBlogPostClient({
           </Field>
         </div>
       </div>
-      <Field label="Content" name="content" value={content} onChange={setContent} type="textarea" required description="Minimal 10 karakter." />
-      <Field label="SEO Description" name="seoDescription" value={seoDescription} onChange={setSeoDescription} type="textarea" />
+      <Field label="Content" name="content" value={content} onChange={setContent} type="textarea" required description="Minimal 10 karakter." fieldErrors={fieldErrors} />
+      <Field label="SEO Description" name="seoDescription" value={seoDescription} onChange={setSeoDescription} type="textarea" fieldErrors={fieldErrors} />
 
       <div className="flex gap-3">
         <button type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 cursor-pointer">
@@ -159,22 +163,26 @@ export default function NewBlogPostClient({
   )
 }
 
-function Field({ label, name, value, onChange, type = "text", required, placeholder, description, options, children }:
-  { label: string; name?: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; placeholder?: string; description?: string; options?: string[]; children?: React.ReactNode }) {
+function Field({ label, name, value, onChange, type = "text", required, placeholder, description, options, fieldErrors, children }:
+  { label: string; name?: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; placeholder?: string; description?: string; options?: string[]; fieldErrors?: Record<string, string[]>; children?: React.ReactNode }) {
+  const hasError = !!name && (fieldErrors?.[name]?.length ?? 0) > 0
+  const errorClass = hasError ? "border-red-500" : "border-slate-300"
+  
   const inputElement = children || (type === "textarea" ? (
-    <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} placeholder={placeholder} />
+    <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={4} className={`w-full px-3 py-2 border rounded ${errorClass}`} required={required} placeholder={placeholder} />
   ) : type === "select" ? (
-    <select value={value} onChange={(e) => onChange?.(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" required={required}>
+    <select value={value} onChange={(e) => onChange?.(e.target.value)} className={`w-full px-3 py-2 border rounded ${errorClass}`} required={required}>
       {(options || []).map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
     </select>
   ) : (
-    <input type={type} value={value} onChange={(e) => onChange?.(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} placeholder={placeholder} />
+    <input type={type} value={value} onChange={(e) => onChange?.(e.target.value)} className={`w-full px-3 py-2 border rounded ${errorClass}`} required={required} placeholder={placeholder} />
   ))
 
   return (
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       {inputElement}
+      {hasError && <p className="text-red-500 text-xs mt-1">{fieldErrors?.[name]?.[0]}</p>}
       {description && <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">{description}</p>}
     </div>
   )

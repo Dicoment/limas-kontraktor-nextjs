@@ -201,7 +201,7 @@ function Field({ label, value, onChange, type = "text", required, placeholder, o
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       {inputElement}
-      {hasError && <p className="text-red-500 text-xs mt-1">{fieldErrors[fieldName]?.[0]}</p>}
+      {hasError && <p className="text-red-500 text-xs mt-1">{fieldErrors?.[fieldName]?.[0]}</p>}
       {description && <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">{description}</p>}
     </div>
   )

@@ -34,6 +34,7 @@ export default function EditBlogPostClient({
   const [tagIds, setTagIds] = useState<string[]>(initialTagIds)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
 
   const toggleCategory = (id: string) => {
     setCategoryIds(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id])
@@ -97,6 +98,9 @@ export default function EditBlogPostClient({
       router.push("/dashboard/blog-posts")
       router.refresh()
     } else {
+      if (json.fieldErrors) {
+        setFieldErrors(json.fieldErrors)
+      }
       setError(json.error || "Failed to update post")
     }
     setLoading(false)
@@ -108,8 +112,8 @@ export default function EditBlogPostClient({
       {error && <div className="bg-red-50 text-red-600 p-3 rounded">{error}</div>}
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Field label="Title" value={title} onChange={setTitle} required description="Minimal 3 karakter, maksimal 200 karakter." />
-          <Field label="Slug" value={slug} onChange={setSlug} required description="Minimal 3 karakter. Hanya huruf kecil, angka, dan strip." />
+          <Field label="Title" value={title} onChange={setTitle} required description="Minimal 3 karakter, maksimal 200 karakter." fieldName="title" fieldErrors={fieldErrors} />
+          <Field label="Slug" value={slug} onChange={setSlug} required description="Minimal 3 karakter. Hanya huruf kecil, angka, dan strip." fieldName="slug" fieldErrors={fieldErrors} />
           <Field label="Cover Image">
             <MediaPicker 
               value={coverImageUrl} 
@@ -129,17 +133,17 @@ export default function EditBlogPostClient({
               <img src={coverImageUrl} alt="Preview" className="mt-2 h-20 object-cover rounded" />
             )}
           </Field>
-          <Field label="SEO Title" value={seoTitle} onChange={setSeoTitle} description="Maksimal 60 karakter (Opsional)." />
-          <Field label="Excerpt" value={excerpt} onChange={setExcerpt} type="textarea" description="Opsional." />
+          <Field label="SEO Title" value={seoTitle} onChange={setSeoTitle} description="Maksimal 60 karakter (Opsional)." fieldName="seoTitle" fieldErrors={fieldErrors} />
+          <Field label="Excerpt" value={excerpt} onChange={setExcerpt} type="textarea" description="Opsional." fieldName="excerpt" fieldErrors={fieldErrors} />
         </div>
         <div className="space-y-4">
-          <Field label="Published" name="published">
+          <Field label="Published" name="published" fieldName="published" fieldErrors={fieldErrors}>
             <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} className="accent-blue-600" />
           </Field>
-          <Field label="Publish Date" name="publishedAt">
+          <Field label="Publish Date" name="publishedAt" fieldName="publishedAt" fieldErrors={fieldErrors}>
             <input type="datetime-local" value={publishedAt} onChange={(e) => setPublishedAt(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" />
           </Field>
-          <Field label="Categories" name="categoryIds">
+          <Field label="Categories" name="categoryIds" fieldName="categoryIds" fieldErrors={fieldErrors}>
             <div className="border border-slate-300 rounded p-2 max-h-40 overflow-y-auto space-y-1">
               {(categories || []).filter((c) => c.type === "blog").map((c) => (
                 <label key={c.id} className="flex items-center gap-2 cursor-pointer">
@@ -149,7 +153,7 @@ export default function EditBlogPostClient({
               ))}
             </div>
           </Field>
-          <Field label="Tags" name="tagIds">
+          <Field label="Tags" name="tagIds" fieldName="tagIds" fieldErrors={fieldErrors}>
             <div className="border border-slate-300 rounded p-2 max-h-40 overflow-y-auto space-y-1">
               {(tags || []).map((t) => (
                 <label key={t.id} className="flex items-center gap-2 cursor-pointer">
@@ -161,8 +165,8 @@ export default function EditBlogPostClient({
           </Field>
         </div>
       </div>
-      <Field label="Content" value={content} onChange={setContent} type="textarea" required description="Minimal 10 karakter." />
-      <Field label="SEO Description" value={seoDescription} onChange={setSeoDescription} type="textarea" description="Maksimal 160 karakter (Opsional)." />
+      <Field label="Content" value={content} onChange={setContent} type="textarea" required description="Minimal 10 karakter." fieldName="content" fieldErrors={fieldErrors} />
+      <Field label="SEO Description" value={seoDescription} onChange={setSeoDescription} type="textarea" description="Maksimal 160 karakter (Opsional)." fieldName="seoDescription" fieldErrors={fieldErrors} />
 
       <div className="flex gap-3">
         <button type="submit" disabled={loading} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 cursor-pointer">
@@ -174,18 +178,22 @@ export default function EditBlogPostClient({
   )
 }
 
-function Field({ label, name, value, onChange, type = "text", required, description, children }: 
-  { label: string; name?: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; description?: string; children?: React.ReactNode }) {
+function Field({ label, name, value, onChange, type = "text", required, description, fieldName, fieldErrors, children }: 
+  { label: string; name?: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; description?: string; fieldName?: string; fieldErrors?: Record<string, string[]>; children?: React.ReactNode }) {
+  const hasError = !!fieldName && (fieldErrors?.[fieldName]?.length ?? 0) > 0
+  const errorClass = hasError ? "border-red-500" : "border-slate-300"
+  
   const inputElement = children || (type === "textarea" ? (
-    <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} />
+    <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={4} className={`w-full px-3 py-2 border rounded ${errorClass}`} required={required} />
   ) : (
-    <input type={type} value={value} onChange={(e) => onChange?.(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} />
+    <input type={type} value={value} onChange={(e) => onChange?.(e.target.value)} className={`w-full px-3 py-2 border rounded ${errorClass}`} required={required} />
   ))
 
   return (
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       {inputElement}
+      {hasError && <p className="text-red-500 text-xs mt-1">{fieldErrors?.[fieldName]?.[0]}</p>}
       {description && <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">{description}</p>}
     </div>
   )
