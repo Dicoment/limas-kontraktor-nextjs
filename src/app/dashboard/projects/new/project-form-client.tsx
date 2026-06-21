@@ -182,7 +182,7 @@ export default function ProjectFormClient({ categories, teams }: ProjectFormClie
 }
 
 function Field({ label, children, description, fieldName, fieldErrors }: { label: string; children: React.ReactNode; description?: string; fieldName?: string; fieldErrors?: Record<string, string[]> }) {
-  const hasError = fieldName && fieldErrors?.[fieldName]?.length > 0
+  const hasError = !!fieldName && (fieldErrors?.[fieldName]?.length ?? 0) > 0
   return (
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>

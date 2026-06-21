@@ -41,6 +41,7 @@ export default function EditProjectClient({
   )
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
 
   const toggleCategory = (id: string) => {
     setCategoryIds(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id])
@@ -84,6 +85,9 @@ export default function EditProjectClient({
         router.push("/dashboard/projects")
         router.refresh()
       } else {
+        if (json.fieldErrors) {
+          setFieldErrors(json.fieldErrors)
+        }
         setError(json.error || "Failed to update project")
       }
     } catch (err) {
@@ -100,20 +104,20 @@ export default function EditProjectClient({
       
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Field label="Title" value={title} onChange={setTitle} required description="Panjang judul antara 3 hingga 200 karakter." />
-          <Field label="Slug" value={slug} onChange={setSlug} required description="Panjang slug antara 3 hingga 100 karakter. Hanya huruf kecil, angka, dan strip." />
-          <Field label="Location" value={location} onChange={setLocation} description="Maksimal 255 karakter (Opsional)." />
-          <Field label="Client" value={client} onChange={setClient} description="Maksimal 255 karakter (Opsional)." />
-          <Field label="Limas Role" value={limasRole} onChange={setLimasRole} description="Maksimal 255 karakter (Opsional)." />
+          <Field label="Title" value={title} onChange={setTitle} required description="Panjang judul antara 3 hingga 200 karakter." fieldName="title" fieldErrors={fieldErrors} />
+          <Field label="Slug" value={slug} onChange={setSlug} required description="Panjang slug antara 3 hingga 100 karakter. Hanya huruf kecil, angka, dan strip." fieldName="slug" fieldErrors={fieldErrors} />
+          <Field label="Location" value={location} onChange={setLocation} description="Maksimal 255 karakter (Opsional)." fieldName="location" fieldErrors={fieldErrors} />
+          <Field label="Client" value={client} onChange={setClient} description="Maksimal 255 karakter (Opsional)." fieldName="client" fieldErrors={fieldErrors} />
+          <Field label="Limas Role" value={limasRole} onChange={setLimasRole} description="Maksimal 255 karakter (Opsional)." fieldName="limasRole" fieldErrors={fieldErrors} />
           <Field label="Cover Image">
             <MediaPicker value={coverImage} onChange={setCoverImage} />
             <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">URL gambar tidak valid jika diisi (Opsional).</p>
           </Field>
         </div>
         <div className="space-y-4">
-          <Field label="Status" type="select" value={status} onChange={setStatus} options={["DRAFT", "ONGOING", "COMPLETED"]} />
-          <Field label="SEO Title" value={seoTitle} onChange={setSeoTitle} />
-          <Field label="SEO Description" value={seoDescription} onChange={setSeoDescription} />
+          <Field label="Status" type="select" value={status} onChange={setStatus} options={["DRAFT", "ONGOING", "COMPLETED"]} fieldName="status" fieldErrors={fieldErrors} />
+          <Field label="SEO Title" value={seoTitle} onChange={setSeoTitle} fieldName="seoTitle" fieldErrors={fieldErrors} />
+          <Field label="SEO Description" value={seoDescription} onChange={setSeoDescription} fieldName="seoDescription" fieldErrors={fieldErrors} />
           <Field label="Categories">
             <select 
               multiple 
@@ -162,7 +166,7 @@ export default function EditProjectClient({
         </div>
       </div>
 
-      <Field label="Description" value={description} onChange={setDescription} type="textarea" required description="Panjang deskripsi antara 10 hingga 10.000 karakter." />
+      <Field label="Description" value={description} onChange={setDescription} type="textarea" required description="Panjang deskripsi antara 10 hingga 10.000 karakter." fieldName="description" fieldErrors={fieldErrors} />
       <Field label="Gallery">
         <MultipleMediaPicker value={gallery} onChange={setGallery} />
         <p className="text-xs text-slate-400 mt-1">Pilih banyak gambar dari FileGator</p>
@@ -178,22 +182,26 @@ export default function EditProjectClient({
   )
 }
 
-function Field({ label, value, onChange, type = "text", required, placeholder, options, description, children }: 
-  { label: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; placeholder?: string; options?: string[]; description?: string; children?: React.ReactNode }) {
+function Field({ label, value, onChange, type = "text", required, placeholder, options, description, fieldName, fieldErrors, children }: 
+  { label: string; value?: string; onChange?: (v: string) => void; type?: string; required?: boolean; placeholder?: string; options?: string[]; description?: string; fieldName?: string; fieldErrors?: Record<string, string[]>; children?: React.ReactNode }) {
+  const hasError = !!fieldName && (fieldErrors?.[fieldName]?.length ?? 0) > 0
+  const errorClass = hasError ? "border-red-500" : "border-slate-300"
+  
   const inputElement = children || (type === "textarea" ? (
-    <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={4} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} placeholder={placeholder} />
+    <textarea value={value} onChange={(e) => onChange?.(e.target.value)} rows={4} className={`w-full px-3 py-2 border rounded ${errorClass}`} required={required} placeholder={placeholder} />
   ) : type === "select" ? (
-    <select value={value} onChange={(e) => onChange?.(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" required={required}>
+    <select value={value} onChange={(e) => onChange?.(e.target.value)} className={`w-full px-3 py-2 border rounded ${errorClass}`} required={required}>
       {(options || []).map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
     </select>
   ) : (
-    <input type={type} value={value} onChange={(e) => onChange?.(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded" required={required} placeholder={placeholder} />
+    <input type={type} value={value} onChange={(e) => onChange?.(e.target.value)} className={`w-full px-3 py-2 border rounded ${errorClass}`} required={required} placeholder={placeholder} />
   ))
 
   return (
     <div>
       <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       {inputElement}
+      {hasError && <p className="text-red-500 text-xs mt-1">{fieldErrors[fieldName]?.[0]}</p>}
       {description && <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">{description}</p>}
     </div>
   )
