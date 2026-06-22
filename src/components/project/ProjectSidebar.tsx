@@ -177,67 +177,54 @@ export default function ProjectSidebar({
             <hr style={{ borderColor: "#dcdcde" }} />
 
             <Section title="Kategori">
-              <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 max-h-36 overflow-y-auto space-y-1.5">
+              <select
+                multiple
+                value={selectedCategories}
+                onChange={(e) => {
+                  const options = Array.from(e.target.selectedOptions);
+                  setSelectedCategories(options.map((opt) => opt.value));
+                }}
+                className={`${selectCls} h-32`}
+              >
                 {categories.length === 0 && (
-                  <p className="text-[11px] text-slate-400 italic">Belum ada kategori</p>
+                  <option value="" disabled>Belum ada kategori</option>
                 )}
-                {categories.map((c) => {
-                  const isChecked = selectedCategories.includes(c.id);
-                  return (
-                    <label key={c.id} className="flex items-center gap-2 cursor-pointer text-xs text-slate-700">
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => {
-                          if (isChecked) setSelectedCategories(selectedCategories.filter((id) => id !== c.id));
-                          else setSelectedCategories([...selectedCategories, c.id]);
-                        }}
-                        className="rounded border-slate-300 accent-[#E87722]"
-                      />
-                      {c.name}
-                    </label>
-                  );
-                })}
-              </div>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
             </Section>
 
             <Section title="Tim Lapangan">
-              <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 max-h-44 overflow-y-auto space-y-2">
-                {teams.length === 0 && <p className="text-[11px] text-slate-400 italic">Belum ada tim</p>}
-                {teams.map((t) => {
-                  const matched = selectedTeams.find((i) => i.teamId === t.id);
-                  return (
-                    <div key={t.id} className="space-y-1">
-                      <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700 font-medium">
-                        <input
-                          type="checkbox"
-                          checked={!!matched}
-                          onChange={(e) => {
-                            if (e.target.checked) setSelectedTeams([...selectedTeams, { teamId: t.id, role: "" }]);
-                            else setSelectedTeams(selectedTeams.filter((i) => i.teamId !== t.id));
-                          }}
-                          className="rounded border-slate-300 accent-[#E87722]"
-                        />
-                        {t.name}
-                      </label>
-                      {!!matched && (
-                        <input
-                          type="text"
-                          value={matched.role}
-                          onChange={(e) =>
-                            setSelectedTeams(
-                              selectedTeams.map((i) =>
-                                i.teamId === t.id ? { ...i, role: e.target.value } : i
-                              )
-                            )
-                          }
-                          placeholder="Peran (cth: PM, Pengawas)"
-                          className="w-full text-[11px] px-2 py-1 bg-white border border-slate-200 rounded focus:outline-none"
-                        />
-                      )}
-                    </div>
-                  );
-                })}
+              <div className="space-y-3">
+                <Field label="Tim Utama">
+                  <select
+                    value={selectedTeams[0]?.teamId || ""}
+                    onChange={(e) => {
+                      const teamId = e.target.value;
+                      setSelectedTeams(teamId ? [{ teamId, role: "" }] : []);
+                    }}
+                    className={selectCls}
+                  >
+                    <option value="">Pilih tim</option>
+                    {teams.map((t) => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                </Field>
+                {selectedTeams[0] && (
+                  <Field label="Peran">
+                    <input
+                      type="text"
+                      value={selectedTeams[0].role || ""}
+                      onChange={(e) =>
+                        setSelectedTeams([{ ...selectedTeams[0], role: e.target.value }])
+                      }
+                      placeholder="cth: PM, Pengawas"
+                      className={inputCls}
+                    />
+                  </Field>
+                )}
               </div>
             </Section>
 
