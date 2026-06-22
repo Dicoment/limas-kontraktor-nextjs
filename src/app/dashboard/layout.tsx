@@ -59,23 +59,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         />
       )}
 
-      <Sidebar
-        collapsed={collapsed} setCollapsed={setCollapsed}
-        mobileOpen={mobileOpen} setMobileOpen={setMobileOpen}
-        pathname={pathname} adminName={adminName} adminEmail={adminEmail}
-        handleLogout={handleLogout}
-      />
+      <aside className={`flex-shrink-0 transition-all duration-300 ease-in-out ${collapsed ? "w-20" : "w-64"} ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
+        <Sidebar
+          collapsed={collapsed} setCollapsed={setCollapsed}
+          mobileOpen={mobileOpen} setMobileOpen={setMobileOpen}
+          pathname={pathname} adminName={adminName} adminEmail={adminEmail}
+          handleLogout={handleLogout}
+        />
+      </aside>
 
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${collapsed ? "lg:ml-20" : "lg:ml-64"} ml-0 min-w-0`}>
-
+      <div className="flex-1 flex flex-col min-w-0">
         <Header
           pathname={pathname} router={router} setMobileOpen={setMobileOpen}
           adminName={adminName} adminEmail={adminEmail} handleLogout={handleLogout}
         />
 
-        <main className="p-4 lg:p-6 flex-1 text-black bg-white pb-28 lg:pb-6">
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6 text-black bg-white pb-28 lg:pb-6">
             {children}
-           </main>
+        </main>
 
         <nav className="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 px-6 flex justify-between items-center z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
           <BottomNavItem href="/dashboard" icon={<LayoutDashboard size={22} />} label="DASH" active={pathname === '/dashboard'} />

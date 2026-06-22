@@ -21,29 +21,48 @@ import ProjectEditorToolbar from "@/components/project/ProjectEditorToolbar";
 import ProjectSidebar from "@/components/project/ProjectSidebar";
 
 interface ProjectFormClientProps {
-  categories: any[];
-  teams: any[];
+  categories?: any[];
+  teams?: any[];
+  initialData?: {
+    id: string;
+    title: string;
+    slug: string;
+    description: string;
+    location?: string | null;
+    client?: string | null;
+    limasRole?: string | null;
+    coverImage?: string | null;
+    gallery?: string[];
+    status: string;
+    seoTitle?: string | null;
+    seoDescription?: string | null;
+    categories?: { id: string }[];
+    teams?: { id: string; role?: string | null }[];
+  };
 }
 
-/**
- * Halaman editor project (tambah/edit). Menggabungkan top bar, toolbar
- * editor, kanvas Tiptap, dan sidebar kanan (Pos & Blok) menjadi satu
- * pengalaman edit yang utuh.
- */
-export default function ProjectFormClient({ categories = [], teams = [] }: ProjectFormClientProps) {
-  const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
-  const [location, setLocation] = useState("");
-  const [client, setClient] = useState("");
-  const [limasRole, setLimasRole] = useState("");
-  const [coverImage, setCoverImage] = useState("");
-  const [gallery, setGallery] = useState<string[]>([]);
-  const [status, setStatus] = useState("DRAFT");
-  const [seoTitle, setSeoTitle] = useState("");
-  const [seoDescription, setSeoDescription] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedTeams, setSelectedTeams] = useState<{ teamId: string; role: string }[]>([]);
-  const [projectId, setProjectId] = useState<string | null>(null);
+export default function ProjectFormClient({
+  categories = [],
+  teams = [],
+  initialData,
+}: ProjectFormClientProps) {
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [slug, setSlug] = useState(initialData?.slug || "");
+  const [location, setLocation] = useState(initialData?.location || "");
+  const [client, setClient] = useState(initialData?.client || "");
+  const [limasRole, setLimasRole] = useState(initialData?.limasRole || "");
+  const [coverImage, setCoverImage] = useState(initialData?.coverImage || "");
+  const [gallery, setGallery] = useState(initialData?.gallery || []);
+  const [status, setStatus] = useState(initialData?.status || "DRAFT");
+  const [seoTitle, setSeoTitle] = useState(initialData?.seoTitle || "");
+  const [seoDescription, setSeoDescription] = useState(initialData?.seoDescription || "");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    initialData?.categories?.map((c) => c.id) || []
+  );
+  const [selectedTeams, setSelectedTeams] = useState<{ teamId: string; role: string }[]>(
+    (initialData?.teams || []).map((t) => ({ teamId: t.id, role: t.role || "" }))
+  );
+  const [projectId, setProjectId] = useState<string | null>(initialData?.id || null);
   const [loading, setLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -110,6 +129,12 @@ export default function ProjectFormClient({ categories = [], teams = [] }: Proje
     },
     immediatelyRender: false,
   });
+
+  useEffect(() => {
+    if (initialData?.description && editor) {
+      editor.commands.setContent(initialData.description);
+    }
+  }, [initialData?.description, editor]);
 
   useEffect(() => {
     const formatted = title
