@@ -54,5 +54,8 @@
     "typescript": "^5",
     "vitest": "^4.1.8",
     "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.20"
   }
 }

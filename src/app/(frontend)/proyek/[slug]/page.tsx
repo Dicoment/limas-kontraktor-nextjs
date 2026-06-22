@@ -43,8 +43,20 @@ export default async function PortfolioDetailPage({
     },
   });
 
-  const gallery = (project.gallery as string[]) || [];
-
+const gallery: string[] = Array.isArray(project.gallery)
+  ? (project.gallery as string[])
+  : typeof project.gallery === "string"
+  ? (() => {
+      try {
+        const parsed = JSON.parse(project.gallery as string);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    })()
+  : [];
+console.log("RAW gallery:", project.gallery);
+console.log("PARSED gallery:", gallery);
   return (
     <div className="bg-white text-[#0F2340] overflow-hidden">
 
@@ -203,9 +215,10 @@ export default async function PortfolioDetailPage({
               Tentang Proyek
             </h2>
 
-            <div className="mt-8 text-lg leading-relaxed text-slate-600 whitespace-pre-line">
-              {project.description}
-            </div>
+            <div
+  className="prose prose-lg prose-slate max-w-none mt-8 prose-headings:font-black prose-headings:text-[#0F2340] prose-a:text-[#E87722] prose-img:rounded-2xl prose-img:shadow-sm"
+  dangerouslySetInnerHTML={{ __html: project.description || "" }}
+/>
 
           </div>
 

@@ -83,10 +83,21 @@ export function getSortParams(searchParams: URLSearchParams): Prisma.ProjectOrde
   return { [field]: sortOrder }
 }
 
+/**
+ * FIX: sebelumnya hanya menerima URL yang diawali "http", sehingga
+ * URL relatif (mis. "/uploads/gambar.jpg") yang justru valid menurut
+ * projectSchema (urlOrRelativePath) ikut terbuang dan gallery selalu
+ * tersimpan kosong. Sekarang disamakan dengan aturan Zod schema:
+ * boleh diawali "/", "http://", atau "https://".
+ */
 export function validateGallery(gallery: any): string[] {
   if (!gallery) return []
   if (Array.isArray(gallery)) {
-    return gallery.filter(url => typeof url === "string" && url.startsWith("http"))
+    return gallery.filter(
+      (url) =>
+        typeof url === "string" &&
+        (url.startsWith("/") || url.startsWith("http://") || url.startsWith("https://"))
+    )
   }
   return []
 }
