@@ -23,6 +23,7 @@ export default function MediaPicker({
   onChange,
   placeholder = "Pilih gambar...",
 }: MediaPickerProps) {
+  const [imgError, setImgError] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -34,6 +35,14 @@ export default function MediaPicker({
             src={value}
             alt="Cover"
             className="w-full h-36 object-cover"
+            onError={(e) => {
+              const img = e.currentTarget;
+              img.style.display = "none";
+              const fallback = document.createElement("div");
+              fallback.className = "w-full h-36 flex items-center justify-center text-slate-400 text-xs";
+              fallback.textContent = "Gambar tidak tersedia";
+              img.parentNode?.appendChild(fallback);
+            }}
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
             <button
@@ -95,7 +104,19 @@ export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPicke
         <div className="grid grid-cols-3 gap-2">
           {value.map((url) => (
             <div key={url} className="relative group rounded-lg overflow-hidden border border-slate-200 bg-slate-50 aspect-square">
-              <img src={url} alt="" className="w-full h-full object-cover" />
+              <img 
+                src={url} 
+                alt="" 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const img = e.currentTarget;
+                  img.style.display = "none";
+                  const fallback = document.createElement("div");
+                  fallback.className = "w-full h-full flex items-center justify-center text-[10px] text-slate-400";
+                  fallback.textContent = "Gagal";
+                  img.parentNode?.appendChild(fallback);
+                }}
+              />
               <button
                 type="button"
                 onClick={() => onChange(value.filter((u) => u !== url))}

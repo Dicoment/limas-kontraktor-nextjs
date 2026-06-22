@@ -38,6 +38,12 @@ const recentContent = [
 ]
 
 export default function AdminDashboardPage() {
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const [dataRekap] = useState({ projects: 3, published: 1, blogs: 2, leads: 2, reviews: 3 })
 
   // State untuk menyimpan tanggal filter (Default diset dari 10 Maret 2025 sampai hari ini di 2026)
@@ -134,8 +140,8 @@ export default function AdminDashboardPage() {
         </div>
         
         {/* Kontainer Grafik Garis */}
-        <div className="w-full h-72 text-xs">
-          {filteredChartData.length > 0 ? (
+        <div className="w-full h-72 text-xs" suppressHydrationWarning>
+          {isClient && filteredChartData.length > 0 ? (
             <ResponsiveContainer width="100%">
               <LineChart data={filteredChartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
