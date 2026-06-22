@@ -203,12 +203,7 @@ export default function ProjectFormClient({
       const id = data?.data?.id || data?.id;
       if (id) setProjectId(id);
 
-      if (publishStatus === "DRAFT") {
-        setSaveStatus("saved");
-        setTimeout(() => setSaveStatus("idle"), 3000);
-      } else {
-        window.location.href = "/dashboard/projects";
-      }
+      window.location.href = "/dashboard/projects";
     } catch (err: any) {
       setErrorMsg(err.message);
       setSaveStatus("error");
