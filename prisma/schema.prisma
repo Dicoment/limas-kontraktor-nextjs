@@ -190,7 +190,7 @@ model BlogPostTag {
 
   @@unique([blogPostId, tagId])
   @@map("blog_post_tags")
-}
+} 
 
 model CategoryProject {
   id         String   @id @default(cuid())
