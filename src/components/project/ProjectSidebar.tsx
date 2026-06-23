@@ -140,9 +140,9 @@ export default function ProjectSidebar({
             <Section title="Status & Publikasi">
               <Field label="Status">
                 <select value={status} onChange={(e) => setStatus(e.target.value)} className={selectCls}>
-                  <option value="DRAFT">Draft</option>
-                  <option value="ONGOING">Ongoing</option>
-                  <option value="COMPLETED">Completed</option>
+                  <option value="DRAFT">Draft (Belum Dipublikasikan)</option>
+                  <option value="ONGOING">Ongoing (Sedang Berjalan)</option>
+                  <option value="COMPLETED">Completed (Selesai)</option>
                 </select>
               </Field>
               <Field label="Slug URL">

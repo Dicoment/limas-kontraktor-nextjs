@@ -165,7 +165,7 @@ export default function ProjectFormClient({
     [editor]
   );
 
-  const handleSubmit = async (publishStatus: string) => {
+  const handleSubmit = async (statusValue: string) => {
     if (!title.trim()) {
       setErrorMsg("Judul proyek wajib diisi.");
       return;
@@ -174,11 +174,18 @@ export default function ProjectFormClient({
     setSaveStatus("saving");
     setErrorMsg("");
 
+    console.log("[ProjectForm] Submit data:", {
+      status: statusValue,
+      teamIds: JSON.stringify(selectedTeams),
+      categoryIds: JSON.stringify(selectedCategories),
+      coverImage,
+    });
+
     const fd = new FormData();
     fd.append("title", title);
     fd.append("slug", slug);
     fd.append("description", editor?.getHTML() || "");
-    fd.append("status", publishStatus);
+    fd.append("status", statusValue);
     fd.append("location", location);
     fd.append("client", client);
     fd.append("limasRole", limasRole);
@@ -232,7 +239,7 @@ export default function ProjectFormClient({
           loading={loading}
           saveStatus={saveStatus}
           canPreview={canPreview}
-          onSaveDraft={() => handleSubmit("DRAFT")}
+          onSaveDraft={() => handleSubmit(status)}
           onPublish={() => handleSubmit("COMPLETED")}
           onPreviewBlocked={() => setErrorMsg("Simpan draf dulu sebelum preview.")}
         />

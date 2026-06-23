@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   RiCloseLine, RiCheckLine, RiImageLine,
   RiUpload2Line, RiLoader4Line, RiErrorWarningLine,
@@ -25,14 +25,64 @@ export default function MediaPicker({
 }: MediaPickerProps) {
   const [imgError, setImgError] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const previewUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+    };
+  }, []);
+
+  const handleSelect = useCallback((url: string) => {
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+      previewUrlRef.current = null;
+    }
+    setPreviewUrl(null);
+    onChange(url);
+  }, [onChange]);
+
+  const handleFileSelected = useCallback((file: File) => {
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+    }
+    const objectUrl = URL.createObjectURL(file);
+    previewUrlRef.current = objectUrl;
+    setPreviewUrl(objectUrl);
+    
+    const fd = new FormData();
+    fd.append("file", file);
+    
+    fetch("/api/media/upload", { method: "POST", body: fd })
+      .then((res) => res.json())
+      .then((data) => {
+        const url = data.url || data.data?.url;
+        if (url) {
+          handleSelect(url);
+        }
+      })
+      .catch((err) => {
+        console.error("Upload failed:", err);
+      })
+      .finally(() => {
+        if (previewUrlRef.current) {
+          URL.revokeObjectURL(previewUrlRef.current);
+          previewUrlRef.current = null;
+        }
+        setPreviewUrl(null);
+      });
+  }, [handleSelect]);
 
   return (
     <div className="space-y-2">
       {/* Preview + trigger */}
-      {value ? (
+      {(value || previewUrl) ? (
         <div className="relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
           <img
-            src={value}
+            src={previewUrl || value}
             alt="Cover"
             className="w-full h-36 object-cover"
             onError={(e) => {
@@ -54,7 +104,14 @@ export default function MediaPicker({
             </button>
             <button
               type="button"
-              onClick={() => onChange("")}
+              onClick={() => {
+                if (previewUrlRef.current) {
+                  URL.revokeObjectURL(previewUrlRef.current);
+                  previewUrlRef.current = null;
+                }
+                setPreviewUrl(null);
+                onChange("");
+              }}
               className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
             >
               <RiDeleteBin6Line size={14} />
@@ -76,11 +133,9 @@ export default function MediaPicker({
         <MediaModal
           selected={value || null}
           multiple={false}
-          onConfirm={(urls) => {
-            onChange(urls[0] || "");
-            setIsOpen(false);
-          }}
+          onConfirm={(urls) => handleSelect(urls[0])}
           onClose={() => setIsOpen(false)}
+          onFileSelect={handleFileSelected}
         />
       )}
     </div>
@@ -96,6 +151,55 @@ interface MultipleMediaPickerProps {
 
 export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({});
+  const previewUrlsRef = useRef<Record<string, string>>({});
+
+  useEffect(() => {
+    return () => {
+      Object.values(previewUrlsRef.current).forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
+    };
+  }, []);
+
+  const handleSelect = useCallback((urls: string[]) => {
+    Object.values(previewUrlsRef.current).forEach((url) => {
+      URL.revokeObjectURL(url);
+    });
+    previewUrlsRef.current = {};
+    setPreviewUrls({});
+    onChange(urls);
+  }, [onChange]);
+
+  const handleFileSelected = useCallback((file: File) => {
+    const objectUrl = URL.createObjectURL(file);
+    const fileId = `${file.name}-${Date.now()}`;
+    previewUrlsRef.current[fileId] = objectUrl;
+    setPreviewUrls((prev) => ({ ...prev, [fileId]: objectUrl }));
+    
+    const fd = new FormData();
+    fd.append("file", file);
+    
+    fetch("/api/media/upload", { method: "POST", body: fd })
+      .then((res) => res.json())
+      .then((data) => {
+        const url = data.url || data.data?.url;
+        if (url) {
+          handleSelect([...value, url]);
+        }
+      })
+      .catch((err) => {
+        console.error("Upload failed:", err);
+      })
+      .finally(() => {
+        delete previewUrlsRef.current[fileId];
+        setPreviewUrls((prev) => {
+          const newUrls = { ...prev };
+          delete newUrls[fileId];
+          return newUrls;
+        });
+      });
+  }, [value, handleSelect]);
 
   return (
     <div className="space-y-2">
@@ -143,11 +247,9 @@ export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPicke
           selected={null}
           multiple={true}
           initialSelected={value}
-          onConfirm={(urls) => {
-            onChange(urls);
-            setIsOpen(false);
-          }}
+          onConfirm={handleSelect}
           onClose={() => setIsOpen(false)}
+          onFileSelect={handleFileSelected}
         />
       )}
     </div>
@@ -156,19 +258,23 @@ export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPicke
 
 // ─── Shared Modal ─────────────────────────────────────────────────────────────
 
+interface MediaModalProps {
+  selected: string | null;
+  multiple: boolean;
+  initialSelected?: string[];
+  onConfirm: (urls: string[]) => void;
+  onClose: () => void;
+  onFileSelect?: (file: File) => void;
+}
+
 function MediaModal({
   selected: initialSelected,
   multiple,
   initialSelected: initialMultiple,
   onConfirm,
   onClose,
-}: {
-  selected: string | null;
-  multiple: boolean;
-  initialSelected?: string[];
-  onConfirm: (urls: string[]) => void;
-  onClose: () => void;
-}) {
+  onFileSelect,
+}: MediaModalProps) {
   const [tab, setTab] = useState<"library" | "upload">("library");
   const [files, setFiles] = useState<MediaFile[]>([]);
   const [loadingLib, setLoadingLib] = useState(true);
@@ -265,11 +371,14 @@ function MediaModal({
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = Array.from(e.target.files || []);
-    uploadFiles(fileList);
-    e.target.value = ""; // reset supaya bisa pilih file yang sama lagi kalau perlu
+    if (onFileSelect && fileList.length > 0) {
+      fileList.forEach((file) => onFileSelect(file));
+    } else {
+      uploadFiles(fileList);
+    }
+    e.target.value = "";
   };
 
-  // ── Drag & drop handlers ──
   const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -298,7 +407,11 @@ function MediaModal({
     dragCounter.current = 0;
     setIsDragging(false);
     const fileList = Array.from(e.dataTransfer.files || []);
-    uploadFiles(fileList);
+    if (onFileSelect && fileList.length > 0) {
+      fileList.forEach((file) => onFileSelect(file));
+    } else {
+      uploadFiles(fileList);
+    }
   };
 
   return (

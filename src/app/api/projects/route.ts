@@ -65,6 +65,8 @@ export async function POST(request: NextRequest) {
       }
     }
     
+    console.log("[Project API] Received data:", body);
+    
     if (typeof body.gallery === "string") {
       try {
         body.gallery = JSON.parse(body.gallery)
