@@ -10,6 +10,7 @@ import {
 interface MediaFile {
   url: string;
   name: string;
+  loading?: boolean;
 }
 
 interface MediaPickerProps {
@@ -148,54 +149,78 @@ interface MultipleMediaPickerProps {
 
 export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({});
-  const previewUrlsRef = useRef<Record<string, string>>({});
+  const [media, setMedia] = useState<MediaFile[]>([]);
+  const mediaRef = useRef<MediaFile[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const uploadProgressRef = useRef<{ [key: string]: number }>({});
   const valueRef = useRef(value);
-
-  useEffect(() => {
-    return () => {
-      Object.values(previewUrlsRef.current).forEach((url) => {
-        URL.revokeObjectURL(url);
-      });
-    };
-  }, []);
 
   useEffect(() => {
     valueRef.current = value;
   }, [value]);
 
+  useEffect(() => {
+    return () => {
+      mediaRef.current.forEach((item) => {
+        if (item.url.startsWith('blob:')) {
+          URL.revokeObjectURL(item.url);
+        }
+      });
+    };
+  }, []);
+
+  const isValidUrl = (url: string) => {
+    return url.startsWith('/') || url.startsWith('http');
+  };
+
   const handleSelect = useCallback((urls: string[]) => {
     onChange(urls);
   }, [onChange]);
 
-  const handleFileSelected = useCallback((file: File) => {
-    const objectUrl = URL.createObjectURL(file);
+  const handleFileSelected = useCallback(async (file: File) => {
     const fileId = `${file.name}-${Date.now()}`;
-    previewUrlsRef.current[fileId] = objectUrl;
-    setPreviewUrls((prev) => ({ ...prev, [fileId]: objectUrl }));
+    const objectUrl = URL.createObjectURL(file);
     
+    console.log('[MediaPicker] File selected:', file.name);
+    
+    setMedia((prev) => {
+      const newMedia = [...prev, { url: objectUrl, name: file.name, loading: true }];
+      mediaRef.current = newMedia;
+      return newMedia;
+    });
+    uploadProgressRef.current[fileId] = 0;
+
     const fd = new FormData();
     fd.append("file", file);
-    
-    fetch("/api/media/upload", { method: "POST", body: fd })
-      .then((res) => res.json())
-      .then((data) => {
-        const url = data.url || data.data?.url;
-        if (url) {
+
+    try {
+      const res = await fetch("/api/media/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      console.log('[MediaPicker] Upload response:', data);
+      
+      const url = data.url || data.data?.url;
+      if (url && isValidUrl(url)) {
+        console.log('[MediaPicker] Generated URL:', url);
+        setMedia((prev) => {
+          const newMedia = prev.map((item) =>
+            item.url === objectUrl ? { url, name: file.name, loading: false } : item
+          );
+          mediaRef.current = newMedia;
           onChange([...valueRef.current, url]);
-        }
-      })
-      .catch((err) => {
-        console.error("Upload failed:", err);
-      })
-      .finally(() => {
-        delete previewUrlsRef.current[fileId];
-        setPreviewUrls((prev) => {
-          const newUrls = { ...prev };
-          delete newUrls[fileId];
-          return newUrls;
+          return newMedia;
         });
-      });
+      } else {
+        throw new Error("URL tidak ditemukan");
+      }
+    } catch (err: any) {
+      console.error("Upload failed:", err);
+      setMedia((prev) => prev.filter((item) => item.url !== objectUrl));
+    } finally {
+      if (objectUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(objectUrl);
+      }
+      delete uploadProgressRef.current[fileId];
+    }
   }, [onChange]);
 
   return (
@@ -229,15 +254,27 @@ export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPicke
         </div>
       )}
       
-      {Object.keys(previewUrls).length > 0 && (
+      {media.length > 0 && (
         <div className="grid grid-cols-3 gap-2">
-          {Object.entries(previewUrls).map(([fileId, url]) => (
-            <div key={fileId} className="relative rounded-lg overflow-hidden border border-slate-200 bg-slate-50 aspect-square">
-              <img 
-                src={url} 
-                alt="" 
-                className="w-full h-full object-cover"
-              />
+          {media.map((item, index) => (
+            <div key={index} className="relative rounded-lg overflow-hidden border border-slate-200 bg-slate-50 aspect-square">
+              {item.loading ? (
+                <div className="w-full h-full bg-gray-200 animate-pulse rounded" />
+              ) : (
+                <img 
+                  src={item.url} 
+                  alt={item.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const img = e.currentTarget;
+                    img.style.display = "none";
+                    const fallback = document.createElement("div");
+                    fallback.className = "w-full h-full flex items-center justify-center text-[10px] text-slate-400";
+                    fallback.textContent = "Gagal";
+                    img.parentNode?.appendChild(fallback);
+                  }}
+                />
+              )}
             </div>
           ))}
         </div>
@@ -347,6 +384,10 @@ function MediaModal({
     setUploadProgress({ done: 0, total: filesToUpload.length });
     setUploadError("");
 
+    const isValidUrl = (url: string) => {
+      return url.startsWith('/') || url.startsWith('http');
+    };
+
     const uploadedUrls: string[] = [];
     const newMediaFiles: MediaFile[] = [];
 
@@ -358,8 +399,14 @@ function MediaModal({
         const res = await fetch("/api/media/upload", { method: "POST", body: fd });
         if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "Upload gagal");
         const data = await res.json();
+        console.log('[MediaModal] Upload response:', data);
         const url = data.url || data.data?.url;
         if (!url) throw new Error("URL tidak ditemukan");
+        
+        if (!isValidUrl(url)) {
+          throw new Error("URL tidak valid");
+        }
+        console.log('[MediaModal] Generated URL:', url);
 
         uploadedUrls.push(url);
         newMediaFiles.push({ url, name: file.name });
