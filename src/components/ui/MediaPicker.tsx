@@ -7,6 +7,12 @@ import {
   RiDeleteBin6Line,
 } from "react-icons/ri";
 
+const getPublicUrl = (path: string | null | undefined) => {
+  if (!path) return undefined;
+  if (path.startsWith('http')) return path;
+  return path.startsWith('/uploads/') ? path : `/uploads/${path}`;
+};
+
 interface MediaFile {
   url: string;
   name: string;
@@ -80,7 +86,7 @@ export default function MediaPicker({
       {(value || previewUrl) ? (
         <div className="relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
           <img
-            src={previewUrl || value}
+            src={getPublicUrl(value || previewUrl) || ""}
             alt="Cover"
             className="w-full h-36 object-cover"
             onError={(e) => {
@@ -260,9 +266,23 @@ export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPicke
             <div key={index} className="relative rounded-lg overflow-hidden border border-slate-200 bg-slate-50 aspect-square">
               {item.loading ? (
                 <div className="w-full h-full bg-gray-200 animate-pulse rounded" />
-              ) : (
+              ) : item.url.startsWith('blob:') ? (
                 <img 
                   src={item.url} 
+                  alt={item.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const img = e.currentTarget;
+                    img.style.display = "none";
+                    const fallback = document.createElement("div");
+                    fallback.className = "w-full h-full flex items-center justify-center text-[10px] text-slate-400";
+                    fallback.textContent = "Gagal";
+                    img.parentNode?.appendChild(fallback);
+                  }}
+                />
+              ) : (
+                <img 
+                  src={getPublicUrl(item.url) || ""} 
                   alt={item.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -540,7 +560,7 @@ function MediaModal({
                         }`}
                       >
                         <img
-                          src={file.url}
+                          src={getPublicUrl(file.url) || ""}
                           alt={file.name}
                           className="w-full h-24 object-cover rounded-lg bg-slate-100"
                         />
