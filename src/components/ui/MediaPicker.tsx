@@ -46,9 +46,6 @@ export default function MediaPicker({
   }, [onChange]);
 
   const handleFileSelected = useCallback((file: File) => {
-    if (previewUrlRef.current) {
-      URL.revokeObjectURL(previewUrlRef.current);
-    }
     const objectUrl = URL.createObjectURL(file);
     previewUrlRef.current = objectUrl;
     setPreviewUrl(objectUrl);
@@ -153,6 +150,7 @@ export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPicke
   const [isOpen, setIsOpen] = useState(false);
   const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({});
   const previewUrlsRef = useRef<Record<string, string>>({});
+  const valueRef = useRef(value);
 
   useEffect(() => {
     return () => {
@@ -162,12 +160,11 @@ export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPicke
     };
   }, []);
 
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
+
   const handleSelect = useCallback((urls: string[]) => {
-    Object.values(previewUrlsRef.current).forEach((url) => {
-      URL.revokeObjectURL(url);
-    });
-    previewUrlsRef.current = {};
-    setPreviewUrls({});
     onChange(urls);
   }, [onChange]);
 
@@ -185,7 +182,7 @@ export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPicke
       .then((data) => {
         const url = data.url || data.data?.url;
         if (url) {
-          handleSelect([...value, url]);
+          onChange([...valueRef.current, url]);
         }
       })
       .catch((err) => {
@@ -199,11 +196,10 @@ export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPicke
           return newUrls;
         });
       });
-  }, [value, handleSelect]);
+  }, [onChange]);
 
   return (
     <div className="space-y-2">
-      {/* Preview grid */}
       {value.length > 0 && (
         <div className="grid grid-cols-3 gap-2">
           {value.map((url) => (
@@ -228,6 +224,20 @@ export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPicke
               >
                 <RiCloseLine size={11} />
               </button>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      {Object.keys(previewUrls).length > 0 && (
+        <div className="grid grid-cols-3 gap-2">
+          {Object.entries(previewUrls).map(([fileId, url]) => (
+            <div key={fileId} className="relative rounded-lg overflow-hidden border border-slate-200 bg-slate-50 aspect-square">
+              <img 
+                src={url} 
+                alt="" 
+                className="w-full h-full object-cover"
+              />
             </div>
           ))}
         </div>
