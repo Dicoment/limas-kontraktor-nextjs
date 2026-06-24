@@ -335,13 +335,22 @@ function MediaModal({
   const dragCounter = useRef(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    fetch("/api/media")
-      .then((r) => r.json())
-      .then((d) => setFiles(d.data || []))
-      .catch(() => {})
-      .finally(() => setLoadingLib(false));
+  const fetchMedia = useCallback(async () => {
+    setLoadingLib(true);
+    try {
+      const res = await fetch("/api/media");
+      const data = await res.json();
+      setFiles(data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch media:", err);
+    } finally {
+      setLoadingLib(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchMedia();
+  }, [fetchMedia]);
 
   const toggleSelect = (url: string) => {
     if (multiple) {
@@ -420,6 +429,7 @@ function MediaModal({
       setFiles((prev) => [...newMediaFiles, ...prev]);
       setSelectedUrls((prev) => (multiple ? [...prev, ...uploadedUrls] : [uploadedUrls[0]]));
       setTab("library");
+      fetchMedia();
     }
 
     setUploading(false);
