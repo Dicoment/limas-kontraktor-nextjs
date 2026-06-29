@@ -46,7 +46,7 @@ export async function getProjectById(id: string) {
 
 export async function deleteProject(id: string) {
   await prisma.project.delete({ where: { id } })
-  redirect("/dashboard/projects")
+  return { success: true, message: "Project deleted successfully" }
 }
 
 export async function getAllCategories() {

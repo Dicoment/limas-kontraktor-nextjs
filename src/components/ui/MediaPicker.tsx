@@ -61,15 +61,25 @@ export default function MediaPicker({
     fd.append("file", file);
     
     fetch("/api/media/upload", { method: "POST", body: fd })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Upload failed")
+        return res.json()
+      })
       .then((data) => {
         const url = data.url || data.data?.url;
         if (url) {
-          handleSelect(url);
+          if (previewUrlRef.current) {
+            URL.revokeObjectURL(previewUrlRef.current);
+            previewUrlRef.current = null;
+          }
+          setPreviewUrl(null);
+          onChange(url);
+          setIsOpen(false);
         }
       })
       .catch((err) => {
         console.error("Upload failed:", err);
+        alert("Gagal mengupload gambar")
       })
       .finally(() => {
         if (previewUrlRef.current) {
@@ -78,7 +88,7 @@ export default function MediaPicker({
         }
         setPreviewUrl(null);
       });
-  }, [handleSelect]);
+  }, [onChange]);
 
   return (
     <div className="space-y-2">
@@ -201,6 +211,10 @@ export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPicke
 
     try {
       const res = await fetch("/api/media/upload", { method: "POST", body: fd });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(errData.error || "Upload failed")
+      }
       const data = await res.json();
       console.log('[MediaPicker] Upload response:', data);
       
@@ -221,6 +235,7 @@ export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPicke
     } catch (err: any) {
       console.error("Upload failed:", err);
       setMedia((prev) => prev.filter((item) => item.url !== objectUrl));
+      alert(`Gagal upload: ${err.message}`)
     } finally {
       if (objectUrl.startsWith('blob:')) {
         URL.revokeObjectURL(objectUrl);
@@ -426,7 +441,9 @@ function MediaModal({
         const fd = new FormData();
         fd.append("file", file);
         const res = await fetch("/api/media/upload", { method: "POST", body: fd });
-        if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "Upload gagal");
+        if (!res.ok) {
+          throw new Error((await res.json().catch(() => ({}))).error || "Upload gagal");
+        }
         const data = await res.json();
         console.log('[MediaModal] Upload response:', data);
         const url = data.url || data.data?.url;

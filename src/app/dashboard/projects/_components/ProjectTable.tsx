@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Table } from "@/components/ui/Table" 
 import Button from "@/components/ui/Button" 
 import { Trash2 } from "lucide-react"
@@ -8,17 +9,17 @@ import Link from "next/link"
 import { deleteProject } from "@/actions/project.actions" 
 
 export function ProjectTable({ initialData }: { initialData: any[] }) {
+  const router = useRouter()
   const [selectedIds, setSelectedIds] = useState<string[]>([])
 
   const handleDelete = async () => {
     if (!confirm(`Yakin hapus ${selectedIds.length} project?`)) return
     
     try {
-      // Loop karena deleteProject biasanya cuma buat satu ID
       for (const id of selectedIds) {
-        await deleteProject(id) 
+        await deleteProject(id)
       }
-      window.location.reload() // Refresh setelah selesai semua
+      router.refresh()
     } catch (err) {
       alert("Gagal hapus data")
     }

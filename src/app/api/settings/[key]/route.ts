@@ -51,5 +51,5 @@ export async function DELETE(
   const { key } = await params
 
   await prisma.setting.delete({ where: { key } })
-  return new Response(null, { status: 204 })
+  return successResponse({ message: "Setting deleted successfully" })
 }

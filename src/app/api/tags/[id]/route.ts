@@ -184,7 +184,7 @@ export async function DELETE(
       where: { id } 
     })
     
-    return new NextResponse(null, { status: 204 })
+    return successResponse({ message: "Tag deleted successfully" })
   } catch (error) {
     console.error("DELETE /api/tags/[id] error:", error)
     if (error instanceof Error && error.message.includes("Record to delete does not exist")) {

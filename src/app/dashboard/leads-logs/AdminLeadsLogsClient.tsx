@@ -33,10 +33,15 @@ export default function AdminLeadsLogsClient() {
     if (!confirm("Are you sure you want to delete this leads log?")) return
     setDeleting(id)
     try {
-      await fetch(`/api/leads-logs/${id}`, { method: "DELETE" })
+      const res = await fetch(`/api/leads-logs/${id}`, { method: "DELETE" })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || "Failed to delete")
+      }
       router.refresh()
     } catch (error) {
       console.error("Failed to delete:", error)
+      alert("Gagal menghapus data")
     } finally {
       setDeleting(null)
     }
