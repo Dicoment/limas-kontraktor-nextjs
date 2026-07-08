@@ -195,39 +195,6 @@ export default function AlurKerjaSection() {
           </div>
         </div>
 
-        {/* 3. BOTTOM CTA BANNER */}
-        <div className="relative z-10 max-w-7xl mx-auto px-6 w-full shrink-0">
-          <div
-            className="flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl px-8 py-6"
-            style={{
-              background: "linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              boxShadow: "0 4px 24px rgba(0,0,0,0.3)"
-            }}
-          >
-            <div className="space-y-1 text-center md:text-left">
-              <h3 className="text-white font-black text-lg md:text-xl uppercase tracking-tight">
-                Mulai Rencana Konstruksi Anda
-              </h3>
-              <p className="text-slate-300 font-light text-xs md:text-sm">
-                Konsultasikan kebutuhan material, struktur bangunan, and kalkulasi RAB bersama tim estimator lapangan kami.
-              </p>
-            </div>
-            
-            <Button
-              href="https://wa.me/6282320721150"
-              target="_blank"
-              rel="noreferrer"
-              variant="primary"
-              size="lg"
-              className="w-full md:w-auto font-black text-xs uppercase tracking-wider bg-[#E87722] border-none text-white hover:bg-orange-600 inline-flex items-center justify-center gap-2"
-            >
-              <FiPhone size={14} className="animate-pulse" />
-              <span>Konsultasi Proyek</span>
-            </Button>
-          </div>
-        </div>
-
       </div>
     </section>
   )

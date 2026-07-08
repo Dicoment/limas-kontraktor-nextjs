@@ -3,6 +3,7 @@ import Navbar from "@/components/layout/Navbar"
 import Footer from "@/components/layout/footer/Footer"
 import type { Metadata } from "next"
 import { Plus_Jakarta_Sans, DM_Serif_Display } from "next/font/google"
+import SmoothScroll from "@/components/Provider/SmoothScroll"
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
@@ -94,8 +95,10 @@ export default function FrontendLayout({
     <AuthProvider>
       <div className={`${plusJakarta.variable} ${dmSerif.variable} font-sans`}>
         <Navbar />
+        <SmoothScroll>
         <main>{children}</main>
-        <Footer />
+        </SmoothScroll>
+          <Footer />
       </div>
     </AuthProvider>
   )

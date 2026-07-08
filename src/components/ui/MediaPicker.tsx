@@ -412,8 +412,8 @@ function MediaModal({
         setUploadError(`"${file.name}" bukan file gambar, dilewati.`);
         continue;
       }
-      if (file.size > 10 * 1024 * 1024) {
-        setUploadError(`"${file.name}" lebih dari 10MB, dilewati.`);
+      if (file.size > 2 * 2048 * 2048) { // 2MB
+        setUploadError(`"${file.name}" lebih dari 2MB, dilewati.`);
         continue;
       }
       validFiles.push(file);
@@ -629,7 +629,7 @@ function MediaModal({
                           ? "Klik atau drag beberapa gambar ke sini"
                           : "Klik atau drag gambar ke sini"}
                       </p>
-                      <p className="text-xs mt-1">JPG, PNG, WebP, GIF — maks. 10MB per file</p>
+                      <p className="text-xs mt-1">JPG, PNG, WebP, GIF - maks. 2MB per file</p>
                     </div>
                   </div>
                 )}

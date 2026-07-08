@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { MapPin, Phone, Mail } from "lucide-react"
+import Image from "next/image"
+import { FaWhatsapp } from "react-icons/fa"
+import Button from "@/components/ui/Button"
 
 interface Settings {
   company_name?: string
@@ -41,7 +44,7 @@ export default function ContactClient() {
       {/* ── HERO ── */}
       <section
         className="relative min-h-[420px] flex flex-col items-center justify-center text-center px-6 py-36 overflow-hidden"
-        style={{ backgroundImage: "url('/loginbg.jpeg')", backgroundSize: "cover", backgroundPosition: "center" }}
+        style={{ backgroundImage: "url('/images/heroproyek.webp')", backgroundSize: "cover", backgroundPosition: "center" }}
       >
         <div className="absolute inset-0 bg-[#0F2340]/85" />
         <div className="absolute top-8 left-16 w-32 h-32 rounded-full border border-white/10" />
@@ -132,13 +135,14 @@ export default function ContactClient() {
             Hubungi tim kami sekarang dan dapatkan konsultasi gratis untuk proyek bangunan di Bekasi dan sekitarnya.
           </p>
           
-          <a  href={`https://wa.me/${waNumber}`}
+          <Button
+            href={`https://wa.me/${waNumber}`}
             target="_blank"
             rel="noreferrer"
             className="relative inline-flex items-center gap-2 bg-[#E87722] hover:bg-orange-600 text-white font-bold px-8 py-3 rounded-full text-sm transition-colors"
           >
-            Mulai Konsultasi
-          </a>
+            Mulai Konsultasi<FaWhatsapp size={18} />
+          </Button>
         </div>
       </section>
 

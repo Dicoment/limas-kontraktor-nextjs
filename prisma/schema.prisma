@@ -14,6 +14,7 @@ model User {
   role      String   @default("admin")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  blogPosts BlogPost[]
 
   @@map("users")
 }
@@ -51,10 +52,12 @@ model BlogPost {
   seoDescription     String?            @map("seo_description")
   published          Boolean            @default(false)
   publishedAt        DateTime?          @map("published_at")
+  authorId           String?            @map("author_id")
   createdAt          DateTime           @default(now()) @map("created_at")
   updatedAt          DateTime           @updatedAt @map("updated_at")
   blogPostCategories BlogPostCategory[]
   blogPostTags       BlogPostTag[]
+  author             User?              @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
   @@map("blog_posts")
 }

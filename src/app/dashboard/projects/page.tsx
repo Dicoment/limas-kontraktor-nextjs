@@ -20,7 +20,7 @@ export default async function AdminProjectsPage({
   })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <SearchForm placeholder="Cari project..." />
         <Link href="/dashboard/projects/new">

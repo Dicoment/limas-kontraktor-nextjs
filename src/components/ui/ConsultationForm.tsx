@@ -17,7 +17,7 @@ const LAYANAN = [
   'Jasa Pembuatan IMB/PBG'
 ];
 
-const UKURAN_LAHAN = ['< 100m²', '100m² - 200m²', '200m² - 300m²', '> 300m²'];
+const UKURAN_LAHAN = ['50m² - 100m²', '< 100m²', '100m² - 200m²', '200m² - 300m²', '> 300m²'];
 const RENCANA_BANGUN = ['1 Lantai', '2 Lantai', '3 Lantai / Lebih', 'Ruko / Gudang'];
 const BUDGET = ['< 200 Juta', '200 - 500 Juta', '500 Juta - 1 Milyar', '> 1 Milyar'];
 
@@ -162,7 +162,7 @@ export default function ConsultationForm() {
               className="w-full mt-2 py-3.5 bg-[#1B3A6B] hover:bg-[#15305a] disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-sm font-bold tracking-wide transition-all flex items-center justify-center gap-2 uppercase"
             >
               <Send size={15} />
-              Konsultasi Gratis
+              Konsultasi Sekarang
             </button>
           </form>
         </>

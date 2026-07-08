@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import CTAFooter from "@/components/layout/footer/cta-footer"
-import { MapPin, Phone, Mail, Clock } from "lucide-react"
+import { FaPhone, FaEnvelope, FaInstagram, FaFacebookF, FaYoutube, FaTiktok, FaAsterisk } from "react-icons/fa6"
 
 const EMPTY_SETTINGS = {
   company_name: "",
@@ -19,47 +19,13 @@ const EMPTY_SETTINGS = {
   social_youtube: "",
 }
 
-const footerLinks = {
-  perusahaan: [
-    { label: "Tentang Kami", href: "/tentang" },
-    { label: "Proyek Kami", href: "/proyek" },
-    { label: "Blog & News", href: "/blog" },
-    { label: "Kontak", href: "/kontak" },
-  ],
-layanan: [
-  { label: "Jasa Konstruksi Bangunan", href: "/layanan/konstruksi" },
-  { label: "Jasa Renovasi Bangunan", href: "/layanan/renovasi" },
-  { label: "Jasa Desain Bangunan", href: "/layanan/desain" },
-  { label: "Jasa Pembuatan RAB", href: "/layanan/rab" },
-  { label: "Konsultasi Gratis", href: "/kontak" },
-],
-}
-
-const SocialIcon = ({ type }: { type: string }) => {
-  if (type === "instagram") return (
-    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-      <rect x="2" y="2" width="20" height="20" rx="5" />
-      <circle cx="12" cy="12" r="4.5" />
-      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-    </svg>
-  )
-  if (type === "facebook") return (
-    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
-    </svg>
-  )
-  if (type === "youtube") return (
-    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z" />
-    </svg>
-  )
-  if (type === "tiktok") return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.79a4.85 4.85 0 01-1.02-.1z" />
-    </svg>
-  )
-  return null
-}
+const footerLinks = [
+  { label: "Beranda", href: "/" },
+  { label: "Tentang Kami", href: "/tentang" },
+  { label: "Layanan", href: "/layanan/" },
+  { label: "Proyek", href: "/proyek" },
+  { label: "Kontak", href: "/kontak" },
+]
 
 export default function Footer() {
   const [settings, setSettings] = useState(EMPTY_SETTINGS)
@@ -81,138 +47,153 @@ export default function Footer() {
   }, [])
 
   const socials = [
-    { type: "instagram", value: settings.social_instagram, href: `https://instagram.com/${settings.social_instagram?.replace("@", "")}` },
-    { type: "facebook", value: settings.social_facebook, href: `https://facebook.com/${settings.social_facebook}` },
-    { type: "youtube", value: settings.social_youtube, href: `https://youtube.com/@${settings.social_youtube?.replace("@", "")}` },
-    { type: "tiktok", value: settings.social_tiktok, href: `https://tiktok.com/@${settings.social_tiktok?.replace("@", "")}` },
+    { type: "instagram", name: "Instagram", icon: <FaInstagram size={16} />, value: settings.social_instagram, href: `https://instagram.com/${settings.social_instagram?.replace("@", "")}` },
+    { type: "facebook", name: "Facebook", icon: <FaFacebookF size={14} />, value: settings.social_facebook, href: `https://facebook.com/${settings.social_facebook}` },
+    { type: "youtube", name: "YouTube", icon: <FaYoutube size={16} />, value: settings.social_youtube, href: `https://youtube.com/@${settings.social_youtube?.replace("@", "")}` },
+    { type: "tiktok", name: "TikTok", icon: <FaTiktok size={14} />, value: settings.social_tiktok, href: `https://tiktok.com/@${settings.social_tiktok?.replace("@", "")}` },
   ]
 
   return (
     <>
       <CTAFooter />
 
-      <footer className="bg-[#0F2340] text-white">
+      <footer className="bg-slate-900 text-white antialiased relative">
+        
+        {/* ── 1. TICKER TEXT BERJALAN (CSS KEYFRAMES INLINE) ── */}
+        <div className="w-full bg-[#E87722] py-8 overflow-hidden select-none flex relative z-10">
+          <style>{`
+            @keyframes footerMarquee {
+              0% { transform: translateX(0%); }
+              100% { transform: translateX(-50%); }
+            }
+          `}</style>
+          <div 
+            className="flex whitespace-nowrap items-center gap-12 text-white text-lg font-bold capitalize tracking-wider backend-marquee-container"
+            style={{ animation: 'footerMarquee 25s linear infinite', width: 'max-content' }}
+          >
+            <div 
+            className="flex whitespace-nowrap items-center gap-12 text-white text-lg font-bold capitalize tracking-wider backend-marquee-container"
+            style={{ animation: 'footerMarquee 25s linear infinite', width: 'max-content' }}
+          >
+            {/* Set 1 */}
+            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Jasa Konstruksi Bangunan</span>
+            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Kontraktor Bekasi & Jakarta</span>
+            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Renovasi Rumah & Ruko</span>
+            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Desain Arsitektur Premium</span>
+            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Perencanaan RAB Transparan</span>
+            {/* Set 2 (Duplikasi untuk loop infinity tanpa patah) */}
+            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Jasa Konstruksi Bangunan</span>
+            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Kontraktor Bekasi & Jakarta</span>
+            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Renovasi Rumah & Ruko</span>
+            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Desain Arsitektur Premium</span>
+            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Perencanaan RAB Transparan</span>
+          </div>
+          </div>
+        </div>
 
-        {/* Main Footer */}
-        <div className="max-w-7xl mx-auto px-6 pt-16 pb-10">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
-
-            {/* Kolom 1 — Brand */}
-            <div className="md:col-span-4 space-y-5">
-              <Image
-                src="/logo-putih.png"
-                alt={settings.company_name || "Limas Kontraktor"}
-                width={160}
-                height={48}
-                className="object-contain"
-              />
-              <p className="text-white/80 text-base leading-relaxed">
-                {settings.company_description || "Jasa konstruksi dan desain semua jenis bangunan terpercaya di Bekasi dan Jabodetabek."}
-              </p>
-              <div className="flex items-center gap-2 pt-2">
-                {socials.filter(s => s.value).map((s) => (
-                  
-                    <a key={s.type}
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={s.type}
-                    className="w-10 h-10 rounded-lg border border-white/20 flex items-center justify-center text-white/60 hover:text-[#E87722] hover:border-[#E87722]/50 transition-all duration-200"
-                  >
-                    <SocialIcon type={s.type} />
-                  </a>
-                ))}
+        {/* ── 2. FOOTER MAIN CONTENT AREA ── */}
+        <div className="max-w-7xl mx-auto px-6 pt-30 pb-30">
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-12 items-start">
+            
+            {/* [SISI KIRI]: LOGO & WORKING HOURS */}
+            <div className="xl:col-span-4 space-y-6">
+              <div className="footer-logo">
+                <Image
+                  src="/logo-putih.png"
+                  alt={settings.company_name || "Limas Kontraktor"}
+                  width={250}
+                  height={48}
+                  className="object-contain"
+                />
+              </div>
+              
+              <div className="footer-working-hours space-y-2 pt-2 border-t border-white/5 max-w-[280px]">
+                <h3 className="text-lg font-bold tracking-wider capitalize text-white">Working Hours:</h3>
+                <ul className="text-sm  text-slate-200 space-y-1 font-medium">
+                  <li>Senin - Sabtu: 09:00 WIB - 18:00 WIB</li>
+                </ul>
               </div>
             </div>
 
-            {/* Kolom 2 — Perusahaan */}
-            <div className="md:col-span-2 space-y-4">
-              <h4 className="text-sm font-bold tracking-widest uppercase text-[#E87722]">Perusahaan</h4>
-              <ul className="space-y-3">
-                {footerLinks.perusahaan.map((link) => (
-                  <li key={link.href}>
-                    <Link href={link.href} className="text-base text-white/80 hover:text-white transition-colors">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {/* [SISI KANAN]: DATA UTAMA BERJEJER */}
+            <div className="xl:col-span-8 space-y-12">
+              
+              {/* Row Atas: Grid Informasi Alamat & Kontak */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="footer-links footer-location-info space-y-3">
+                  <h3 className="text-lg font-bold capitalize tracking-widest text-white">Contact Information</h3>
+                  <p className="text-md font-medium  text-slate-200 leading-relaxed max-w-sm">
+                    {settings.company_address || "123 Maplewood Drive, Pinehill, CA 90210"}
+                  </p>
+                </div>
 
-            {/* Kolom 3 — Layanan */}
-            <div className="md:col-span-2 space-y-4">
-              <h4 className="text-sm font-bold tracking-widest uppercase text-[#E87722]">Layanan</h4>
-              <ul className="space-y-3">
-                {footerLinks.layanan.map((link) => (
-                  <li key={link.href}>
-                    <Link href={link.href} className="text-base text-white/80 hover:text-white transition-colors">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                <div className="footer-links footer-contact-links space-y-3">
+                  <h3 className="text-lg font-bold capitalize tracking-widest text-white">Get in Touch</h3>
+                  <ul className="space-y-2 text-md font-medium  text-slate-200">
+                    {settings.contact_phone1 && (
+                      <li className="flex items-center gap-2">
+                        <FaPhone size={14} className="text-slate-300" />
+                        <span>Phone: <a href={`tel:${settings.contact_phone1.replace(/[^0-9]/g, "")}`} className="text-white hover:text-[#E87722] transition-colors">{settings.contact_phone1}</a></span>
+                      </li>
+                    )}
+                    {settings.contact_email && (
+                      <li className="flex items-center gap-2">
+                        <FaEnvelope size={14} className="text-slate-300" />
+                        <span>Email: <a href={`mailto:${settings.contact_email}`} className="text-white hover:text-[#E87722] transition-colors break-all">{settings.contact_email}</a></span>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              </div>
 
-            {/* Kolom 4 — Kontak */}
-            <div className="md:col-span-4 space-y-4">
-              <h4 className="text-sm font-bold tracking-widest uppercase text-[#E87722]">Kontak</h4>
-              <ul className="space-y-4">
-                {settings.company_address && (
-                  <li className="flex items-start gap-3">
-                    <MapPin size={18} className="text-[#E87722] shrink-0 mt-0.5" />
-                    <span className="text-base text-white/80 leading-relaxed">{settings.company_address}</span>
-                  </li>
-                )}
-                {(settings.contact_phone1 || settings.contact_phone2) && (
-                  <li className="flex items-start gap-3">
-                    <Phone size={18} className="text-[#E87722] shrink-0 mt-0.5" />
-                    <div className="space-y-1">
-                      {settings.contact_phone1 && (
-                        <a href={`tel:${settings.contact_phone1.replace(/[^0-9]/g, "")}`} className="text-base text-white/80 hover:text-white transition-colors block">
-                          {settings.contact_phone1}
-                        </a>
-                      )}
-                      {settings.contact_phone2 && (
-                        <a href={`tel:${settings.contact_phone2.replace(/[^0-9]/g, "")}`} className="text-base text-white/80 hover:text-white transition-colors block">
-                          {settings.contact_phone2}
-                        </a>
-                      )}
-                    </div>
-                  </li>
-                )}
-                {settings.contact_email && (
-                  <li className="flex items-center gap-3">
-                    <Mail size={18} className="text-[#E87722] shrink-0" />
-                    <a href={`mailto:${settings.contact_email}`} className="text-base text-white/80 hover:text-white transition-colors break-all">
-                      {settings.contact_email}
+              {/* Row Bawah: Kapsul Abu-Abu Sosmed */}
+              <div className="footer-links footer-social-links space-y-4 pt-6 border-t border-white/5">
+                <h3 className="text-lg font-bold capitalize tracking-widest text-white">Ikuti Kami di Media Sosial:</h3>
+                <div className="flex flex-wrap gap-2.5">
+                  {socials.filter(s => s.value).map((s) => (
+                    <a
+                      key={s.type}
+                      href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-4 py-2.5 bg-white/[0.06] border border-white/5 rounded-lg text-sm font-bold text-slate-300 hover:text-white hover:bg-[#E87722] transition-all duration-200"
+                    >
+                      <span className="text-slate-200">{s.icon}</span>
+                      <span>{s.name}</span>
                     </a>
-                  </li>
-                )}
-                <li className="flex items-center gap-3">
-                  <Clock size={18} className="text-[#E87722] shrink-0" />
-                  <span className="text-base text-white/80">Senin – Sabtu, 08.00 – 17.00 WIB</span>
-                </li>
-              </ul>
+                  ))}
+                </div>
+              </div>
+
             </div>
 
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-white/10">
-          <div className="max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-2">
-            <p className="text-sm text-white/60">
-              © {new Date().getFullYear()} {settings.company_name || "Limas Kontraktor"}. All rights reserved.
-            </p>
-            <p className="text-sm text-white/60">
-              Jasa Konstruksi & Desain Semua Jenis Bangunan Bekasi
-            </p>
-            <p className="text-sm text-white/60">
-              Web Development by{" "}
-              <a href="https://dicoment.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
-                Dicoment Agency
-              </a>
-            </p>
+        {/* ── 3. BOTTOM FOOTER COPYRIGHT BAR ── */}
+        <div className="border-t border-white/5 bg-black/15">
+          <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            
+            <div className="footer-menu">
+              <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-bold capitalize tracking-wider">
+                {footerLinks.map((link) => (
+                  <Link key={link.href} href={link.href} className=" text-slate-200 hover:text-white transition-colors">
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+
+            <div className="footer-copyright-text flex flex-col items-center md:items-end text-center md:text-right gap-1 text-sm text-slate-500 font-medium">
+              <p>Copyright © {new Date().getFullYear()} All Rights Reserved.</p>
+              <p className="text-sm text-slate-400 font-light">
+                Web Development by{" "}
+                <a href="https://dicoment.com" target="_blank" rel="noopener noreferrer" className="hover: text-slate-200 transition-colors font-medium underline">
+                  Dicoment Agency
+                </a>
+              </p>
+            </div>
+
           </div>
         </div>
 

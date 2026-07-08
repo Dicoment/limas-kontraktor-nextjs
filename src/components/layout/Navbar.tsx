@@ -10,17 +10,17 @@ import Button from "@/components/ui/Button"
 const tigaLayanan = [
   { 
     label: "Konstruksi & Bangun Baru", 
-    href: "/layanan/bangun-baru", 
+    href: "/layanan/konstruksi", 
     desc: "Pembangunan dari nol untuk rumah tinggal, ruko komersial, kantor, hingga fasilitas umum dengan manajemen struktur presisi." 
   },
   { 
     label: "Renovasi Total & Parsial", 
-    href: "/layanan/renovasi-rumah", 
+    href: "/layanan/renovasi", 
     desc: "Solusi peremajaan properti, penambahan lantai, perbaikan struktur dinding/atap, hingga rekonstruksi tata ruang." 
   },
   { 
     label: "Desain Arsitektur & RAB", 
-    href: "/layanan/desain-rab", 
+    href: "/layanan/desain", 
     desc: "Pembuatan konsep visual arsitektur 3D eksterior-interior terintegrasi dengan penyusunan RAB yang jujur dan transparan." 
   },
 ]

@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
-const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_SIZE = 2 * 2048 * 2048; // 2MB
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     // Validasi ukuranD
     if (file.size > MAX_SIZE) {
-      return NextResponse.json({ error: 'Ukuran file maksimal 10MB.' }, { status: 400 });
+      return NextResponse.json({ error: 'Ukuran file maksimal 2MB.' }, { status: 400 });
     }
 
     // Buat nama file unik — timestamp + nama asli (sanitized)

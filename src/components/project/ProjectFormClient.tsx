@@ -21,48 +21,34 @@ import ProjectEditorToolbar from "@/components/project/ProjectEditorToolbar";
 import ProjectSidebar from "@/components/project/ProjectSidebar";
 
 interface ProjectFormClientProps {
-  categories?: any[];
-  teams?: any[];
-  initialData?: {
-    id: string;
-    title: string;
-    slug: string;
-    description: string;
-    location?: string | null;
-    client?: string | null;
-    limasRole?: string | null;
-    coverImage?: string | null;
-    gallery?: string[];
-    status: string;
-    seoTitle?: string | null;
-    seoDescription?: string | null;
-    categories?: { id: string }[];
-    teams?: { id: string; role?: string | null }[];
-  };
+  categories: any[];
+  teams: any[];
 }
 
-export default function ProjectFormClient({
-  categories = [],
-  teams = [],
-  initialData,
-}: ProjectFormClientProps) {
-  const [title, setTitle] = useState(initialData?.title || "");
-  const [slug, setSlug] = useState(initialData?.slug || "");
-  const [location, setLocation] = useState(initialData?.location || "");
-  const [client, setClient] = useState(initialData?.client || "");
-  const [limasRole, setLimasRole] = useState(initialData?.limasRole || "");
-  const [coverImage, setCoverImage] = useState(initialData?.coverImage || "");
-  const [gallery, setGallery] = useState(initialData?.gallery || []);
-  const [status, setStatus] = useState(initialData?.status || "DRAFT");
-  const [seoTitle, setSeoTitle] = useState(initialData?.seoTitle || "");
-  const [seoDescription, setSeoDescription] = useState(initialData?.seoDescription || "");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    initialData?.categories?.map((c) => c.id) || []
-  );
-  const [selectedTeams, setSelectedTeams] = useState<{ teamId: string; role: string }[]>(
-    (initialData?.teams || []).map((t) => ({ teamId: t.id, role: t.role || "" }))
-  );
-  const [projectId, setProjectId] = useState<string | null>(initialData?.id || null);
+/**
+ * Halaman editor project (tambah/edit). Menggabungkan top bar, toolbar
+ * editor, kanvas Tiptap, dan sidebar kanan (Pos & Blok) menjadi satu
+ * pengalaman edit yang utuh.
+ */
+export default function ProjectFormClient({ categories: initialCategories = [], teams: initialTeams = [] }: ProjectFormClientProps) {
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [location, setLocation] = useState("");
+  const [client, setClient] = useState("");
+  const [limasRole, setLimasRole] = useState("");
+  const [coverImage, setCoverImage] = useState("");
+  const [gallery, setGallery] = useState<string[]>([]);
+  const [status, setStatus] = useState("DRAFT");
+  const [seoTitle, setSeoTitle] = useState("");
+  const [seoDescription, setSeoDescription] = useState("");
+  // categories & teams disimpan sebagai state lokal (bukan langsung props)
+  // karena sidebar bisa menambahkan kategori/tim baru secara on-the-fly
+  // tanpa reload halaman.
+  const [categories, setCategories] = useState<any[]>(initialCategories);
+  const [teams, setTeams] = useState<any[]>(initialTeams);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedTeams, setSelectedTeams] = useState<{ teamId: string; role: string }[]>([]);
+  const [projectId, setProjectId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -131,12 +117,6 @@ export default function ProjectFormClient({
   });
 
   useEffect(() => {
-    if (initialData?.description && editor) {
-      editor.commands.setContent(initialData.description);
-    }
-  }, [initialData?.description, editor]);
-
-  useEffect(() => {
     const formatted = title
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, "")
@@ -165,7 +145,7 @@ export default function ProjectFormClient({
     [editor]
   );
 
-  const handleSubmit = async (statusValue: string) => {
+  const handleSubmit = async (publishStatus: string) => {
     if (!title.trim()) {
       setErrorMsg("Judul proyek wajib diisi.");
       return;
@@ -174,18 +154,11 @@ export default function ProjectFormClient({
     setSaveStatus("saving");
     setErrorMsg("");
 
-    console.log("[ProjectForm] Submit data:", {
-      status: statusValue,
-      teamIds: JSON.stringify(selectedTeams),
-      categoryIds: JSON.stringify(selectedCategories),
-      coverImage,
-    });
-
     const fd = new FormData();
     fd.append("title", title);
     fd.append("slug", slug);
     fd.append("description", editor?.getHTML() || "");
-    fd.append("status", statusValue);
+    fd.append("status", publishStatus);
     fd.append("location", location);
     fd.append("client", client);
     fd.append("limasRole", limasRole);
@@ -210,7 +183,12 @@ export default function ProjectFormClient({
       const id = data?.data?.id || data?.id;
       if (id) setProjectId(id);
 
-      window.location.href = "/dashboard/projects";
+      if (publishStatus === "DRAFT") {
+        setSaveStatus("saved");
+        setTimeout(() => setSaveStatus("idle"), 3000);
+      } else {
+        window.location.href = "/dashboard/projects";
+      }
     } catch (err: any) {
       setErrorMsg(err.message);
       setSaveStatus("error");
@@ -239,7 +217,7 @@ export default function ProjectFormClient({
           loading={loading}
           saveStatus={saveStatus}
           canPreview={canPreview}
-          onSaveDraft={() => handleSubmit(status)}
+          onSaveDraft={() => handleSubmit("DRAFT")}
           onPublish={() => handleSubmit("COMPLETED")}
           onPreviewBlocked={() => setErrorMsg("Simpan draf dulu sebelum preview.")}
         />
@@ -294,9 +272,11 @@ export default function ProjectFormClient({
             limasRole={limasRole}
             setLimasRole={setLimasRole}
             categories={categories}
+            setCategories={setCategories}
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
             teams={teams}
+            setTeams={setTeams}
             selectedTeams={selectedTeams}
             setSelectedTeams={setSelectedTeams}
             coverImage={coverImage}

@@ -375,7 +375,7 @@ console.log("PARSED gallery:", gallery);
             {relatedProjects.map((proj) => (
               <Link
                 key={proj.id}
-                href={`/portfolio/${proj.slug}`}
+                href={`/proyek/${proj.slug}`}
                 className="group relative overflow-hidden rounded-[28px] h-[420px]"
               >
                 <img
@@ -407,11 +407,11 @@ console.log("PARSED gallery:", gallery);
         {/* BACK BUTTON */}
         <div className="text-center mt-20">
           <Button
-            href="/portfolio"
+            href="/proyek"
             variant="primary"
             size="lg"
           >
-            Lihat Semua Portfolio
+            Lihat Semua Proyek
           </Button>
         </div>
 

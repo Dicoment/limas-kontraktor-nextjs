@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { Editor } from "@tiptap/react";
 import {
   RiLayoutGridLine,
@@ -9,7 +10,12 @@ import {
   RiAlignRight,
   RiAlignJustify,
   RiRefreshLine,
-  RiDoubleQuotesL, RiSearchLine,
+  RiDoubleQuotesL,
+  RiSearchLine,
+  RiAddLine,
+  RiCloseLine,
+  RiLoader4Line,
+  RiErrorWarningLine,
 } from "react-icons/ri";
 import MediaPicker, { MultipleMediaPicker } from "@/components/ui/MediaPicker";
 import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
@@ -20,6 +26,18 @@ type SidebarTab = "pos" | "blok";
 interface TeamAssignment {
   teamId: string;
   role: string;
+}
+
+interface CategoryItem {
+  id: string;
+  name: string;
+  slug?: string;
+  type?: string;
+}
+
+interface TeamItem {
+  id: string;
+  name: string;
 }
 
 interface ProjectSidebarProps {
@@ -38,10 +56,12 @@ interface ProjectSidebarProps {
   setClient: (v: string) => void;
   limasRole: string;
   setLimasRole: (v: string) => void;
-  categories: any[];
+  categories: CategoryItem[];
+  setCategories: (v: CategoryItem[]) => void;
   selectedCategories: string[];
   setSelectedCategories: (v: string[]) => void;
-  teams: any[];
+  teams: TeamItem[];
+  setTeams: (v: TeamItem[]) => void;
   selectedTeams: TeamAssignment[];
   setSelectedTeams: (v: TeamAssignment[]) => void;
   coverImage: string;
@@ -53,6 +73,94 @@ interface ProjectSidebarProps {
   setSeoTitle: (v: string) => void;
   seoDescription: string;
   setSeoDescription: (v: string) => void;
+}
+
+/** Generate slug sederhana dari nama, konsisten dengan logic slug judul project. */
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+/**
+ * Form inline kecil untuk menambah kategori atau tim baru tanpa
+ * meninggalkan sidebar. Dipakai untuk dua kasus (kategori & tim)
+ * lewat props `onSubmit` yang berbeda.
+ */
+function InlineAddForm({
+  placeholder,
+  onSubmit,
+  onCancel,
+}: {
+  placeholder: string;
+  onSubmit: (name: string) => Promise<void>;
+  onCancel: () => void;
+}) {
+  const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async () => {
+    if (!name.trim()) return;
+    setLoading(true);
+    setError("");
+    try {
+      await onSubmit(name.trim());
+      setName("");
+      onCancel();
+    } catch (err: any) {
+      setError(err.message || "Gagal menambahkan.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-1.5 bg-orange-50/50 border border-orange-200 rounded-lg p-2">
+      <div className="flex gap-1.5">
+        <input
+          type="text"
+          autoFocus
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleSubmit();
+            }
+            if (e.key === "Escape") onCancel();
+          }}
+          placeholder={placeholder}
+          disabled={loading}
+          className="flex-1 text-xs px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#E87722]/40 focus:border-[#E87722] disabled:opacity-50"
+        />
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={loading || !name.trim()}
+          className="px-2.5 py-1.5 text-xs font-bold bg-[#E87722] text-white rounded-lg hover:bg-orange-600 transition disabled:opacity-40 flex items-center justify-center min-w-[34px]"
+        >
+          {loading ? <RiLoader4Line className="animate-spin" size={13} /> : "OK"}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading}
+          className="px-2 py-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-white transition disabled:opacity-50"
+        >
+          <RiCloseLine size={14} />
+        </button>
+      </div>
+      {error && (
+        <div className="flex items-center gap-1.5 text-red-600 text-[11px]">
+          <RiErrorWarningLine size={12} /> {error}
+        </div>
+      )}
+    </div>
+  );
 }
 
 /**
@@ -75,9 +183,11 @@ export default function ProjectSidebar({
   limasRole,
   setLimasRole,
   categories,
+  setCategories,
   selectedCategories,
   setSelectedCategories,
   teams,
+  setTeams,
   selectedTeams,
   setSelectedTeams,
   coverImage,
@@ -90,6 +200,9 @@ export default function ProjectSidebar({
   seoDescription,
   setSeoDescription,
 }: ProjectSidebarProps) {
+  const [showAddCategory, setShowAddCategory] = useState(false);
+  const [showAddTeam, setShowAddTeam] = useState(false);
+
   const getBlockInfo = () => {
     if (!editor) return { type: "Paragraf", level: null as number | null, align: "left" };
     const hAttrs = editor.getAttributes("heading");
@@ -103,6 +216,38 @@ export default function ProjectSidebar({
     return { type: "Paragraf", level: null, align };
   };
   const blockInfo = getBlockInfo();
+
+  /** Kirim kategori baru ke API, lalu tambahkan ke list lokal & langsung centang. */
+  const handleCreateCategory = async (name: string) => {
+    const res = await fetch("/api/categories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, slug: slugify(name), type: "project" }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || "Gagal membuat kategori.");
+    }
+    const newCategory: CategoryItem = data.data;
+    setCategories([...categories, newCategory]);
+    setSelectedCategories([...selectedCategories, newCategory.id]);
+  };
+
+  /** Kirim tim baru ke API, lalu tambahkan ke list lokal & langsung centang. */
+  const handleCreateTeam = async (name: string) => {
+    const res = await fetch("/api/teams", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || "Gagal membuat tim.");
+    }
+    const newTeam: TeamItem = data.data;
+    setTeams([...teams, newTeam]);
+    setSelectedTeams([...selectedTeams, { teamId: newTeam.id, role: "" }]);
+  };
 
   return (
     <aside
@@ -176,56 +321,106 @@ export default function ProjectSidebar({
 
             <hr style={{ borderColor: "#dcdcde" }} />
 
+            {/* KATEGORI — checkbox list custom + tambah kategori inline */}
             <Section title="Kategori">
-              <select
-                multiple
-                value={selectedCategories}
-                onChange={(e) => {
-                  const options = Array.from(e.target.selectedOptions);
-                  setSelectedCategories(options.map((opt) => opt.value));
-                }}
-                className={`${selectCls} h-32`}
-              >
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 max-h-36 overflow-y-auto space-y-1.5">
                 {categories.length === 0 && (
-                  <option value="" disabled>Belum ada kategori</option>
+                  <p className="text-[11px] text-slate-400 italic">Belum ada kategori</p>
                 )}
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
+                {categories.map((c) => {
+                  const isChecked = selectedCategories.includes(c.id);
+                  return (
+                    <label
+                      key={c.id}
+                      className="flex items-center gap-2 cursor-pointer text-xs text-slate-700 select-none"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => {
+                          if (isChecked) setSelectedCategories(selectedCategories.filter((id) => id !== c.id));
+                          else setSelectedCategories([...selectedCategories, c.id]);
+                        }}
+                        className="w-3.5 h-3.5 rounded border-slate-300 text-[#E87722] accent-[#E87722] cursor-pointer"
+                      />
+                      {c.name}
+                    </label>
+                  );
+                })}
+              </div>
+
+              {showAddCategory ? (
+                <InlineAddForm
+                  placeholder="Nama kategori baru..."
+                  onSubmit={handleCreateCategory}
+                  onCancel={() => setShowAddCategory(false)}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowAddCategory(true)}
+                  className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#E87722] border border-dashed border-[#E87722]/40 rounded-lg hover:bg-orange-50/50 transition"
+                >
+                  <RiAddLine size={13} /> Tambah Kategori
+                </button>
+              )}
             </Section>
 
+            {/* TIM LAPANGAN — multi-select checkbox + peran per tim + tambah tim inline */}
             <Section title="Tim Lapangan">
-              <div className="space-y-3">
-                <Field label="Tim Utama">
-                  <select
-                    value={selectedTeams[0]?.teamId || ""}
-                    onChange={(e) => {
-                      const teamId = e.target.value;
-                      setSelectedTeams(teamId ? [{ teamId, role: "" }] : []);
-                    }}
-                    className={selectCls}
-                  >
-                    <option value="">Pilih tim</option>
-                    {teams.map((t) => (
-                      <option key={t.id} value={t.id}>{t.name}</option>
-                    ))}
-                  </select>
-                </Field>
-                {selectedTeams[0] && (
-                  <Field label="Peran">
-                    <input
-                      type="text"
-                      value={selectedTeams[0].role || ""}
-                      onChange={(e) =>
-                        setSelectedTeams([{ ...selectedTeams[0], role: e.target.value }])
-                      }
-                      placeholder="cth: PM, Pengawas"
-                      className={inputCls}
-                    />
-                  </Field>
-                )}
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 max-h-44 overflow-y-auto space-y-2">
+                {teams.length === 0 && <p className="text-[11px] text-slate-400 italic">Belum ada tim</p>}
+                {teams.map((t) => {
+                  const matched = selectedTeams.find((i) => i.teamId === t.id);
+                  return (
+                    <div key={t.id} className="space-y-1">
+                      <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-700 font-medium select-none">
+                        <input
+                          type="checkbox"
+                          checked={!!matched}
+                          onChange={(e) => {
+                            if (e.target.checked) setSelectedTeams([...selectedTeams, { teamId: t.id, role: "" }]);
+                            else setSelectedTeams(selectedTeams.filter((i) => i.teamId !== t.id));
+                          }}
+                          className="w-3.5 h-3.5 rounded border-slate-300 text-[#E87722] accent-[#E87722] cursor-pointer"
+                        />
+                        {t.name}
+                      </label>
+                      {!!matched && (
+                        <input
+                          type="text"
+                          value={matched.role}
+                          onChange={(e) =>
+                            setSelectedTeams(
+                              selectedTeams.map((i) =>
+                                i.teamId === t.id ? { ...i, role: e.target.value } : i
+                              )
+                            )
+                          }
+                          placeholder="Peran (cth: PM, Pengawas)"
+                          className="w-full text-[11px] px-2 py-1 bg-white border border-slate-200 rounded focus:outline-none"
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
+
+              {showAddTeam ? (
+                <InlineAddForm
+                  placeholder="Nama anggota/tim baru..."
+                  onSubmit={handleCreateTeam}
+                  onCancel={() => setShowAddTeam(false)}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowAddTeam(true)}
+                  className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#E87722] border border-dashed border-[#E87722]/40 rounded-lg hover:bg-orange-50/50 transition"
+                >
+                  <RiAddLine size={13} /> Tambah Tim
+                </button>
+              )}
             </Section>
 
             <hr style={{ borderColor: "#dcdcde" }} />
@@ -243,8 +438,8 @@ export default function ProjectSidebar({
 
             <div className="space-y-2 bg-slate-50 border border-slate-200 rounded-xl p-3">
               <h3 className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-    <RiSearchLine size={14} /> SEO
-  </h3>
+                <RiSearchLine size={14} /> SEO
+              </h3>
               <Field label="SEO Title">
                 <input
                   type="text"

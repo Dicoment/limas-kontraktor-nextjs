@@ -6,6 +6,7 @@ import {
   Users, MessageSquare, Shapes, Settings, History, 
   Globe, PanelLeft, User, LogOut
 } from "lucide-react"
+import Image from "next/image"
 import { SidebarItem, SidebarLabel } from "./NavComponents"
 
 interface SidebarProps {
@@ -44,10 +45,8 @@ export function Sidebar({
         <div className="flex items-center justify-between">
           {(!collapsed || mobileOpen) && (
             <div className="flex items-center gap-2 animate-in fade-in duration-500">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shrink-0 text-white font-bold text-xs">
-                LK
-              </div>
-              <span className="font-black tracking-tighter text-white uppercase truncate">Limas Admin</span>
+              <Image src="/favicon.ico" alt="Limas Logo" width={32} height={32} className="rounded-lg" />
+              <span className="font-black tracking-tighter text-white uppercase truncate">Dashboard</span>
             </div>
           )}
           <button
