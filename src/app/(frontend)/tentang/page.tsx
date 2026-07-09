@@ -4,9 +4,10 @@ import Link from "next/link";
 import { IoArrowForwardSharp } from "react-icons/io5";
 import { FaClipboardList, FaRegCheckCircle, FaUsers, FaRegClock, FaRegEye, FaWrench, FaFileContract, FaMapMarkerAlt, FaShieldAlt } from "react-icons/fa";
 
+export const dynamic = "force-dynamic"
 export const metadata: Metadata = {
   title: "Tentang Kami | Limas Kontraktor",
-  description: "Kontraktor terpercaya di Bekasi and Jabodetabek untuk pembangunan, renovasi, dan desain bangunan.",
+  description: "Kontraktor Profesional terpercaya di Bekasi dan Jabodetabek. Spesialis konstruksi rumah tinggal, ruko komersial, gudang baja WF, dan penyusunan RAB transparan.",
 };
 
 async function getProjects() {
