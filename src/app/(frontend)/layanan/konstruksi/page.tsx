@@ -6,9 +6,10 @@ import { FaHardHat, FaShieldAlt } from "react-icons/fa";
 import { IoArrowForwardSharp } from "react-icons/io5";
 import TestimonialSection from "@/components/sections/home/TestimonialSection";
 
+export const dynamic = "force-dynamic"
 export const metadata: Metadata = {
-  title: "Jasa Kontraktor Bangunan Profesional Bekasi | Limas Kontraktor",
-  description: "Layanan kontraktor bangunan terpercaya di Bekasi dan Jabodetabek. Spesialis konstruksi rumah tinggal, ruko komersial, gudang baja WF, dan penyusunan RAB transparan.",
+  title: "Jasa Kontraktor Bangunan Profesional Bekasi & Jabodetabek | Limas Kontraktor",
+  description: "Layanan Jasa kontraktor bangunan terpercaya di Bekasi dan Jabodetabek. Spesialis konstruksi rumah tinggal, ruko komersial, gudang baja WF, dan penyusunan RAB transparan.",
 };
 
 async function getCompletedProjects() {
@@ -225,8 +226,7 @@ export default async function JasaKontraktorPage() {
         </div>
       </section>
 
-      {/* ── 7. TESTIMONIAL GLOBAL COMPONENT (MEMANGGIL KOMPONEN UTAMAMU) ── */}
-      <TestimonialSection />
+     <TestimonialSection />
 
 
     </main>
