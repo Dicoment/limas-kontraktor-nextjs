@@ -8,6 +8,8 @@ import {
   RiCheckLine,
   RiErrorWarningLine,
   RiLoader4Line,
+  RiMenuFoldLine,
+  RiMenuUnfoldLine,
 } from "react-icons/ri";
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -22,11 +24,14 @@ interface ProjectTopBarProps {
   onSaveDraft: () => void;
   onPublish: () => void;
   onPreviewBlocked: () => void;
+  sidebarOpen: boolean;
+  onToggleSidebar: () => void;
 }
 
 /**
  * Top bar halaman editor project: navigasi kembali, judul, badge status,
- * indikator save, dan tombol-tombol aksi (simpan draf, preview, terbitkan).
+ * indikator save, dan tombol-tombol aksi (simpan draf, preview, terbitkan,
+ * toggle sidebar — mirip tombol "Settings" di WordPress block editor).
  */
 export default function ProjectTopBar({
   title,
@@ -38,6 +43,8 @@ export default function ProjectTopBar({
   onSaveDraft,
   onPublish,
   onPreviewBlocked,
+  sidebarOpen,
+  onToggleSidebar,
 }: ProjectTopBarProps) {
   return (
     <header
@@ -120,6 +127,25 @@ export default function ProjectTopBar({
           className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold bg-[#E87722] hover:bg-orange-600 rounded text-white transition disabled:opacity-50"
         >
           Terbitkan
+        </button>
+
+        <div className="w-px h-4 bg-[#3c434a] flex-shrink-0 mx-0.5" />
+
+        {/* Toggle sidebar — pola sama seperti tombol "Settings" di WordPress
+            block editor. State `sidebarOpen` dipegang di ProjectFormClient
+            (parent bersama top bar & sidebar), jadi topbar dan sidebar
+            tetap 2 komponen terpisah, cuma nge-share 1 state lewat props. */}
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          title={sidebarOpen ? "Sembunyikan panel" : "Tampilkan panel"}
+          className={`hidden md:flex items-center justify-center w-8 h-8 rounded border transition ${
+            sidebarOpen
+              ? "bg-[#3c434a] border-[#3c434a] text-white"
+              : "bg-[#2c3338] border-[#3c434a] text-[#a7aaad] hover:text-white"
+          }`}
+        >
+          {sidebarOpen ? <RiMenuUnfoldLine size={14} /> : <RiMenuFoldLine size={14} />}
         </button>
       </div>
     </header>

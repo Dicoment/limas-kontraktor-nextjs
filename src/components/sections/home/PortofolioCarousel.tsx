@@ -178,7 +178,7 @@ export default function PortfolioCarousel({ projects }: PortfolioCarouselProps) 
 
                   {/* Navigasi Link */}
                   <div className="flex justify-between items-center pt-1">
-                    <span className="text-[11px] text-gray-400 italic">Data Real PostgreSQL Database</span>
+                    <span className="text-[11px] text-gray-400 italic">Limas Kontraktor</span>
                     <Link
                       href={`/proyek/${project.slug}`}
                       className="inline-flex items-center justify-center bg-[#0F2340] text-white font-bold px-4 py-2.5 rounded-lg text-[11px] tracking-wider uppercase transition-colors duration-300 hover:bg-[#E87722]"

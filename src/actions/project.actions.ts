@@ -49,8 +49,25 @@ export async function deleteProject(id: string) {
   return { success: true, message: "Project deleted successfully" }
 }
 
-export async function getAllCategories() {
-  return prisma.category.findMany({ orderBy: { name: "asc" } })
+// Batch delete - 1 query ke DB lewat deleteMany, dipakai untuk bulk delete
+// di ProjectTable (checkbox multi-select). Return count biar UI bisa kasih
+// tau kalau jumlah yang kehapus beda dari jumlah yang diminta
+// (misal ada id yang udah gak ada / gagal karena FK constraint).
+export async function deleteProjects(ids: string[]) {
+  if (ids.length === 0) return { success: true, deletedCount: 0 }
+
+  const result = await prisma.project.deleteMany({
+    where: { id: { in: ids } },
+  })
+
+  return { success: true, deletedCount: result.count }
+}
+
+export async function getAllCategories(type?: string) {
+  return prisma.category.findMany({
+    where: type ? { type } : undefined,
+    orderBy: { name: "asc" },
+  })
 }
 export async function getAllTeams() {
   return prisma.team.findMany({ orderBy: { displayOrder: "asc" } })

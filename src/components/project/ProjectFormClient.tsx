@@ -19,10 +19,12 @@ import ImageUploadModal from "@/components/ui/ImageUploadModal";
 import ProjectTopBar, { SaveStatus } from "@/components/project/ProjectTopBar";
 import ProjectEditorToolbar from "@/components/project/ProjectEditorToolbar";
 import ProjectSidebar from "@/components/project/ProjectSidebar";
+import type { FormattedProject } from "@/helpers/project-helpers";
 
 interface ProjectFormClientProps {
   categories: any[];
   teams: any[];
+  initialData?: FormattedProject;
 }
 
 /**
@@ -30,31 +32,44 @@ interface ProjectFormClientProps {
  * editor, kanvas Tiptap, dan sidebar kanan (Pos & Blok) menjadi satu
  * pengalaman edit yang utuh.
  */
-export default function ProjectFormClient({ categories: initialCategories = [], teams: initialTeams = [] }: ProjectFormClientProps) {
-  const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
-  const [location, setLocation] = useState("");
-  const [client, setClient] = useState("");
-  const [limasRole, setLimasRole] = useState("");
-  const [coverImage, setCoverImage] = useState("");
-  const [gallery, setGallery] = useState<string[]>([]);
-  const [status, setStatus] = useState("DRAFT");
-  const [seoTitle, setSeoTitle] = useState("");
-  const [seoDescription, setSeoDescription] = useState("");
+export default function ProjectFormClient({
+  categories: initialCategories = [],
+  teams: initialTeams = [],
+  initialData,
+}: ProjectFormClientProps) {
+  const [title, setTitle] = useState(initialData?.title ?? "");
+  const [slug, setSlug] = useState(initialData?.slug ?? "");
+  const [location, setLocation] = useState(initialData?.location ?? "");
+  const [client, setClient] = useState(initialData?.client ?? "");
+  const [limasRole, setLimasRole] = useState(initialData?.limasRole ?? "");
+  const [coverImage, setCoverImage] = useState(initialData?.coverImage ?? "");
+  const [gallery, setGallery] = useState<string[]>(initialData?.gallery ?? []);
+  const [status, setStatus] = useState<string>(initialData?.status ?? "DRAFT");
+  const [seoTitle, setSeoTitle] = useState(initialData?.seoTitle ?? "");
+  const [seoDescription, setSeoDescription] = useState(initialData?.seoDescription ?? "");
   // categories & teams disimpan sebagai state lokal (bukan langsung props)
   // karena sidebar bisa menambahkan kategori/tim baru secara on-the-fly
   // tanpa reload halaman.
   const [categories, setCategories] = useState<any[]>(initialCategories);
   const [teams, setTeams] = useState<any[]>(initialTeams);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedTeams, setSelectedTeams] = useState<{ teamId: string; role: string }[]>([]);
-  const [projectId, setProjectId] = useState<string | null>(null);
+
+  // FormattedProject.categories sudah berupa Category[] langsung (bukan nested
+  // catEntry), dan .teams sudah { id, name, role }[] — jadi mapping-nya simpel.
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    () => initialData?.categories?.map((c) => c.id) ?? []
+  );
+  const [selectedTeams, setSelectedTeams] = useState<{ teamId: string; role: string }[]>(
+    () => initialData?.teams?.map((t) => ({ teamId: t.id, role: t.role ?? "" })) ?? []
+  );
+
+  const [projectId, setProjectId] = useState<string | null>(initialData?.id ?? null);
   const [loading, setLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
   const [activeTab, setActiveTab] = useState<"pos" | "blok">("pos");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const canPreview = !!projectId && !!slug;
 
@@ -113,10 +128,18 @@ export default function ProjectFormClient({ categories: initialCategories = [], 
         return true;
       },
     },
+    // Isi konten awal editor dari initialData.description (mode edit).
+    // Kalau kosong (mode "new"), fallback ke string kosong seperti semula.
+    content: initialData?.description ?? "",
     immediatelyRender: false,
   });
 
+  // Auto-generate slug dari title HANYA kalau slug belum pernah "disentuh"
+  // (mode "new" / belum ada slug awal). Di mode edit, slug yang sudah ada
+  // dari initialData tidak boleh keubah otomatis cuma karena title diketik ulang.
+  const [slugTouched, setSlugTouched] = useState(!!initialData?.slug);
   useEffect(() => {
+    if (slugTouched) return;
     const formatted = title
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, "")
@@ -124,7 +147,7 @@ export default function ProjectFormClient({ categories: initialCategories = [], 
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
     setSlug(formatted);
-  }, [title]);
+  }, [title, slugTouched]);
 
   const handleAddLink = useCallback(() => setShowLinkModal(true), []);
   const confirmLink = useCallback(
@@ -220,6 +243,8 @@ export default function ProjectFormClient({ categories: initialCategories = [], 
           onSaveDraft={() => handleSubmit("DRAFT")}
           onPublish={() => handleSubmit("COMPLETED")}
           onPreviewBlocked={() => setErrorMsg("Simpan draf dulu sebelum preview.")}
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={() => setSidebarOpen((v) => !v)}
         />
 
         {errorMsg && (
@@ -261,10 +286,14 @@ export default function ProjectFormClient({ categories: initialCategories = [], 
             editor={editor}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
+            open={sidebarOpen}
             status={status}
             setStatus={setStatus}
             slug={slug}
-            setSlug={setSlug}
+            setSlug={(v) => {
+              setSlugTouched(true);
+              setSlug(v);
+            }}
             location={location}
             setLocation={setLocation}
             client={client}

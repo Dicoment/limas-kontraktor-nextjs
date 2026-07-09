@@ -4,7 +4,7 @@ import ProjectFormClient from "@/components/project/ProjectFormClient";
 export const dynamic = "force-dynamic"
 
 export default async function NewProjectPage() {
-  const [categories, teams] = await Promise.all([getAllCategories(), getAllTeams()])
+const [categories, teams] = await Promise.all([getAllCategories("project"), getAllTeams()])
 
   return <ProjectFormClient categories={categories} teams={teams} />
 }

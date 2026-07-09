@@ -71,7 +71,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="space-y-6 font-jakarta">
+    <div className="space-y-6 p-8  font-jakarta">
       {/* HEADER SECTION */}
       <div>
         <h1 className="text-xl font-bold tracking-tight text-gray-900">Overview Dashboard</h1>

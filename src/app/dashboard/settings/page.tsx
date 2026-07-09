@@ -261,7 +261,7 @@ export default function SettingsPage() {
         <Section title="Kontak">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <InputField
-              label="Nomor Telepon 1"
+              label="Nomor Telepon 1(Whatsapp)"
               value={formData.contact_phone1}
               onChange={handleInputChange("contact_phone1")}
               placeholder="0821-xxxx-xxxx"

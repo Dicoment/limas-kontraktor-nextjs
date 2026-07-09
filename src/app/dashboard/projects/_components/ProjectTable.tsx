@@ -6,22 +6,37 @@ import { Table } from "@/components/ui/Table"
 import Button from "@/components/ui/Button" 
 import { Trash2 } from "lucide-react"
 import Link from "next/link"
-import { deleteProject } from "@/actions/project.actions" 
+import { deleteProjects } from "@/actions/project.actions" 
 
 export function ProjectTable({ initialData }: { initialData: any[] }) {
   const router = useRouter()
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleDelete = async () => {
     if (!confirm(`Yakin hapus ${selectedIds.length} project?`)) return
-    
+
+    setIsDeleting(true)
+
     try {
-      for (const id of selectedIds) {
-        await deleteProject(id)
-      }
+      const result = await deleteProjects(selectedIds)
+      const failedCount = selectedIds.length - result.deletedCount
+
+      setSelectedIds([])
       router.refresh()
+
+      if (failedCount > 0) {
+        alert(
+          `${result.deletedCount} project berhasil dihapus, ${failedCount} tidak ditemukan/gagal.`
+        )
+      }
     } catch (err) {
-      alert("Gagal hapus data")
+      // deleteMany itu 1 statement SQL - kalau ada FK constraint yang nge-block
+      // salah satu row, seluruh batch gagal (gak ada yang kehapus sama sekali),
+      // beda sama versi paralel sebelumnya yang partial success.
+      alert("Gagal menghapus project. Kemungkinan masih ada data terkait (lead/gambar) yang mengunci salah satu project.")
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -55,8 +70,9 @@ export function ProjectTable({ initialData }: { initialData: any[] }) {
             variant="primary" 
             className="bg-red-600 hover:bg-red-700" 
             size="sm"
+            disabled={isDeleting}
           >
-            <Trash2 size={16} className="mr-2"/> Hapus
+            <Trash2 size={16} className="mr-2"/> {isDeleting ? "Menghapus..." : "Hapus"}
           </Button>
         </div>
       )}
