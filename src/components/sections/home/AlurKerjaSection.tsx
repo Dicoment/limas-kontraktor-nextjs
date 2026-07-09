@@ -118,11 +118,11 @@ export default function AlurKerjaSection() {
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 bg-[#E87722]/10 border border-[#E87722]/20 px-4 py-1.5 rounded-full">
               <span className="w-1.5 h-1.5 rounded-full bg-[#E87722] animate-pulse" />
-              <p className="text-[#E87722] text-xs font-bold tracking-widest uppercase">Alur Kerja Kami</p>
+              <p className="text-[#E87722] text-xs font-bold tracking-widest capitalize">Alur Kerja Kami</p>
             </div>
             <h2 className="text-4xl md:text-6xl font-black text-white leading-none tracking-tight">
-              PROSES KERJA<br />
-              <span className="text-[#E87722]">SISTEMATIS</span>
+              Proses Kerja<br />
+              <span className="text-[#E87722]">Sistematis</span>
             </h2>
           </div>
           <p className="text-slate-200 text-sm md:text-base max-w-md leading-relaxed font-light">
@@ -174,8 +174,8 @@ export default function AlurKerjaSection() {
 
                 {/* Informasi Judul & Detail */}
                 <div className="relative z-10 space-y-3">
-                  <p className="text-[#E87722] text-[10px] font-black tracking-widest uppercase">Tahap {step.nomor}</p>
-                  <h3 className="text-white font-extrabold text-lg md:text-xl leading-snug tracking-tight group-hover:text-[#E87722] transition-colors duration-300 uppercase">
+                  <p className="text-[#E87722] text-[10px] font-black tracking-widest capitalize">Tahap {step.nomor}</p>
+                  <h3 className="text-white font-extrabold text-lg md:text-xl leading-snug tracking-tight group-hover:text-[#E87722] transition-colors duration-300 capitalize">
                     {step.title}
                   </h3>
                   <p className="text-slate-200 font-normal text-xs md:text-sm leading-relaxed min-h-[72px] pt-1">
@@ -187,7 +187,7 @@ export default function AlurKerjaSection() {
                     style={{ background: "rgba(232,119,34,0.08)" }}
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-[#E87722]" />
-                    <span className="text-[#E87722] text-[10px] font-extrabold tracking-wider uppercase">{step.detail}</span>
+                    <span className="text-[#E87722] text-[10px] font-extrabold tracking-wider capitalize">{step.detail}</span>
                   </div>
                 </div>
               </div>

@@ -103,7 +103,7 @@ export default function Navbar() {
         {/* LOGO BRANDING (Tetap Aman di Atas Karena Background Selalu Gelap) */}
         <Link href="/" onClick={() => setMobileOpen(false)} className="relative block">
           <Image
-            src="/logo-putih.png"
+            src="/images/logo-putih.png"
             alt="Limas Kontraktor"
             width={145}
             height={55}

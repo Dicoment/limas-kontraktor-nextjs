@@ -36,12 +36,12 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
         <div className="mb-16 space-y-3 text-left">
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 bg-[#E87722]" />
-            <span className="text-sm font-bold tracking-[0.2em] uppercase text-gray-500">
-              VALIDATION // TESTIMONIALS
+            <span className="text-sm font-bold tracking-[0.2em] capitalize text-gray-500">
+              Review
             </span>
           </div>
-          <h2 className="max-w-4xl text-3xl font-black uppercase tracking-tight text-[#0F2340] md:text-5xl leading-none">
-            BUKTI NYATA <span className="text-[#E87722]">KEPUASAN KLIEN</span>
+          <h2 className="max-w-4xl text-3xl font-black tracking-tight text-[#0F2340] md:text-5xl leading-none">
+            Bukti Nyata <span className="text-[#E87722]">Kepuasan Klien</span>
           </h2>
         </div>
 
@@ -50,7 +50,7 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
           
           {/* SISI KIRI: Video Player Area */}
           <div className="lg:col-span-8 flex flex-col h-full justify-between">
-            <div className="relative w-full h-full overflow-hidden bg-[#0F2340] shadow-md flex-1 border border-slate-200">
+            <div className="relative w-full h-full overflow-hidden bg-[#0F2340] shadow-md flex-1 border rounded-lg border-slate-200">
               
               <AnimatePresence mode="wait">
                 {!playVideo ? (
@@ -72,11 +72,11 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
                     {/* Info Card di Dalam Video (Premium Clean Box) */}
                     <div className="absolute bottom-6 left-6 right-6 z-10">
                       <div className="border border-white/10 bg-[#0F2340]/80 p-6 backdrop-blur-md">
-                        <h3 className="text-xl font-bold text-white uppercase tracking-tight">
+                        <h3 className="text-xl font-bold text-white capitalize tracking-tight">
                           {active.projectTitle}
                         </h3>
                         
-                        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm font-bold uppercase tracking-widest text-slate-300">
+                        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm font-bold capitalize tracking-widest text-slate-300">
                           {[
                             { icon: Building2, text: "Design & Build" },
                             { icon: Clock3, text: "Tepat Waktu" },
@@ -103,7 +103,7 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
                     <div className="absolute left-6 top-6 z-10">
                       <div className="inline-flex items-center gap-2 bg-black/60 px-4 py-2 border border-white/10 backdrop-blur-md">
                         <span className="h-1.5 w-1.5 rounded-full bg-[#E87722]" />
-                        <span className="text-sm font-bold uppercase tracking-widest text-white">
+                        <span className="text-sm font-bold capitalize tracking-widest text-white">
                           Dokumentasi Proyek
                         </span>
                       </div>
@@ -130,10 +130,10 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
               </AnimatePresence>
             </div>
 
-            {/* Validasi Tag Minimal text-sm */}
+            {/* Validasi Tag Minimal */}
             <div className="mt-6 flex flex-wrap gap-6 shrink-0">
               {["Klien Asli", "Dokumentasi Nyata", "Serah Terima Bangunan"].map((text, idx) => (
-                <div key={idx} className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-600">
+                <div key={idx} className="flex items-center gap-2 text-sm font-bold capitalize tracking-wider text-slate-600">
                   <CheckCircle2 size={16} className="text-[#E87722]" />
                   <span>{text}</span>
                 </div>
@@ -150,7 +150,7 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
                 <div
                   key={item.id}
                   onClick={() => setActiveIndex(index)}
-                  className={`cursor-pointer border p-6 transition-all duration-300 flex flex-col justify-between shrink-0 ${
+                  className={`cursor-pointer border rounded-lg p-6 transition-all duration-300 flex flex-col justify-between shrink-0 ${
                     isActive
                       ? "border-[#0F2340] bg-[#0F2340] text-white shadow-md"
                       : "border-slate-200 bg-white hover:border-slate-400"
@@ -182,7 +182,7 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
                         }`}
                       />
                       <div className="min-w-0">
-                        <h4 className={`font-black text-sm md:text-base uppercase tracking-tight truncate ${isActive ? "text-white" : "text-[#0F2340]"}`}>
+                        <h4 className={`font-black text-sm md:text-base capitalize tracking-tight truncate ${isActive ? "text-white" : "text-[#0F2340]"}`}>
                           {item.clientName}
                         </h4>
                         <p className="text-sm truncate mt-0.5 text-slate-400">

@@ -2,10 +2,39 @@
 
 import fs from "fs"
 import path from "path"
-import crypto from "crypto"
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"] as const
 const MAX_FILE_SIZE = 5 * 1024 * 1024
+
+// Helper untuk membersihkan nama file agar aman untuk URL/SEO
+function slugifyFileName(fileName: string): string {
+  const ext = path.extname(fileName)
+  const baseName = path.basename(fileName, ext)
+  
+  const cleanBase = baseName
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "-") // Ganti spasi & karakter aneh jadi tanda hubung (-)
+    .replace(/-+/g, "-")         // Hapus tanda hubung ganda berturut-turut
+    .replace(/^-|-$/g, "")       // Hapus tanda hubung di awal/akhir nama
+
+  return `${cleanBase || "image"}${ext.toLowerCase()}`
+}
+
+// Helper untuk mencegah overwrite jika nama file persis sama sudah ada di disk
+function getUniqueSEOFileName(dir: string, targetName: string): string {
+  const ext = path.extname(targetName)
+  const baseName = path.basename(targetName, ext)
+  
+  let finalName = targetName
+  let counter = 1
+
+  while (fs.existsSync(path.join(dir, finalName))) {
+    finalName = `${baseName}-${counter}${ext}`
+    counter++
+  }
+
+  return finalName
+}
 
 export async function uploadImage(formData: FormData): Promise<{ success: boolean; url?: string; error?: string }> {
   const file = formData.get("file") as File | null
@@ -35,9 +64,13 @@ export async function uploadImage(formData: FormData): Promise<{ success: boolea
     return { success: false, error: "Server storage configuration error" }
   }
 
-  const fileExtension = path.extname(file.name) || getFileExtensionFromMime(mimeType)
-  const uniqueFileName = `${generateId()}${fileExtension}`
-  const filePath = path.join(uploadDir, uniqueFileName)
+  // --- PROSES NAMA SEO ---
+  // 1. Ubah nama file asli menjadi format bersih (Contoh: "Desain Rumah Baru Limas.PNG" -> "desain-rumah-baru-limas.png")
+  const seoFriendlyName = slugifyFileName(file.name)
+
+  // 2. Cek duplikasi di folder volume disk
+  const targetFileName = getUniqueSEOFileName(uploadDir, seoFriendlyName)
+  const filePath = path.join(uploadDir, targetFileName)
 
   try {
     fs.writeFileSync(filePath, buffer)
@@ -46,20 +79,6 @@ export async function uploadImage(formData: FormData): Promise<{ success: boolea
     return { success: false, error: "Failed to save file" }
   }
 
-  return { success: true, url: `/uploads/${uniqueFileName}` }
-}
-
-function getFileExtensionFromMime(mimeType: string): string {
-  const mimeToExt: Record<string, string> = {
-    "image/jpeg": ".jpg",
-    "image/png": ".png",
-    "image/webp": ".webp",
-    "image/gif": ".gif",
-    "image/svg+xml": ".svg",
-  }
-  return mimeToExt[mimeType] || ".bin"
-}
-
-function generateId(): string {
-  return crypto.randomBytes(16).toString("hex")
+  // Mengembalikan URL berbasis nama SEO bersih
+  return { success: true, url: `/uploads/${targetFileName}` }
 }

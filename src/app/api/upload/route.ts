@@ -1,12 +1,41 @@
 import { NextRequest, NextResponse } from "next/server"
 import fs from "fs"
 import path from "path"
-import crypto from "crypto"
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"]
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
 const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), "public", "uploads")
+
+// Helper untuk membersihkan nama file agar aman untuk URL/SEO
+function slugifyFileName(fileName: string): string {
+  const ext = path.extname(fileName)
+  const baseName = path.basename(fileName, ext)
+  
+  const cleanBase = baseName
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "-") // Ganti spasi & karakter aneh jadi tanda hubung (-)
+    .replace(/-+/g, "-")         // Hapus tanda hubung ganda berturut-turut
+    .replace(/^-|-$/g, "")       // Hapus tanda hubung di awal/akhir nama
+
+  return `${cleanBase || "image"}${ext.toLowerCase()}`
+}
+
+// Helper untuk mencegah overwrite jika nama file persis sama sudah ada
+function getUniqueSEOFileName(dir: string, targetName: string): string {
+  const ext = path.extname(targetName)
+  const baseName = path.basename(targetName, ext)
+  
+  let finalName = targetName
+  let counter = 1
+
+  while (fs.existsSync(path.join(dir, finalName))) {
+    finalName = `${baseName}-${counter}${ext}`
+    counter++
+  }
+
+  return finalName
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,7 +54,6 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(body)
     
     const boundaryBuffer = Buffer.from(`--${boundary}`)
-    const boundaryEnd = Buffer.from(`--${boundary}--`)
     
     const fileStart = buffer.indexOf(boundaryBuffer)
     if (fileStart === -1) {
@@ -40,7 +68,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid file field in form data" }, { status: 400 })
     }
 
-    const fieldName = contentDisposition[1]
     const originalName = contentDisposition[2]
 
     const mimeMatch = headersRaw.match(/Content-Type: ([^\r\n]+)/)
@@ -72,9 +99,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Server storage configuration error" }, { status: 500 })
     }
 
-    const fileExtension = path.extname(originalName) || getFileExtensionFromMime(mimeType)
-    const uniqueFileName = `${generateId()}${fileExtension}`
-    const filePath = path.join(uploadDir, uniqueFileName)
+    // --- PROSES NAMA SEO ---
+    // 1. Bersihkan nama file (Contoh: "Foto Desain Rumah Baru.PNG" -> "foto-desain-rumah-baru.png")
+    const seoFriendlyName = slugifyFileName(originalName)
+
+    // 2. Proteksi duplikat (Contoh jika sudah ada: "foto-desain-rumah-baru-1.png")
+    const targetFileName = getUniqueSEOFileName(uploadDir, seoFriendlyName)
+    const filePath = path.join(uploadDir, targetFileName)
 
     try {
       fs.writeFileSync(filePath, fileData)
@@ -83,26 +114,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to save file" }, { status: 500 })
     }
 
-    const relativeUrl = `/uploads/${uniqueFileName}`
+    const relativeUrl = `/uploads/${targetFileName}`
 
-    return NextResponse.json({ success: true, url: relativeUrl, filename: uniqueFileName }, { status: 201 })
+    return NextResponse.json({ success: true, url: relativeUrl, filename: targetFileName }, { status: 201 })
   } catch (error) {
     console.error("Upload error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
-}
-
-function getFileExtensionFromMime(mimeType: string): string {
-  const mimeToExt: Record<string, string> = {
-    "image/jpeg": ".jpg",
-    "image/png": ".png",
-    "image/webp": ".webp",
-    "image/gif": ".gif",
-    "image/svg+xml": ".svg",
-  }
-  return mimeToExt[mimeType] || ".bin"
-}
-
-function generateId(): string {
-  return crypto.randomBytes(16).toString("hex")
 }
