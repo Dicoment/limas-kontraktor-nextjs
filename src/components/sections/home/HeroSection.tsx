@@ -93,7 +93,7 @@ export default function HeroSection({ backgroundImage }: HeroSectionProps) {
     href={`https://wa.me/${whatsappNumber}`}
     target="_blank"
     rel="noreferrer"
-    className="gap-2.5 bg-[#25D366] hover:bg-[#1ebe5d] text-white"
+    className="gap-2.5"
   >
     <FaWhatsapp size={20} />
     Mulai Konsultasi

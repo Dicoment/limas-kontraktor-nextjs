@@ -41,7 +41,7 @@ export default function Button({
 
   const variantStyles = {
     // Primary: Orange khas Limas Kontraktor dengan shadow glow kontras
-    primary: "bg-[#E87722] text-white hover:bg-orange-600 shadow-lg shadow-orange-900/20 hover:shadow-orange-900/40 border border-transparent",
+    primary: "bg-[#FFCC00] text-[#2D3748] hover:bg-white shadow-lg shadow-orange-900/20 hover:shadow-orange-900/40 border border-transparent",
     
     // Secondary: Menyesuaikan warna Navy utama (#0F2340)
     secondary: "bg-[#0F2340] text-white hover:bg-[#16325c] shadow-lg shadow-blue-950/20 hover:shadow-blue-950/40 border border-transparent",

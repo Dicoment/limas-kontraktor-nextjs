@@ -123,7 +123,7 @@ export default function Navbar() {
                   onMouseEnter={() => setMegaOpen(true)}
                   onMouseLeave={() => setMegaOpen(false)}
                 >
-                  <button className="flex items-center gap-1 text-sm font-semibold uppercase tracking-wider text-white hover:text-[#E87722] transition-colors py-2 cursor-pointer">
+                  <button className="flex items-center gap-1 text-sm font-semibold capitalize tracking-wider text-white hover:text-[#E87722] transition-colors py-2 cursor-pointer">
                     <span>{link.label}</span>
                     <ChevronDown size={14} className={`transition-transform duration-300 ${megaOpen ? "rotate-180 text-[#E87722]" : ""}`} />
                   </button>
@@ -140,7 +140,7 @@ export default function Navbar() {
                       >
                         {/* Kiri - 3 Layanan Utama */}
                         <div className="col-span-7 space-y-4">
-                          <p className="text-xs font-black uppercase text-slate-400 tracking-widest border-b border-white/10 pb-2">Layanan Utama</p>
+                          <p className="text-xs font-black capitalize text-slate-400 tracking-widest border-b border-white/10 pb-2">Layanan Utama</p>
                           <div className="space-y-3">
                             {tigaLayanan.map((item) => (
                               <Link
@@ -159,12 +159,12 @@ export default function Navbar() {
                         <div className="col-span-5 bg-white/[0.03] border border-white/10 rounded-xl p-5 flex flex-col justify-between">
                           <div className="space-y-3">
                             <div className="text-[#E87722]"><ShieldCheck size={26} /></div>
-                            <p className="text-base font-bold text-white uppercase tracking-tight">Transparan & Aman</p>
+                            <p className="text-base font-bold text-white capitalize tracking-tight">Transparan & Aman</p>
                             <p className="text-sm text-slate-200 font-light leading-relaxed">
                               Dari perencanaan konsep hingga eksekusi struktural akhir, kami memastikan proyek Anda bergaransi resmi.
                             </p>
                           </div>
-                          <Link href="/layanan" className="text-sm font-bold text-[#E87722] uppercase tracking-wider hover:underline block">Selengkapnya →</Link>
+                          <Link href="/layanan" className="text-sm font-bold text-[#E87722] capitalize tracking-wider hover:underline block">Selengkapnya →</Link>
                         </div>
                       </motion.div>
                     )}
@@ -176,7 +176,7 @@ export default function Navbar() {
               <Link
                 key={link.label}
                 href={link.href}
-                className="text-sm font-semibold uppercase tracking-wider text-white hover:text-[#E87722] transition-colors py-2"
+                className="text-sm font-semibold capitalize tracking-wider text-white hover:text-[#E87722] transition-colors py-2"
               >
                 {link.label}
               </Link>
@@ -191,7 +191,7 @@ export default function Navbar() {
             target="_blank"
             rel="noopener noreferrer"
             variant="primary"
-            className="bg-[#E87722] hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-wider px-5 py-2.5 shadow-lg"
+            className=""
           >
             <Phone size={13} className="mr-2 inline" />
             <span>Konsultasi Proyek</span>
@@ -226,7 +226,7 @@ export default function Navbar() {
                     <>
                       <button
                         onClick={() => setMobileDropdownOpen(mobileDropdownOpen === link.label ? null : link.label)}
-                        className="flex items-center justify-between w-full py-4 text-2xl font-black text-white uppercase tracking-wide text-left"
+                        className="flex items-center justify-between w-full py-4 text-2xl font-black text-white capitalize tracking-wide text-left"
                       >
                         <span>{link.label}</span>
                         <ChevronDown
@@ -263,7 +263,7 @@ export default function Navbar() {
                   ) : (
                     <Link
                       href={link.href}
-                      className="block py-4 text-2xl font-black text-white uppercase tracking-wide"
+                      className="block py-4 text-2xl font-black text-white capitalize tracking-wide"
                       onClick={() => setMobileOpen(false)}
                     >
                       {link.label}
@@ -281,7 +281,7 @@ export default function Navbar() {
                 rel="noopener noreferrer"
                 variant="primary"
                 fullWidth
-                className="bg-[#E87722] text-white hover:bg-orange-600 border-none py-4 font-black text-base uppercase tracking-wider inline-flex items-center justify-center gap-2 shadow-2xl"
+                className="flex items-center justify-center gap-2.5"
                 onClick={() => setMobileOpen(false)}
               >
                 <Phone size={18} className="animate-pulse" />
