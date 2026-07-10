@@ -51,24 +51,40 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] font-sans text-black">
+    // FIX UTAMA: sebelumnya `flex min-h-screen` di sini + <Sidebar> dibungkus
+    // <aside> lagi (flex-shrink-0, w-64/w-20, in-flow). Padahal Sidebar.tsx
+    // SENDIRI sudah `position: fixed` di dalam. Jadi ada 2 lapis <aside> —
+    // yang luar (wrapper di sini) tetap "makan" 256px/80px ruang di flex row
+    // di SEMUA breakpoint (gak cuma mobile), sementara yang dalam (Sidebar.tsx)
+    // udah keluar dari flow duluan lewat fixed. Efeknya konten utama selalu
+    // ke-geser ~256px ke kanan tanpa alasan — parah banget di layar sempit.
+    //
+    // Sekarang: wrapper <aside> dihapus, <Sidebar/> dirender langsung (dia
+    // udah ngatur fixed/translate/z-index sendiri). Kompensasi buat sidebar
+    // yang fixed itu sekarang lewat margin-left di kolom konten (bukan lewat
+    // flex sibling), dan margin ini CUMA aktif di desktop (lg:) — sama
+    // persis kayak Sidebar.tsx yang cuma "translate-x-0" (nempel visible)
+    // mulai breakpoint lg juga.
+    <div className="min-h-screen bg-[#f8fafc] font-sans text-black">
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-60 lg:hidden backdrop-blur-sm"
+          className="fixed inset-0 bg-black/60 z-[60] lg:hidden backdrop-blur-sm"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
-      <aside className={`flex-shrink-0 transition-all duration-300 ease-in-out ${collapsed ? "w-20" : "w-64"} ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
-        <Sidebar
-          collapsed={collapsed} setCollapsed={setCollapsed}
-          mobileOpen={mobileOpen} setMobileOpen={setMobileOpen}
-          pathname={pathname} adminName={adminName} adminEmail={adminEmail}
-          handleLogout={handleLogout}
-        />
-      </aside>
+      <Sidebar
+        collapsed={collapsed} setCollapsed={setCollapsed}
+        mobileOpen={mobileOpen} setMobileOpen={setMobileOpen}
+        pathname={pathname} adminName={adminName} adminEmail={adminEmail}
+        handleLogout={handleLogout}
+      />
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div
+        className={`flex flex-col min-h-screen transition-all duration-300 ease-in-out ${
+          collapsed ? "lg:ml-20" : "lg:ml-64"
+        }`}
+      >
         <Header
           pathname={pathname} router={router} setMobileOpen={setMobileOpen}
           adminName={adminName} adminEmail={adminEmail} handleLogout={handleLogout}

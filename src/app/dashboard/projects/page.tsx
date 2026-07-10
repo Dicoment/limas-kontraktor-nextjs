@@ -21,12 +21,14 @@ export default async function AdminProjectsPage({
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <SearchForm placeholder="Cari project..." />
-        <Link href="/dashboard/projects/new">
-            <Button variant="primary" size="sm">+ New Project</Button>
-        </Link>
-      </div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+  <SearchForm placeholder="Cari project..." />
+  <Link href="/dashboard/projects/new" className="w-full sm:w-auto">
+    <Button variant="primary" size="sm" className="w-full sm:w-auto">
+      + New Project
+    </Button>
+  </Link>
+</div>
 
       <ProjectTable initialData={projectsData.projects} />
 

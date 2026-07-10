@@ -16,53 +16,49 @@ import { RiErrorWarningLine, RiCloseLine } from "react-icons/ri";
 
 import LinkModal from "@/components/ui/LinkModal";
 import ImageUploadModal from "@/components/ui/ImageUploadModal";
-import ProjectTopBar, { SaveStatus } from "@/components/project/ProjectTopBar";
+import BlogPostTopBar, { SaveStatus } from "@/components/blog-post/BlogPostTopBar";
 import ProjectEditorToolbar from "@/components/project/ProjectEditorToolbar";
-import ProjectSidebar from "@/components/project/ProjectSidebar";
-import type { FormattedProject } from "@/helpers/project-helpers";
+import BlogPostSidebar from "@/components/blog-post/BlogPostSidebar";
+import type { FormattedBlogPost } from "@/lib/blog-post-helpers";
 
-interface ProjectFormClientProps {
+interface BlogPostFormClientProps {
   categories: any[];
-  teams: any[];
-  initialData?: FormattedProject;
+  tags: any[];
+  initialData?: FormattedBlogPost;
 }
 
 /**
- * Halaman editor project (tambah/edit). Menggabungkan top bar, toolbar
- * editor, kanvas Tiptap, dan sidebar kanan (Pos & Blok) menjadi satu
- * pengalaman edit yang utuh.
+ * Halaman editor Blog Post (tambah/edit). Struktur identik ProjectFormClient
+ * (topbar + toolbar + kanvas Tiptap + sidebar collapsible, full-screen
+ * overlay biar gak numpuk sama AdminLayout), TAPI:
+ * - Gak ada state teams/selectedTeams/gallery (blog gak punya Tim & Galeri)
+ * - Ada state excerpt & selectedTags (field baru khusus blog)
+ * - status jadi boolean `published`, bukan string enum
  */
-export default function ProjectFormClient({
+export default function BlogPostFormClient({
   categories: initialCategories = [],
-  teams: initialTeams = [],
+  tags: initialTags = [],
   initialData,
-}: ProjectFormClientProps) {
+}: BlogPostFormClientProps) {
   const [title, setTitle] = useState(initialData?.title ?? "");
   const [slug, setSlug] = useState(initialData?.slug ?? "");
-  const [location, setLocation] = useState(initialData?.location ?? "");
-  const [client, setClient] = useState(initialData?.client ?? "");
-  const [limasRole, setLimasRole] = useState(initialData?.limasRole ?? "");
+  const [excerpt, setExcerpt] = useState(initialData?.excerpt ?? "");
   const [coverImage, setCoverImage] = useState(initialData?.coverImage ?? "");
-  const [gallery, setGallery] = useState<string[]>(initialData?.gallery ?? []);
-  const [status, setStatus] = useState<string>(initialData?.status ?? "DRAFT");
+  const [published, setPublished] = useState<boolean>(initialData?.published ?? false);
   const [seoTitle, setSeoTitle] = useState(initialData?.seoTitle ?? "");
   const [seoDescription, setSeoDescription] = useState(initialData?.seoDescription ?? "");
-  // categories & teams disimpan sebagai state lokal (bukan langsung props)
-  // karena sidebar bisa menambahkan kategori/tim baru secara on-the-fly
-  // tanpa reload halaman.
-  const [categories, setCategories] = useState<any[]>(initialCategories);
-  const [teams, setTeams] = useState<any[]>(initialTeams);
 
-  // FormattedProject.categories sudah berupa Category[] langsung (bukan nested
-  // catEntry), dan .teams sudah { id, name, role }[] — jadi mapping-nya simpel.
+  const [categories, setCategories] = useState<any[]>(initialCategories);
+  const [tags, setTags] = useState<any[]>(initialTags);
+
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     () => initialData?.categories?.map((c) => c.id) ?? []
   );
-  const [selectedTeams, setSelectedTeams] = useState<{ teamId: string; role: string }[]>(
-    () => initialData?.teams?.map((t) => ({ teamId: t.id, role: t.role ?? "" })) ?? []
+  const [selectedTags, setSelectedTags] = useState<string[]>(
+    () => initialData?.tags?.map((t) => t.id) ?? []
   );
 
-  const [projectId, setProjectId] = useState<string | null>(initialData?.id ?? null);
+  const [postId, setPostId] = useState<string | null>(initialData?.id ?? null);
   const [loading, setLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -71,7 +67,7 @@ export default function ProjectFormClient({
   const [activeTab, setActiveTab] = useState<"pos" | "blok">("pos");
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const canPreview = !!projectId && !!slug;
+  const canPreview = !!postId && !!slug;
 
   const editor = useEditor({
     extensions: [
@@ -98,7 +94,7 @@ export default function ProjectFormClient({
       }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Underline,
-      Placeholder.configure({ placeholder: "Mulai ketik deskripsi proyek di sini..." }),
+      Placeholder.configure({ placeholder: "Mulai ketik isi artikel di sini..." }),
     ],
     editorProps: {
       attributes: {
@@ -128,15 +124,10 @@ export default function ProjectFormClient({
         return true;
       },
     },
-    // Isi konten awal editor dari initialData.description (mode edit).
-    // Kalau kosong (mode "new"), fallback ke string kosong seperti semula.
-    content: initialData?.description ?? "",
+    content: initialData?.content ?? "",
     immediatelyRender: false,
   });
 
-  // Auto-generate slug dari title HANYA kalau slug belum pernah "disentuh"
-  // (mode "new" / belum ada slug awal). Di mode edit, slug yang sudah ada
-  // dari initialData tidak boleh keubah otomatis cuma karena title diketik ulang.
   const [slugTouched, setSlugTouched] = useState(!!initialData?.slug);
   useEffect(() => {
     if (slugTouched) return;
@@ -168,9 +159,13 @@ export default function ProjectFormClient({
     [editor]
   );
 
-  const handleSubmit = async (publishStatus: string) => {
+  // ASUMSI: target /api/blog-posts mirror pola /api/projects yang dipakai
+  // ProjectFormClient. BELUM diverifikasi karena route handler-nya belum
+  // pernah saya lihat isinya — sesuaikan field FormData ini begitu file
+  // route.ts aslinya di-share.
+  const handleSubmit = async (publish: boolean) => {
     if (!title.trim()) {
-      setErrorMsg("Judul proyek wajib diisi.");
+      setErrorMsg("Judul artikel wajib diisi.");
       return;
     }
     setLoading(true);
@@ -180,22 +175,19 @@ export default function ProjectFormClient({
     const fd = new FormData();
     fd.append("title", title);
     fd.append("slug", slug);
-    fd.append("description", editor?.getHTML() || "");
-    fd.append("status", publishStatus);
-    fd.append("location", location);
-    fd.append("client", client);
-    fd.append("limasRole", limasRole);
+    fd.append("content", editor?.getHTML() || "");
+    fd.append("excerpt", excerpt);
+    fd.append("published", String(publish));
     fd.append("coverImage", coverImage);
-    fd.append("gallery", JSON.stringify(gallery));
     fd.append("seoTitle", seoTitle || title);
     fd.append("seoDescription", seoDescription);
     fd.append("categoryIds", JSON.stringify(selectedCategories));
-    fd.append("teamIds", JSON.stringify(selectedTeams));
+    fd.append("tagIds", JSON.stringify(selectedTags));
 
     try {
-      const res = projectId
-        ? await fetch(`/api/projects/${projectId}`, { method: "PUT", body: fd })
-        : await fetch("/api/projects", { method: "POST", body: fd });
+      const res = postId
+        ? await fetch(`/api/blog-posts/${postId}`, { method: "PUT", body: fd })
+        : await fetch("/api/blog-posts", { method: "POST", body: fd });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -204,13 +196,14 @@ export default function ProjectFormClient({
 
       const data = await res.json();
       const id = data?.data?.id || data?.id;
-      if (id) setProjectId(id);
+      if (id) setPostId(id);
+      setPublished(publish);
 
-      if (publishStatus === "DRAFT") {
+      if (!publish) {
         setSaveStatus("saved");
         setTimeout(() => setSaveStatus("idle"), 3000);
       } else {
-        window.location.href = "/dashboard/projects";
+        window.location.href = "/dashboard/blog-posts";
       }
     } catch (err: any) {
       setErrorMsg(err.message);
@@ -232,23 +225,18 @@ export default function ProjectFormClient({
       )}
       {showImageModal && <ImageUploadModal onSelect={confirmImage} onClose={() => setShowImageModal(false)} />}
 
-      {/* Halaman editor ini sengaja jadi full-screen overlay yang keluar total
-          dari flow AdminLayout (Header + BottomNav mobile) — mirip WordPress
-          block editor yang "ambil alih" layar pas lagi ngedit. Ini ngilangin
-          ketergantungan sama tinggi Header/BottomNav yang sebelumnya cuma
-          ditebak lewat calc(100vh - 64px), penyebab menu kepotong & gak
-          responsif. z-index dikasih tinggi biar nutup BottomNav (z-50) dan
-          overlay sidebar mobile AdminLayout (z-60) sepenuhnya. */}
+      {/* Full-screen overlay, sama alasannya kayak ProjectFormClient — keluar
+          dari flow AdminLayout (Header + BottomNav) biar gak rebutan tinggi. */}
       <div className="fixed inset-0 z-[999] flex flex-col bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-        <ProjectTopBar
+        <BlogPostTopBar
           title={title}
-          status={status}
+          published={published}
           slug={slug}
           loading={loading}
           saveStatus={saveStatus}
           canPreview={canPreview}
-          onSaveDraft={() => handleSubmit("DRAFT")}
-          onPublish={() => handleSubmit("COMPLETED")}
+          onSaveDraft={() => handleSubmit(false)}
+          onPublish={() => handleSubmit(true)}
           onPreviewBlocked={() => setErrorMsg("Simpan draf dulu sebelum preview.")}
           sidebarOpen={sidebarOpen}
           onToggleSidebar={() => setSidebarOpen((v) => !v)}
@@ -281,7 +269,7 @@ export default function ProjectFormClient({
                 />
                 {slug && (
                   <p className="text-[11px] text-slate-400 mt-1 font-mono">
-                    /proyek/<span className="text-[#E87722]">{slug}</span>
+                    /<span className="text-[#E87722]">{slug}</span>
                   </p>
                 )}
               </div>
@@ -289,36 +277,31 @@ export default function ProjectFormClient({
             </div>
           </div>
 
-          <ProjectSidebar
+          <BlogPostSidebar
             editor={editor}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             open={sidebarOpen}
-            status={status}
-            setStatus={setStatus}
+            published={published}
+            setPublished={setPublished}
+            publishedAt={initialData?.publishedAt}
             slug={slug}
             setSlug={(v) => {
               setSlugTouched(true);
               setSlug(v);
             }}
-            location={location}
-            setLocation={setLocation}
-            client={client}
-            setClient={setClient}
-            limasRole={limasRole}
-            setLimasRole={setLimasRole}
+            excerpt={excerpt}
+            setExcerpt={setExcerpt}
             categories={categories}
             setCategories={setCategories}
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
-            teams={teams}
-            setTeams={setTeams}
-            selectedTeams={selectedTeams}
-            setSelectedTeams={setSelectedTeams}
+            tags={tags}
+            setTags={setTags}
+            selectedTags={selectedTags}
+            setSelectedTags={setSelectedTags}
             coverImage={coverImage}
             setCoverImage={setCoverImage}
-            gallery={gallery}
-            setGallery={setGallery}
             title={title}
             seoTitle={seoTitle}
             setSeoTitle={setSeoTitle}

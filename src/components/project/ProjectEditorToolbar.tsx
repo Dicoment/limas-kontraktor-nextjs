@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import type { Editor } from "@tiptap/react";
 import {
   RiBold,
@@ -28,8 +29,28 @@ interface ProjectEditorToolbarProps {
 /**
  * Toolbar lengkap untuk editor deskripsi project (Tiptap):
  * dropdown heading, format teks, list, alignment, link, gambar, undo/redo.
+ *
+ * Generik sepenuhnya (gak nyebut apapun soal "project") — makanya aman
+ * dipakai ulang apa adanya buat editor Blog Post, gak perlu di-duplikat.
  */
 export default function ProjectEditorToolbar({ editor, onAddLink, onAddImage }: ProjectEditorToolbarProps) {
+  // FIX: sama kayak ProjectSidebar — komponen ini cuma nerima `editor` sebagai
+  // prop dan gak subscribe ke event Tiptap sendiri, jadi tombol Bold/Align/dst
+  // yang "active"-nya dihitung dari editor.isActive() bisa telat/gak update
+  // pas cuma pindah cursor (bukan ngetik). Fix: force re-render sendiri tiap
+  // ada transaction/selectionUpdate.
+  const [, forceUpdate] = useState(0);
+  useEffect(() => {
+    if (!editor) return;
+    const rerender = () => forceUpdate((n) => n + 1);
+    editor.on("transaction", rerender);
+    editor.on("selectionUpdate", rerender);
+    return () => {
+      editor.off("transaction", rerender);
+      editor.off("selectionUpdate", rerender);
+    };
+  }, [editor]);
+
   const getCurrentBlockType = () => {
     if (!editor) return "p";
     for (const lvl of [1, 2, 3, 4, 5, 6] as const) {

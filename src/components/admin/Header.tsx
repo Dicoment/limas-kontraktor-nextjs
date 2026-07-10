@@ -93,7 +93,7 @@ export function Header({
                 <p className="text-[10px] text-gray-400 truncate tracking-tight mt-0.5">{adminEmail}</p>
               </div>
               <Link 
-                href="/dashboard/settings" 
+                href="/dashboard/profile" 
                 onClick={() => setDropdownOpen(false)}
                 className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
               >
