@@ -23,3 +23,19 @@ export async function createCategory(data: { name: string; slug: string; type: "
 export async function updateCategory(id: string, data: { name?: string; slug?: string; type?: "blog" | "project"; description?: string | null }) {
   return prisma.category.update({ where: { id }, data })
 }
+
+export async function deleteCategories(ids: string[]) {
+  try {
+    const result = await prisma.category.deleteMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    })
+    return { deletedCount: result.count }
+  } catch (error) {
+    console.error("Gagal menghapus kategori:", error)
+    throw new Error("Gagal menghapus kategori")
+  }
+}

@@ -191,6 +191,17 @@ export default function BlogPostFormClient({
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
+        // API ngebalikin detail per-field (err.fieldErrors) pas Zod validation
+        // gagal, tapi sebelumnya kebuang gitu aja jadi cuma nampilin "Validation
+        // failed" generic. Sekarang detailnya digabung biar kelihatan field mana
+        // yang bermasalah.
+        if (err.fieldErrors) {
+          console.error("Blog post validation errors:", err.fieldErrors);
+          const detail = Object.entries(err.fieldErrors)
+            .map(([field, msgs]) => `${field}: ${(msgs as string[]).join(", ")}`)
+            .join(" | ");
+          throw new Error(`${err.error || "Validation failed"} — ${detail}`);
+        }
         throw new Error(err.error || `HTTP ${res.status}`);
       }
 
@@ -269,7 +280,7 @@ export default function BlogPostFormClient({
                 />
                 {slug && (
                   <p className="text-[11px] text-slate-400 mt-1 font-mono">
-                    /<span className="text-[#E87722]">{slug}</span>
+                    /blog/<span className="text-[#E87722]">{slug}</span>
                   </p>
                 )}
               </div>

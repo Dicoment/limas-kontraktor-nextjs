@@ -41,15 +41,7 @@ export async function PUT(
   try {
     const { id } = await params
     
-    const formData = await request.formData()
-    
-    const body: Record<string, any> = {}
-    for (const [key, value] of (formData as any).entries()) {
-      if (typeof value === "string") {
-        body[key] = value
-      }
-    }
-    
+    const body = await request.json()
     const textSchema = categoryUpdateSchema.partial()
     const validatedData = textSchema.parse(body)
     
@@ -103,15 +95,7 @@ export async function PATCH(
   try {
     const { id } = await params
     
-    const formData = await request.formData()
-    
-    const body: Record<string, any> = {}
-    for (const [key, value] of (formData as any).entries()) {
-      if (typeof value === "string") {
-        body[key] = value
-      }
-    }
-    
+    const body = await request.json()
     const textSchema = categoryUpdateSchema.partial()
     const validatedData = textSchema.parse(body)
     
@@ -165,7 +149,6 @@ export async function DELETE(
   try {
     const { id } = await params
     
-    // Check if category exists
     const existingCategory = await prisma.category.findUnique({
       where: { id },
       include: {
@@ -176,7 +159,6 @@ export async function DELETE(
     
     if (!existingCategory) return notFoundResponse("Category")
     
-    // Optional: Check if category is being used
     const isUsed = (existingCategory.blogPostCategories?.length || 0) > 0 || 
                    (existingCategory.categoryProjects?.length || 0) > 0
     
@@ -187,7 +169,6 @@ export async function DELETE(
       )
     }
     
-    // Delete category (relations will be deleted via CASCADE)
     await prisma.category.delete({ 
       where: { id } 
     })

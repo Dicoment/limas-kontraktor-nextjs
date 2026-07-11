@@ -106,6 +106,14 @@ export async function PUT(
         body.tagIds = []
       }
     }
+    // FIX: formData.entries() cuma ngasih string mentah, "published" gak pernah
+    // dikonversi ke boolean asli sebelum divalidasi (beda sama POST yang udah
+    // bener: `fields.published === "true"`). Kalau blogPostUpdateSchema
+    // mendefinisikan published sebagai z.boolean(), string "true"/"false"
+    // mentah bakal ditolak Zod — ini kemungkinan besar penyebab 400 pas edit.
+    if (typeof body.published === "string") {
+      body.published = body.published === "true"
+    }
     
     const validatedData = blogPostUpdateSchema.parse(body)
     

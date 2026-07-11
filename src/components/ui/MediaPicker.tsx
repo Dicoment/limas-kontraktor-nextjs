@@ -147,7 +147,14 @@ export default function MediaPicker({
         <MediaModal
           selected={value || null}
           multiple={false}
-          onConfirm={(urls) => handleSelect(urls[0])}
+          onConfirm={(urls) => {
+            // FIX: sebelumnya cuma manggil handleSelect (yang cuma
+            // onChange(url)), gak pernah nutup modal. Nutupnya cuma
+            // kejadian di jalur upload file baru (handleFileSelected),
+            // bukan pas milih dari Media Library yang udah ada.
+            handleSelect(urls[0]);
+            setIsOpen(false);
+          }}
           onClose={() => setIsOpen(false)}
           onFileSelect={handleFileSelected}
         />
@@ -329,7 +336,12 @@ export function MultipleMediaPicker({ value = [], onChange }: MultipleMediaPicke
           selected={null}
           multiple={true}
           initialSelected={value}
-          onConfirm={handleSelect}
+          onConfirm={(urls) => {
+            // FIX: sama kayak versi single — sebelumnya gak pernah nutup
+            // modal setelah klik "Simpan (n)".
+            handleSelect(urls);
+            setIsOpen(false);
+          }}
           onClose={() => setIsOpen(false)}
           onFileSelect={handleFileSelected}
         />

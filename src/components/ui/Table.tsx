@@ -31,7 +31,7 @@ export function Table({
   renderRow 
 }: TableProps) {
   return (
-    <div className="w-full bg-white border border-slate-100 rounded-md overflow-hidden">
+    <div className="w-full lg:bg-white lg:border lg:border-slate-100 rounded-md overflow-hidden">
       <table className="w-full text-left border-collapse block md:table">
         {/* thead disembunyiin total di mobile — labelnya dipindah jadi
             "label kecil" di atas tiap value, dikerjain per-<td> di renderRow */}

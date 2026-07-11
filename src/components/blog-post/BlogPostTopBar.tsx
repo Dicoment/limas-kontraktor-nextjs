@@ -106,7 +106,7 @@ export default function BlogPostTopBar({
               onPreviewBlocked();
               return;
             }
-            window.open(`/${slug}?preview=true`, "_blank");
+            window.open(`/blog/${slug}?preview=true`, "_blank");
           }}
           className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded border transition ${
             canPreview
