@@ -49,4 +49,4 @@ COPY --from=builder /app/prisma ./prisma
 EXPOSE 8000
 
 # PERINGATAN: Gunakan skrip terpisah untuk migrasi jika memungkinkan
-CMD sh -c "npx prisma db push && npm start"
+CMD ["npm", "start"]
