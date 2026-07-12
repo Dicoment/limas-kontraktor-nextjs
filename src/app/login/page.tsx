@@ -40,7 +40,7 @@ export default function AdminLoginPage() {
       {/* Kolom Kiri — Full Gambar */}
       <div className="hidden md:block w-1/2 relative">
         <Image
-          src="/loginbg.jpeg"
+          src="/images/loginbg.jpeg"
           alt="Proyek konstruksi Limas"
           fill
           className="object-cover"
@@ -51,7 +51,7 @@ export default function AdminLoginPage() {
         {/* Teks di atas overlay */}
         <div className="absolute inset-0 flex flex-col justify-end p-12 z-10">
           <Image
-            src="/logo-putih.png"
+            src="/images/logo-putih.png"
             alt="Logo Limas Kontraktor"
             width={400}
             height={60}
@@ -66,7 +66,7 @@ export default function AdminLoginPage() {
         {/* Logo untuk mobile */}
         <div className="md:hidden mb-8">
           <Image
-            src="/logo-biru.png"
+            src="/images/logo-biru.png"
             alt="Logo Limas Kontraktor"
             width={120}
             height={48}
@@ -78,7 +78,7 @@ export default function AdminLoginPage() {
         <div className="mb-10">
           <div className="hidden md:block mb-6">
             <Image
-              src="/logo-biru.png"
+              src="/images/logo-biru.png"
               alt="Logo Limas Kontraktor"
               width={150}
               height={56}

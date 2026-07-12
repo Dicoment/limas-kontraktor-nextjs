@@ -1,11 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { 
-  LayoutDashboard, Briefcase, FileText, Layers, Tags, 
-  Users, MessageSquare, Shapes, Settings, History, 
-  Globe, PanelLeft, User, LogOut
-} from "lucide-react"
+import {
+  RiDashboardLine, RiBriefcaseLine, RiFileTextLine, RiStackLine, RiPriceTag3Line,
+  RiTeamLine, RiChat3Line, RiFileCopyLine, RiSettings3Line, RiHistoryLine,
+  RiGlobalLine, RiMenuFoldLine, RiUserLine, RiLogoutBoxLine, RiQuestionLine,
+} from "react-icons/ri"
 import Image from "next/image"
 import { SidebarItem, SidebarLabel } from "./NavComponents"
 
@@ -53,7 +53,7 @@ export function Sidebar({
             onClick={() => mobileOpen ? setMobileOpen(false) : setCollapsed(!collapsed)}
             className="text-slate-400 hover:bg-slate-800 p-2 rounded-xl active:scale-90 transition-all"
           >
-            {mobileOpen ? <span className="text-white font-bold">X</span> : <PanelLeft size={20} className="hidden lg:block" />}
+            {mobileOpen ? <span className="text-white font-bold">X</span> : <RiMenuFoldLine size={20} className="hidden lg:block" />}
           </button>
         </div>
 
@@ -63,7 +63,7 @@ export function Sidebar({
             target="_blank"
             className="flex items-center gap-3 px-3 py-2.5 bg-slate-800 hover:bg-blue-600 hover:text-white rounded-xl transition-all group border border-slate-700"
           >
-            <Globe size={16} className="text-slate-400 group-hover:text-white transition-colors" />
+            <RiGlobalLine size={16} className="text-slate-400 group-hover:text-white transition-colors" />
             <span className="text-[10px] font-medium uppercase tracking-widest truncate text-slate-300 group-hover:text-white">Visit Website</span>
           </Link>
         ) : (
@@ -73,37 +73,38 @@ export function Sidebar({
             className="mx-auto w-10 h-10 bg-slate-800 hover:bg-blue-600 hover:text-white rounded-xl flex items-center justify-center transition-all border border-slate-700"
             title="Visit Website"
           >
-            <Globe size={16} className="text-slate-300" />
+            <RiGlobalLine size={16} className="text-slate-300" />
           </Link>
         )}
       </div>
 
       {/* Bagian List Navigasi */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1 custom-scrollbar">
-        <SidebarItem href="/dashboard" icon={<LayoutDashboard size={18} />} label="Dashboard" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard'} />
+        <SidebarItem href="/dashboard" icon={<RiDashboardLine size={18} />} label="Dashboard" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard'} />
 
         <SidebarLabel label="Konten Utama" collapsed={collapsed} mobileOpen={mobileOpen} />
-        <SidebarItem href="/dashboard/projects" icon={<Briefcase size={18} />} label="Projects" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/projects'} />
-        <SidebarItem href="/dashboard/blog-posts" icon={<FileText size={18} />} label="Blog Posts" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/blog-posts'} />
-        <SidebarItem href="/dashboard/categories" icon={<Layers size={18} />} label="Categories" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/categories'} />
-        <SidebarItem href="/dashboard/tags" icon={<Tags size={18} />} label="Tags" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/tags'} />
+        <SidebarItem href="/dashboard/projects" icon={<RiBriefcaseLine size={18} />} label="Projects" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/projects'} />
+        <SidebarItem href="/dashboard/blog-posts" icon={<RiFileTextLine size={18} />} label="Blog Posts" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/blog-posts'} />
+        <SidebarItem href="/dashboard/categories" icon={<RiStackLine size={18} />} label="Categories" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/categories'} />
+        <SidebarItem href="/dashboard/tags" icon={<RiPriceTag3Line size={18} />} label="Tags" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/tags'} />
+        <SidebarItem href="/dashboard/faqs" icon={<RiQuestionLine size={18} />} label="FAQ" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/faqs'} />
 
         <SidebarLabel label="Data Perusahaan" collapsed={collapsed} mobileOpen={mobileOpen} />
-        <SidebarItem href="/dashboard/teams" icon={<Users size={18} />} label="Teams" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/teams'} />
-        <SidebarItem href="/dashboard/testimonials" icon={<MessageSquare size={18} />} label="Testimonials" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/testimonials'} />
-        <SidebarItem href="/dashboard/pages" icon={<Shapes size={18} />} label="Pages" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/pages'} />
+        <SidebarItem href="/dashboard/teams" icon={<RiTeamLine size={18} />} label="Teams" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/teams'} />
+        <SidebarItem href="/dashboard/testimonials" icon={<RiChat3Line size={18} />} label="Testimonials" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/testimonials'} />
+        <SidebarItem href="/dashboard/pages" icon={<RiFileCopyLine size={18} />} label="Pages" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/pages'} />
 
         <SidebarLabel label="Sistem & Prospek" collapsed={collapsed} mobileOpen={mobileOpen} />
-        <SidebarItem href="/dashboard/profile" icon={<User size={18} />} label="Profil" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/profile'} />
-        <SidebarItem href="/dashboard/settings" icon={<Settings size={18} />} label="Settings" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/settings'} />
-        <SidebarItem href="/dashboard/leads-logs" icon={<History size={18} />} label="Leads Log" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/leads-logs'} />
+        <SidebarItem href="/dashboard/profile" icon={<RiUserLine size={18} />} label="Profil" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/profile'} />
+        <SidebarItem href="/dashboard/settings" icon={<RiSettings3Line size={18} />} label="Settings" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/settings'} />
+        <SidebarItem href="/dashboard/leads-logs" icon={<RiHistoryLine size={18} />} label="Leads Log" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/leads-logs'} />
       </nav>
 
       {/* Bagian Bawah Profil Footer Info */}
       <div className="p-4 border-t border-slate-700 bg-slate-950/40">
         <div className={`flex items-center gap-3 ${(collapsed && !mobileOpen) ? "justify-center" : ""}`}>
           <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shrink-0">
-            <User size={20} />
+            <RiUserLine size={20} />
           </div>
           {(!collapsed || mobileOpen) && (
             <div className="flex-1 min-w-0">
@@ -115,10 +116,10 @@ export function Sidebar({
         {(!collapsed || mobileOpen) && (
           <div className="grid grid-cols-2 gap-2 mt-4">
             <Link href="/dashboard/profile" className="flex items-center justify-center gap-1.5 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-xs font-medium text-slate-300 hover:bg-slate-700 active:bg-slate-800 transition-colors">
-              <User size={12} /> Profil
+              <RiUserLine size={12} /> Profil
             </Link>
             <button onClick={handleLogout} className="flex items-center justify-center gap-1.5 py-2.5 bg-red-950/40 border border-red-900/60 rounded-lg text-xs font-medium text-red-400 hover:bg-red-600 hover:text-white transition-all">
-              <LogOut size={12} /> Keluar
+              <RiLogoutBoxLine size={12} /> Keluar
             </button>
           </div>
         )}

@@ -99,7 +99,7 @@ export default function Footer() {
             <div className="xl:col-span-4 space-y-6">
               <div className="footer-logo">
                 <Image
-                  src="/logo-putih.png"
+                  src="/images/logo-putih.png"
                   alt={settings.company_name || "Limas Kontraktor"}
                   width={250}
                   height={48}

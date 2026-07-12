@@ -227,3 +227,14 @@ model Faq {
 
   @@map("faqs")
 }
+
+model PageView {
+  id          String   @id @default(cuid())
+  path        String
+  visitorHash String   @map("visitor_hash")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([path])
+  @@index([createdAt])
+  @@map("page_views")
+}

@@ -18,7 +18,7 @@ export default function FaqClient({ faqs }: FaqClientProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(0); // Default buka item pertama
 
   return (
-    <section className="relative overflow-hidden bg-white py-16 md:py-24 select-none border-t border-slate-100">
+    <section className="relative overflow-hidden bg-[#fafafa] py-16 md:py-24 select-none border-t border-slate-100">
       {/* Background Soft Glow Aksen */}
       <div className="absolute right-0 top-1/4 h-[350px] w-[350px] rounded-full bg-slate-100 blur-[120px] opacity-70 pointer-events-none" />
       
@@ -26,8 +26,8 @@ export default function FaqClient({ faqs }: FaqClientProps) {
         
         {/* Header Center */}
         <div className="mb-12 text-center space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#E87722]/20 bg-[#E87722]/10 px-4 py-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#E87722]" />
+          <div className="inline-flex items-center gap-2 rounded-full  px-4 py-1.5">
+            <span className="h-1.5 w-1.5 bg-[#E87722]" />
             <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#E87722]">
               Pertanyaan Umum
             </span>
@@ -90,9 +90,14 @@ export default function FaqClient({ faqs }: FaqClientProps) {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.25, ease: "easeInOut" }}
                     >
-                      <div className="border-t border-slate-200/60 bg-white p-5 text-xs md:text-sm leading-relaxed font-medium text-slate-600">
-                        {faq.answer}
-                      </div>
+                      {/* FIX: faq.answer sekarang HTML dari Tiptap (list, link, bold),
+                          bukan teks polos lagi. Render pakai dangerouslySetInnerHTML +
+                          class `prose` biar list/link/bold-nya kebentuk stylingnya,
+                          bukan HTML mentah keliatan. */}
+                      <div
+                        className="prose prose-sm md:prose-base max-w-none border-t border-slate-200/60 bg-white p-5 leading-relaxed font-medium text-slate-600 prose-a:text-[#E87722] prose-strong:text-slate-700"
+                        dangerouslySetInnerHTML={{ __html: faq.answer }}
+                      />
                     </motion.div>
                   )}
                 </AnimatePresence>
