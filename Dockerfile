@@ -3,15 +3,7 @@
 # ==========================================
 FROM node:22-alpine AS deps
 WORKDIR /app
-
-# Salin file konfigurasi npm
 COPY package.json package-lock.json ./
-
-# Salin folder prisma agar file schema tersedia jika dibutuhkan
-COPY prisma ./prisma/
-COPY prisma.config.ts ./prisma.config.ts 
-
-# JURUS PAMUNGKAS: Instal dependencies dan PAKSA abaikan semua script otomatis (postinstall Prisma)
 RUN npm ci --ignore-scripts
 
 # ==========================================
@@ -20,17 +12,22 @@ RUN npm ci --ignore-scripts
 FROM node:22-alpine AS builder
 WORKDIR /app
 
-# Salin node_modules dari tahap deps
+# Copy dependencies dari stage 1
 COPY --from=deps /app/node_modules ./node_modules
-
-# Salin seluruh kode sumber proyek
 COPY . .
 
-# GUNAKAN DUMMY URL agar prisma generate tidak gagal saat build.
-# Di sinilah Prisma Client benar-benar di-generate secara aman.
-RUN DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy npx prisma generate
+# OPTIMASI MEMORI: 
+# 1. Batasi Node memory agar tidak membengkak (1.8GB max)
+# 2. Matikan source maps (menghemat 30-40% RAM build)
+# 3. Matikan telemetry
+ENV NODE_OPTIONS="--max-old-space-size=1800"
+ENV GENERATE_SOURCEMAP=false
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Jalankan proses build Next.js
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Jalankan proses build
 RUN npm run build
 
 # ==========================================
@@ -39,22 +36,17 @@ RUN npm run build
 FROM node:22-alpine AS runner
 WORKDIR /app
 
-# Set environment variables
 ENV NODE_ENV=production
 ENV PORT=8000
 
-# Copy runtime essentials
-COPY --from=builder /app/node_modules ./node_modules
+# Copy hasil build saja (jauh lebih ringan)
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
-
-# Penting: Copy folder prisma dan config agar runtime bisa akses skema
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
-# Ekspos port yang digunakan aplikasi
 EXPOSE 8000
 
-# Perintah utama untuk menyalakan server Next.js
-CMD sh -c "npm run db:push && npm run db:seed && npm start"
+# PERINGATAN: Gunakan skrip terpisah untuk migrasi jika memungkinkan
+CMD sh -c "npx prisma db push && npm start"
