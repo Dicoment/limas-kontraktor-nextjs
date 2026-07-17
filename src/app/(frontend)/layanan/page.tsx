@@ -1,172 +1,239 @@
 "use client";
 
+import { useState, useEffect, JSX } from "react";
 import { motion } from "framer-motion";
-import { FaBuilding, FaHelmetSafety, FaCompassDrafting, FaArrowRightLong } from "react-icons/fa6";
-import { IconType } from "react-icons";
+import { IoArrowForwardSharp, IoLogoWhatsapp } from "react-icons/io5";
 import Link from "next/link";
-import { JSX } from "react";
 
-interface ServiceItem {
-  icon: IconType;
-  title: string;
-  desc: string;
-  tag: string;
-  href: string;
-}
-
-const services: ServiceItem[] = [
+const services = [
   {
-    icon: FaBuilding,
+    no: "01.",
     title: "Konstruksi & Bangun Baru",
-    desc: "Eksekusi pembangunan infrastruktur dan gedung dari tahap awal landasan hingga serah terima kunci, dengan kendali manajemen struktur komprehensif, estimasi material presisi, serta kepatuhan penuh terhadap standar kelayakan sipil.",
-    tag: "Layanan Utama",
+    desc: "Layanan kontraktor menyeluruh untuk pembangunan dari nol mulai dari rumah tinggal, ruko komersial, hingga fasilitas umum.",
     href: "/layanan/konstruksi",
+    image: "/images/jasa-kontraktor.webp"
   },
   {
-    icon: FaHelmetSafety,
+    no: "02.",
     title: "Renovasi Total & Parsial",
-    desc: "Solusi peremajaan properti, penambahan lantai (tingkat), perbaikan kegagalan struktural dinding/atap, hingga rekonstruksi tata ruang komersial guna meningkatkan fungsionalitas dan nilai kapitalisasi aset Anda.",
-    tag: "Restrukturisasi",
+    desc: "Solusi peremajaan properti, penambahan lantai, perbaikan struktur dinding/atap, hingga rekonstruksi tata ruang.",
     href: "/layanan/renovasi",
+    image: "/images/jasa-renovasi.webp"
   },
   {
-    icon: FaCompassDrafting,
+    no: "03.",
     title: "Desain Arsitektur & RAB",
-    desc: "Pembuatan konsep visual arsitektur 3D eksterior-interior terintegrasi yang dipadukan dengan penyusunan Rencana Anggaran Biaya (RAB) transparan, akurat, jujur, serta berstandar nasional untuk efisiensi investasi proyek.",
-    tag: "Perencanaan",
+    desc: "Pembuatan konsep visual arsitektur 3D eksterior-interior terintegrasi dengan penyusunan RAB yang transparan.",
     href: "/layanan/desain",
-  },
+    image: "/images/jasa-desain.webp"
+  }
 ];
 
-export default function LayananPage(): JSX.Element {
-  return (
-    <main className="bg-[#F8F9FA] min-h-screen antialiased text-[#1A2B49]">
-      
-      {/* --- HERO SECTION --- */}
-      <section className="relative w-full h-[65vh] flex items-center justify-center overflow-hidden border-b-4 border-[#E87722]">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
-          style={{ backgroundImage: "url('/heroproyek.webp')" }} 
-        />
-        {/* Overlay korporat deep navy dengan gradasi */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0F2340]/95 via-[#0F2340]/80 to-[#0F2340]/90 backdrop-blur-[1px]" />
-        
-        {/* Ornamen blueprint garis vertikal dekoratif */}
-        <div className="absolute inset-y-0 left-1/4 w-px bg-white/5 pointer-events-none" />
-        <div className="absolute inset-y-0 right-1/4 w-px bg-white/5 pointer-events-none" />
+const benefits = ["RAB Transparan", "Bergaransi", "Tukang Berpengalaman", "Tepat Waktu"];
 
-        <div className="relative z-10 text-center px-6 space-y-6 max-w-5xl">
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-md border border-white/10 bg-white/5 backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-[#E87722] animate-pulse" />
-            <span className="text-white text-[10px] font-extrabold uppercase tracking-[0.25em]">Portfolio &amp; Solusi Konstruksi</span>
+export default function LayananSection(): JSX.Element {
+  const [whatsappNumber, setWhatsappNumber] = useState("6282320721150");
+
+  useEffect(() => {
+    const fetchNumber = async () => {
+      try {
+        const res = await fetch("/api/settings", { method: "GET" });
+        if (res.ok) {
+          const json = await res.json();
+          if (json?.data?.contact_phone1) {
+            const cleanNumber = json.data.contact_phone1.replace(/[^0-9]/g, "");
+            setWhatsappNumber(cleanNumber.startsWith("0") ? `62${cleanNumber.substring(1)}` : cleanNumber);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch number for service CTA:", err);
+      }
+    };
+    fetchNumber();
+  }, []);
+
+  return (
+    <>
+      {/* ================= HERO SECTION INTEGRATED ================= */}
+      <section className="relative w-full bg-[#0F2340] pt-32 pb-20 px-6 overflow-hidden">
+        {/* Soft Overlay Gelap */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0F2340]/90 to-[#0F2340]" />
+
+        {/* Animasi Masuk Hero Menggunakan Framer Motion */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="max-w-5xl mx-auto relative z-10 text-center space-y-4"
+        >
+          {/* Tag Kicker */}
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <span className="w-1.5 h-1.5 bg-[#FFCC00]" />
+            <span className="text-white text-xs font-medium uppercase tracking-widest opacity-95">
+              Solusi Terintegrasi
+            </span>
           </div>
           
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase leading-[1.05]">
-            KONTRAKTOR UTAMA <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E87722] to-orange-400 font-serif normal-case italic font-medium">Infrastruktur &amp; Bangunan</span>
+          {/* H1 Utama */}
+          <h1 className="text-3xl sm:text-5xl md:text-5xl font-bold text-white tracking-tight leading-[1.1] max-w-4xl mx-auto">
+            Layanan Kontraktor &amp; Manajemen Konstruksi Profesional
           </h1>
-          
-          <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto font-light leading-relaxed">
-            Menghadirkan komitmen profesionalitas dalam mentransformasi cetak biru teknis menjadi struktur fisik yang kokoh, fungsional, dan bernilai investasi tinggi.
+
+          {/* Deskripsi P */}
+          <p className="text-slate-300 text-sm sm:text-base max-w-3xl mx-auto font-normal leading-relaxed opacity-90 pt-2">
+            CV Listiya Mandiri Jaya Steel melalui <strong className="font-semibold text-white">Limas Kontraktor</strong> menghadirkan 
+            ekosistem layanan pembangunan terpadu. Mulai dari perencanaan struktur, konstruksi skala besar, 
+            hingga renovasi komersial dan residensial di wilayah Jabodetabek.
           </p>
-        </div>
+        </motion.div>
       </section>
 
-      {/* --- SERVICES SECTION --- */}
-      <section className="relative py-24 sm:py-32">
-        {/* Latar belakang kotak-kotak blueprint tipis sesuai image_47b61a.png */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:3rem_3rem]" />
+      {/* ================= GRID CONTENT LAYANAN ================= */}
+      <section className="py-24 bg-[#F8F9FA] text-[#000000] relative overflow-hidden">
+        {/* Background Blueprint Decorative */}
+        <div className="absolute top-0 right-0 w-80 h-80 opacity-[0.03] pointer-events-none bg-[url('/images/blueprint-lines.svg')] bg-contain bg-no-repeat" />
 
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="max-w-7xl mx-auto px-6 w-full">
           
-          {/* Section Header */}
-          <div className="mb-20 flex flex-col md:flex-row justify-between items-start md:items-end gap-8 pb-10 border-b border-slate-200">
-            <div className="space-y-3">
-              <h3 className="text-[#E87722] font-black tracking-[0.25em] uppercase text-xs">Layanan Utama</h3>
-              <h2 className="text-3xl sm:text-5xl font-black text-[#0F2340] tracking-tight uppercase leading-none">
-                Kompetensi &amp; <br />
-                Spesialisasi Kami
-              </h2>
+          {/* Header Section */}
+          <div className="text-center max-w-3xl mx-auto mb-16 flex flex-col items-center">
+            <div className="flex items-center gap-1.5 mb-3">
+              <span className="w-1.5 h-1.5 bg-[#FFCC00]" />
+              <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-gray-500">
+                Layanan Utama Kami
+              </span>
             </div>
-            <p className="text-slate-500 max-w-md text-sm sm:text-base leading-relaxed">
-              Dari perencanaan konsep arsitektur hingga eksekusi struktural akhir di lapangan, kami memastikan seluruh rangkaian manajemen proyek berjalan transparan, aman, dan bergaransi resmi.
-            </p>
+            <h2 className="text-3xl md:text-5xl font-semibold tracking-tight text-neutral-900 leading-[1.2]">
+              Jasa Konstruksi &amp; Kontraktor Bangunan Berstandar Internasional
+            </h2>
           </div>
 
-          {/* Grid Konten Utama - Mengikuti arsitektur asimetris kartu di gambar rujukan */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          {/* Grid 4 Kolom (3 Services + 1 CTA) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch">
             
-            {/* KIRI: Daftar Layanan Utama (2 Kolom / Mengambil 8 Span) */}
-            <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-              {services.slice(0, 2).map((svc, i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{ y: -6 }}
-                  className="group bg-white rounded-2xl p-8 border border-slate-200/70 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all duration-300 flex flex-col justify-between min-h-[340px]"
-                >
-                  <div>
-                    <div className="mb-6 w-12 h-12 rounded-xl bg-slate-50 text-[#0F2340] flex items-center justify-center border border-slate-100 group-hover:bg-[#0F2340] group-hover:text-white transition-all duration-300">
-                      <svc.icon size={22} />
-                    </div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#E87722] bg-orange-50 px-2.5 py-1 rounded-md">{svc.tag}</span>
-                    <h3 className="text-xl font-bold text-[#0F2340] mt-4 mb-3 tracking-tight group-hover:text-[#E87722] transition-colors">{svc.title}</h3>
-                    <p className="text-slate-600 text-sm leading-relaxed font-light">{svc.desc}</p>
+            {/* Loop 3 Layanan Utama */}
+            {services.map((svc, index) => (
+              <motion.div
+                key={svc.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="group bg-white rounded-2xl p-6 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.02)] transition-all duration-300 relative border border-transparent hover:shadow-[0_10px_35px_rgba(0,0,0,0.06)]"
+              >
+                <div className="flex flex-col flex-grow mb-6">
+                  <div className="flex items-start justify-between gap-4 mb-4">
+                    <h3 className="text-[19px] font-bold tracking-tight text-neutral-800 leading-snug">
+                      <Link href={svc.href} className="hover:text-[#FFCC00] transition-colors">
+                        {svc.title}
+                      </Link>
+                    </h3>
+                    <span className="text-sm font-bold text-neutral-800 tracking-tight mt-1">
+                      {svc.no}
+                    </span>
                   </div>
+                  
+                  <div className="w-full h-[1px] bg-gray-100 mb-4" />
+                  
+                  <p className="text-gray-500 text-[13px] font-normal leading-relaxed">
+                    {svc.desc}
+                  </p>
+                </div>
 
-                  <Link href={svc.href} className="mt-8 inline-flex items-center gap-2.5 text-[#0F2340] font-bold text-xs uppercase tracking-wider hover:text-[#E87722] transition-colors group/link">
-                    Selengkapnya <FaArrowRightLong className="transform group-hover/link:translate-x-1 transition-transform" />
+                <div className="relative aspect-[4/3.2] w-full overflow-hidden rounded-2xl mt-auto">
+                  <div 
+                    className="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                    style={{ backgroundImage: `url('${svc.image}')` }}
+                  />
+                  
+                  <Link 
+                    href={svc.href}
+                    className="absolute inset-0 m-auto w-12 h-12 rounded-full bg-[#FFCC00] text-black flex items-center justify-center shadow-lg opacity-0 scale-70 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 hover:bg-black hover:text-white"
+                  >
+                    <IoArrowForwardSharp size={18} className="transform -rotate-45" />
                   </Link>
-                </motion.div>
-              ))}
+                </div>
+              </motion.div>
+            ))}
 
-              {/* Layanan Ke-3 Memanjang Penuh di bawahnya jika di mobile/tablet */}
-              <div className="md:col-span-2">
-                <motion.div
-                  whileHover={{ y: -6 }}
-                  className="group bg-white rounded-2xl p-8 border border-slate-200/70 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-6"
-                >
-                  <div className="max-w-2xl">
-                    <div className="mb-6 w-12 h-12 rounded-xl bg-slate-50 text-[#0F2340] flex items-center justify-center border border-slate-100 group-hover:bg-[#0F2340] group-hover:text-white transition-all duration-300">
-                      <FaCompassDrafting size={22} />
-                    </div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#E87722] bg-orange-50 px-2.5 py-1 rounded-md">{services[2].tag}</span>
-                    <h3 className="text-xl font-bold text-[#0F2340] mt-4 mb-3 tracking-tight group-hover:text-[#E87722] transition-colors">{services[2].title}</h3>
-                    <p className="text-slate-600 text-sm leading-relaxed font-light">{services[2].desc}</p>
-                  </div>
+            {/* Slot Ke-4: Card CTA Terintegrasi */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="relative rounded-2xl overflow-hidden p-6 flex flex-col justify-between bg-[#0F2340] group min-h-[350px] xl:min-h-auto shadow-md shadow-slate-900/10"
+            >
+              <div 
+                className="absolute inset-0 bg-cover bg-center opacity-25 transition-transform duration-700 group-hover:scale-105"
+                style={{ backgroundImage: `url('/images/heroproyek.webp')` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0F2340] via-[#0F2340]/80 to-transparent" />
 
-                  <Link href={services[2].href} className="inline-flex items-center gap-2.5 text-[#0F2340] font-bold text-xs uppercase tracking-wider hover:text-[#E87722] transition-colors group/link whitespace-nowrap self-end md:self-center">
-                    Selengkapnya <FaArrowRightLong className="transform group-hover/link:translate-x-1 transition-transform" />
-                  </Link>
-                </motion.div>
-              </div>
-            </div>
-
-            {/* KANAN: Blok Penekanan USP Korporat (Mengambil 4 Span) - Terinspirasi dari Sisi Kanan image_47b9fe.jpg */}
-            <div className="lg:col-span-4 bg-[#0F2340] rounded-2xl p-8 text-white flex flex-col justify-between relative overflow-hidden border-b-4 border-[#E87722] shadow-md">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(232,119,34,0.15),transparent_60%)]" />
-              
-              <div className="relative z-10 space-y-6">
-                <span className="text-xs font-bold tracking-[0.2em] text-[#E87722] uppercase block">Standar Komitmen</span>
-                <h3 className="text-2xl font-black uppercase tracking-tight leading-snug">
-                  Transparan, <br /> Akurat &amp; Aman.
+              <div className="relative z-10 space-y-4">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-[#FFCC00] animate-pulse" />
+                  <span className="text-[#FFCC00] text-[10px] font-bold tracking-widest uppercase block">KONSULTASI</span>
+                </div>
+                
+                <h3 className="text-xl md:text-2xl font-black text-white tracking-tight uppercase leading-tight">
+                  Punya Rencana <br />Pembangunan Proyek?
                 </h3>
-                <div className="w-12 h-px bg-white/20" />
-                <p className="text-slate-300 text-sm font-light leading-relaxed">
-                  Setiap rincian pengerjaan struktur dilaporkan secara berkala melalui sistem manajemen mutu terpadu. Kami memastikan tidak ada biaya siluman (hidden cost) demi menjaga integritas kerja sama jangka panjang.
+                
+                <div className="w-full h-[1px] bg-white/10" />
+                
+                <p className="text-gray-300 font-light text-[13px] leading-relaxed">
+                  Diskusikan spesifikasi material, kebutuhan tata ruang, dan kalkulasi RAB transparan bersama tim teknis lapangan kami.
                 </p>
               </div>
 
-              <div className="relative z-10 pt-12">
-                <div className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold">Sistem Sertifikasi</div>
-                <div className="text-xs text-white/90 font-medium mt-1">Sesuai Regulasi Teknis &amp; SNI Terkini</div>
+              <div className="relative z-10 pt-4 mt-auto">
+                <a
+                  href={`https://wa.me/${whatsappNumber}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center gap-2.5 bg-[#FFCC00] text-black font-bold px-5 py-3.5 rounded-xl text-xs tracking-wider uppercase transition-all duration-300 shadow-lg shadow-black/30 hover:bg-white w-full"
+                >
+                  <IoLogoWhatsapp size={16} />
+                  Hubungi WhatsApp
+                </a>
               </div>
+            </motion.div>
+          </div>
+
+          {/* ================= FOOTER BENEFITS & TEXT ================= */}
+          <div className="mt-16 flex flex-col items-center justify-center gap-6">
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {benefits.map((benefit) => (
+                <span 
+                  key={benefit} 
+                  className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full text-xs font-medium text-neutral-700 shadow-[0_2px_10px_rgba(0,0,0,0.01)] border border-gray-50"
+                >
+                  <span className="w-1.5 h-1.5 bg-[#FFCC00]" />
+                  {benefit}
+                </span>
+              ))}
             </div>
 
+            <div className="text-xs md:text-sm font-medium tracking-wide text-neutral-600 flex items-center flex-wrap justify-center gap-2 mt-2">
+              <span className="bg-[#FFCC00] text-black text-[10px] font-black px-2 py-0.5 rounded uppercase font-mono">
+                Mari
+              </span>
+              <span>Kita ciptakan sesuatu yang luar biasa bersama-sama.</span>
+              <a 
+                href={`https://wa.me/${whatsappNumber}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-neutral-900 font-bold underline hover:text-[#FFCC00] transition-colors decoration-[#FFCC00] decoration-2 underline-offset-4"
+              >
+                Konsultasi Sekarang
+              </a>
+            </div>
           </div>
 
         </div>
       </section>
-
-    </main>
+    </>
   );
 }

@@ -33,23 +33,35 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
       <div className="relative z-10 mx-auto max-w-7xl px-6">
         
         {/* Header Section (Industrial Typography Heavy) */}
-        <div className="mb-16 space-y-3 text-left">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="mb-16 space-y-3 text-left"
+        >
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 bg-[#E87722]" />
-            <span className="text-sm font-bold tracking-[0.2em] capitalize text-gray-500">
-              Review
+            <span className="text-sm font-medium uppercase tracking-[0.2em] capitalize text-gray-500">
+              Testimonial Klien
             </span>
           </div>
           <h2 className="max-w-4xl text-3xl font-black tracking-tight text-[#0F2340] md:text-5xl leading-none">
             Bukti Nyata <span className="text-[#E87722]">Kepuasan Klien</span>
           </h2>
-        </div>
+        </motion.div>
 
         {/* LAYOUT GRID UTAMA */}
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:h-[580px] items-stretch">
           
           {/* SISI KIRI: Video Player Area */}
-          <div className="lg:col-span-8 flex flex-col h-full justify-between">
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="lg:col-span-8 flex flex-col h-full justify-between"
+          >
             <div className="relative w-full h-full overflow-hidden bg-[#0F2340] shadow-md flex-1 border rounded-lg border-slate-200">
               
               <AnimatePresence mode="wait">
@@ -59,6 +71,7 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
+                    transition={{ duration: 0.4 }}
                     className="absolute inset-0 w-full h-full"
                   >
                     <img
@@ -69,9 +82,14 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
 
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
 
-                    {/* Info Card di Dalam Video (Premium Clean Box) */}
+                    {/* Info Card di Dalam Video (Premium Clean Box dengan Animasi Slide Up) */}
                     <div className="absolute bottom-6 left-6 right-6 z-10">
-                      <div className="border border-white/10 bg-[#0F2340]/80 p-6 backdrop-blur-md">
+                      <motion.div 
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: 0.2 }}
+                        className="border border-white/10 bg-[#0F2340]/80 p-6 backdrop-blur-md"
+                      >
                         <h3 className="text-xl font-bold text-white capitalize tracking-tight">
                           {active.projectTitle}
                         </h3>
@@ -88,7 +106,7 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
                             </div>
                           ))}
                         </div>
-                      </div>
+                      </motion.div>
                     </div>
 
                     {/* Tombol Play */}
@@ -114,6 +132,7 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
                     key="video"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
                     className="absolute inset-0 w-full h-full"
                   >
                     {active.sourceUrl && (
@@ -139,17 +158,25 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          {/* SISI KANAN: Vertical Scroller Cards (Clean Border Layout) */}
-          <div className="lg:col-span-4 flex flex-col gap-4 h-full overflow-y-auto pr-2 scrollbar-none">
+          {/* SISI KANAN: Vertical Scroller Cards (Clean Border Layout dengan Staggered Entry) */}
+          <motion.div 
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="lg:col-span-4 flex flex-col gap-4 h-full overflow-y-auto pr-2 scrollbar-none"
+          >
             {testimonials.map((item, index) => {
               const isActive = index === activeIndex;
 
               return (
-                <div
+                <motion.div
                   key={item.id}
                   onClick={() => setActiveIndex(index)}
+                  whileHover={{ y: isActive ? 0 : -2 }}
+                  transition={{ duration: 0.2 }}
                   className={`cursor-pointer border rounded-lg p-6 transition-all duration-300 flex flex-col justify-between shrink-0 ${
                     isActive
                       ? "border-[#0F2340] bg-[#0F2340] text-white shadow-md"
@@ -167,9 +194,21 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
                       )}
                     </div>
 
-                    <p className={`mt-4 text-sm md:text-base leading-relaxed font-light ${isActive ? "text-slate-200" : "text-slate-600"}`}>
-                      "{item.content}"
-                    </p>
+                    {/* Animasi teks kutipan saat card aktif diklik */}
+                    <div className="overflow-hidden">
+                      <AnimatePresence mode="wait">
+                        <motion.p 
+                          key={isActive ? `active-${item.id}` : `inactive-${item.id}`}
+                          initial={{ opacity: 0, y: 5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className={`mt-4 text-sm md:text-base leading-relaxed font-light ${isActive ? "text-slate-200" : "text-slate-600"}`}
+                        >
+                          "{item.content}"
+                        </motion.p>
+                      </AnimatePresence>
+                    </div>
                   </div>
 
                   <div className={`mt-6 flex items-center justify-between border-t pt-4 ${isActive ? "border-white/10" : "border-slate-100"}`}>
@@ -191,10 +230,10 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
 
         </div>
       </div>

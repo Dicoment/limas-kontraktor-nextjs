@@ -50,7 +50,10 @@ export default function HeroSection({ backgroundImage }: HeroSectionProps) {
     <section className="relative min-h-screen flex items-center overflow-hidden bg-[#0F2340]">
 
       {/* Background Image & Layer Overlay */}
-      <div
+      <motion.div
+        initial={{ scale: 1.08, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1.2, ease: "easeOut" }}
         className="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-105"
         style={{ backgroundImage: `url('${backgroundImage}')` }}
       />
@@ -68,7 +71,12 @@ export default function HeroSection({ backgroundImage }: HeroSectionProps) {
       <div className="relative z-10 max-w-7xl mx-auto px-6 w-full pt-32 pb-24 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
         {/* Sisi Kiri — Konten Utama */}
-        <div className="lg:col-span-7 flex flex-col justify-center space-y-6 md:space-y-8">
+        <motion.div 
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="lg:col-span-7 flex flex-col justify-center space-y-6 md:space-y-8"
+        >
           
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/10 px-4 py-1.5 rounded-full w-fit">
             <span className="w-1.5 h-1.5 rounded-full bg-[#E87722] animate-pulse" />
@@ -86,46 +94,48 @@ export default function HeroSection({ backgroundImage }: HeroSectionProps) {
             Jasa kontraktor profesional untuk bangun baru, desain arsitektur, dan renovasi bangunan. Kami pastikan struktur bangunan aman dengan perencanaan RAB transparan di Jabodetabek.
           </p>
 
-<div className="flex flex-wrap items-center gap-4 pt-4">
-  <Button
-    variant="primary"
-    size="lg"
-    href={`https://wa.me/${whatsappNumber}`}
-    target="_blank"
-    rel="noreferrer"
-    className="gap-2.5"
-  >
-    <FaWhatsapp size={20} />
-    Mulai Konsultasi
-  </Button>
+          <div className="flex flex-wrap items-center gap-4 pt-4">
+            <Button
+              variant="primary"
+              size="lg"
+              href={`https://wa.me/${whatsappNumber}`}
+              target="_blank"
+              rel="noreferrer"
+              className="gap-2.5"
+            >
+              <FaWhatsapp size={20} />
+              Mulai Konsultasi
+            </Button>
 
-  <Button
-    variant="outline"
-    size="lg"
-    href="/proyek"
-    className="gap-2.5 group"
-  >
-    Lihat Proyek
-    <HiArrowRight
-      size={18}
-      className="transition-transform duration-300 group-hover:translate-x-1"
-    />
-  </Button>
-</div>
+            <Button
+              variant="outline"
+              size="lg"
+              href="/proyek"
+              className="gap-2.5 group"
+            >
+              Lihat Proyek
+              <HiArrowRight
+                size={18}
+                className="transition-transform duration-300 group-hover:translate-x-1"
+              />
+            </Button>
+          </div>
 
           <p className="text-white/80 text-xs max-w-xs leading-relaxed border-l border-white/10 pl-4 mt-8">
             Didukung tukang berpengalaman, pengawasan ketat di lapangan, dan komitmen serah terima kunci tepat waktu sesuai kesepakatan.
           </p>
-        </div>
+        </motion.div>
 
         {/* Sisi Kanan — Stats Cards */}
         <div className="hidden lg:flex lg:col-span-5 flex-col items-end gap-6">
           {stats.map((s, index) => (
-            <div
+            <motion.div
               key={s.label}
-              className={`bg-[#0F2340]/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 w-72 text-left shadow-2xl transition-all duration-300 hover:border-[#E87722]/40 ${
-                index === 1 ? "transform translate-x-8" : ""
-              }`}
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: index === 1 ? 32 : 0 }}
+              transition={{ duration: 0.6, delay: 0.2 + index * 0.15, ease: "easeOut" }}
+              whileHover={{ y: -4, borderColor: "rgba(232, 119, 34, 0.4)" }}
+              className={`bg-[#0F2340]/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 w-72 text-left shadow-2xl transition-all duration-300 cursor-default`}
             >
               <p className="text-5xl font-black text-white tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                 {s.angka}
@@ -136,7 +146,7 @@ export default function HeroSection({ backgroundImage }: HeroSectionProps) {
               <p className="text-gray-400 text-xs mt-1 font-light">
                 {s.sub}
               </p>
-            </div>
+            </motion.div>
           ))}
         </div>
 

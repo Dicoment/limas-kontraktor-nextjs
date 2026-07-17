@@ -21,20 +21,20 @@ export const metadata: Metadata = {
     "kontraktor jakarta", 
     "desain arsitektur", 
     "kontraktor jabodetabek", 
-    "rab transparan"
+    "jasa kontraktor bekasi"
   ],
   authors: [{ name: "LIMAS KONTRAKTOR" }],
   creator: "Dicoment Agency",
   
   // OpenGraph (Untuk tampilan maksimal saat link dibagikan di WA, FB, LinkedIn)
   openGraph: {
-    title: "LIMAS KONTRAKTOR | Jasa Bangun Baru & Renovasi Rumah Profesional",
+    title: "LIMAS KONTRAKTOR - Jasa Kontraktor Bangunan & Renovasi Profesional di Jabodetabek",
     description: "Wujudkan bangunan kokoh impian Anda di Jabodetabek dengan tim berpengalaman sejak 2014 dan sistem perencanaan RAB jujur tanpa biaya silumen.",
     url: "https://limaskontraktor.com", // Ganti dengan domain asli nanti
     siteName: "Limas Kontraktor",
     images: [
       {
-        url: "/hero-home.webp",
+        url: "/images/hero-home.webp",
         width: 1200,
         height: 630,
         alt: "Limas Kontraktor Utama Preview Image",

@@ -22,7 +22,7 @@ const EMPTY_SETTINGS = {
 const footerLinks = [
   { label: "Beranda", href: "/" },
   { label: "Tentang Kami", href: "/tentang" },
-  { label: "Layanan", href: "/layanan/" },
+  { label: "Layanan", href: "/layanan" },
   { label: "Proyek", href: "/proyek" },
   { label: "Kontak", href: "/kontak" },
 ]
@@ -59,40 +59,41 @@ export default function Footer() {
 
       <footer className="bg-slate-900 text-white antialiased relative">
         
-        {/* ── 1. TICKER TEXT BERJALAN (CSS KEYFRAMES INLINE) ── */}
+        {/* ── 1. TICKER TEXT BERJALAN (CSS KEYFRAMES INLINE - FULL FIXED INFINITE LOOP) ── */}
         <div className="w-full bg-[#E87722] py-8 overflow-hidden select-none flex relative z-10">
-          <style>{`
+          <style dangerouslySetInnerHTML={{__html: `
             @keyframes footerMarquee {
-              0% { transform: translateX(0%); }
-              100% { transform: translateX(-50%); }
+              0% { transform: translate3d(0, 0, 0); }
+              100% { transform: translate3d(-50%, 0, 0); }
             }
-          `}</style>
-          <div 
-            className="flex whitespace-nowrap items-center gap-12 text-white text-lg font-bold capitalize tracking-wider backend-marquee-container"
-            style={{ animation: 'footerMarquee 25s linear infinite', width: 'max-content' }}
-          >
-            <div 
-            className="flex whitespace-nowrap items-center gap-12 text-white text-lg font-bold capitalize tracking-wider backend-marquee-container"
-            style={{ animation: 'footerMarquee 25s linear infinite', width: 'max-content' }}
-          >
+            .marquee-inner-container {
+              display: flex;
+              whitespace: nowrap;
+              gap: 3rem;
+              animation: footerMarquee 25s linear infinite;
+              width: max-content;
+            }
+          `}} />
+          
+          <div className="marquee-inner-container">
             {/* Set 1 */}
-            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Jasa Konstruksi Bangunan</span>
-            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Kontraktor Bekasi & Jakarta</span>
-            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Renovasi Rumah & Ruko</span>
-            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Desain Arsitektur Premium</span>
-            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Perencanaan RAB Transparan</span>
-            {/* Set 2 (Duplikasi untuk loop infinity tanpa patah) */}
-            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Jasa Konstruksi Bangunan</span>
-            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Kontraktor Bekasi & Jakarta</span>
-            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Renovasi Rumah & Ruko</span>
-            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Desain Arsitektur Premium</span>
-            <span className="flex items-center gap-2"><FaAsterisk size={12} /> Perencanaan RAB Transparan</span>
-          </div>
+            <span className="flex items-center gap-2 shrink-0"><FaAsterisk size={12} /> Jasa Konstruksi Bangunan</span>
+            <span className="flex items-center gap-2 shrink-0"><FaAsterisk size={12} /> Kontraktor Bekasi & Jakarta</span>
+            <span className="flex items-center gap-2 shrink-0"><FaAsterisk size={12} /> Renovasi Rumah & Ruko</span>
+            <span className="flex items-center gap-2 shrink-0"><FaAsterisk size={12} /> Desain Arsitektur Premium</span>
+            <span className="flex items-center gap-2 shrink-0"><FaAsterisk size={12} /> Perencanaan RAB Transparan</span>
+            
+            {/* Set 2 (Duplikasi presisi untuk loop infinity tanpa patah secara visual) */}
+            <span className="flex items-center gap-2 shrink-0"><FaAsterisk size={12} /> Jasa Konstruksi Bangunan</span>
+            <span className="flex items-center gap-2 shrink-0"><FaAsterisk size={12} /> Kontraktor Bekasi & Jakarta</span>
+            <span className="flex items-center gap-2 shrink-0"><FaAsterisk size={12} /> Renovasi Rumah & Ruko</span>
+            <span className="flex items-center gap-2 shrink-0"><FaAsterisk size={12} /> Desain Arsitektur Premium</span>
+            <span className="flex items-center gap-2 shrink-0"><FaAsterisk size={12} /> Perencanaan RAB Transparan</span>
           </div>
         </div>
 
         {/* ── 2. FOOTER MAIN CONTENT AREA ── */}
-        <div className="max-w-7xl mx-auto px-6 pt-30 pb-30">
+        <div className="max-w-7xl mx-auto px-6 pt-24 pb-20">
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-12 items-start">
             
             {/* [SISI KIRI]: LOGO & WORKING HOURS */}
@@ -107,9 +108,9 @@ export default function Footer() {
                 />
               </div>
               
-              <div className="footer-working-hours space-y-2 pt-2 border-t border-white/5 max-w-[280px]">
+              <div className="footer-working-hours space-y-2 pt-4 border-t border-white/5 max-w-[280px]">
                 <h3 className="text-lg font-bold tracking-wider capitalize text-white">Working Hours:</h3>
-                <ul className="text-sm  text-slate-200 space-y-1 font-medium">
+                <ul className="text-sm text-slate-200 space-y-1 font-medium">
                   <li>Senin - Sabtu: 09:00 WIB - 18:00 WIB</li>
                 </ul>
               </div>
@@ -122,14 +123,14 @@ export default function Footer() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div className="footer-links footer-location-info space-y-3">
                   <h3 className="text-lg font-bold capitalize tracking-widest text-white">Contact Information</h3>
-                  <p className="text-md font-medium  text-slate-200 leading-relaxed max-w-sm">
+                  <p className="text-md font-medium text-slate-200 leading-relaxed max-w-sm">
                     {settings.company_address || "123 Maplewood Drive, Pinehill, CA 90210"}
                   </p>
                 </div>
 
                 <div className="footer-links footer-contact-links space-y-3">
                   <h3 className="text-lg font-bold capitalize tracking-widest text-white">Get in Touch</h3>
-                  <ul className="space-y-2 text-md font-medium  text-slate-200">
+                  <ul className="space-y-2 text-md font-medium text-slate-200">
                     {settings.contact_phone1 && (
                       <li className="flex items-center gap-2">
                         <FaPhone size={14} className="text-slate-300" />
@@ -177,7 +178,7 @@ export default function Footer() {
             <div className="footer-menu">
               <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-bold capitalize tracking-wider">
                 {footerLinks.map((link) => (
-                  <Link key={link.href} href={link.href} className=" text-slate-200 hover:text-white transition-colors">
+                  <Link key={link.href} href={link.href} className="text-slate-200 hover:text-white transition-colors">
                     {link.label}
                   </Link>
                 ))}
@@ -188,7 +189,7 @@ export default function Footer() {
               <p>Copyright © {new Date().getFullYear()} All Rights Reserved.</p>
               <p className="text-sm text-slate-400 font-light">
                 Web Development by{" "}
-                <a href="https://dicoment.com" target="_blank" rel="noopener noreferrer" className="hover: text-slate-200 transition-colors font-medium underline">
+                <a href="https://dicoment.com" target="_blank" rel="noopener noreferrer" className="text-slate-200 hover:text-white transition-colors font-medium underline">
                   Dicoment Agency
                 </a>
               </p>

@@ -65,6 +65,27 @@ export default async function AboutPage() {
   return (
     <main className="bg-white font-sans antialiased text-[#0F2340]">
       
+      {/* ── HIGH PERFORMANCE NATIVE INLINE CSS ANIMATIONS ── */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes aboutFadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .about-animate {
+          animation: aboutFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .del-1 { animation-delay: 40ms; opacity: 0; }
+        .del-2 { animation-delay: 100ms; opacity: 0; }
+        .del-3 { animation-delay: 160ms; opacity: 0; }
+        .del-4 { animation-delay: 220ms; opacity: 0; }
+      `}} />
+      
       {/* ── 1. HERO SECTION ── */}
       <section className="relative min-h-[60vh] flex flex-col justify-center px-6 pt-36 pb-20 overflow-hidden">
         <img
@@ -76,9 +97,9 @@ export default async function AboutPage() {
         <div className="absolute top-8 right-16 w-40 h-40 rounded-full border border-white/10" />
         <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full border border-white/10 -translate-x-1/2 translate-y-1/2" />
         
-        <div className="max-w-7xl mx-auto text-center flex flex-col items-center w-full relative z-10">
+        <div className="max-w-7xl mx-auto text-center flex flex-col items-center w-full relative z-10 about-animate del-1">
           <p className="text-xs font-bold tracking-widest uppercase text-[#E87722] mb-3">Tentang Perusahaan</p>
-          <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-5 max-w-4xl leading-[1.15] uppercase">
+          <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-5 max-w-4xl leading-[1.15] ">
             Membangun Kepercayaan Melalui Kualitas Konstruksi
           </h1>
           <p className="text-white/80 text-base md:text-lg max-w-xl leading-relaxed mb-8">
@@ -95,7 +116,7 @@ export default async function AboutPage() {
       </section>
 
       {/* ── 2. FLOATING COUNTER STATS (BALIK MELAYANG DI SINI) ── */}
-      <section className="relative z-20 -mt-12 px-6">
+      <section className="relative z-20 -mt-12 px-6 about-animate del-2">
         <div className="mx-auto max-w-6xl rounded-2xl bg-white shadow-[0_10px_40px_rgba(0,0,0,0.06)] border border-slate-100">
           <div className="grid grid-cols-2 lg:grid-cols-4">
             {stats.map((item) => (
@@ -116,7 +137,7 @@ export default async function AboutPage() {
       </section>
 
       {/* ── 3. PROFILE COMPANY (ABOUT SECTION) ── */}
-      <section className="mx-auto max-w-7xl px-6 py-24">
+      <section className="mx-auto max-w-7xl px-6 py-24 about-animate del-3">
         <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
           
           {/* Sisi Konten Teks */}
@@ -172,7 +193,7 @@ export default async function AboutPage() {
       </section>
 
       {/* ── 4. BRAND COMMITMENT (DARK SECTION) ── */}
-      <section className="relative overflow-hidden bg-[#0F2340] py-24 lg:py-32">
+      <section className="relative overflow-hidden bg-[#0F2340] py-24 lg:py-32 about-animate del-4">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-[#E87722]/5 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-white/5 blur-3xl pointer-events-none" />
 
@@ -233,7 +254,7 @@ export default async function AboutPage() {
       </section>
 
       {/* ── 5. ADVANTAGES SECTION ── */}
-      <section className="mx-auto max-w-7xl px-6 py-24">
+      <section className="mx-auto max-w-7xl px-6 py-24 about-animate" style={{ animationDelay: "280ms", opacity: 0 }}>
         <div className="text-left max-w-3xl mb-16 flex flex-col items-start">
           <div className="flex items-center gap-1.5 mb-3">
             <span className="w-1.5 h-1.5 bg-[#E87722]" />
@@ -242,14 +263,14 @@ export default async function AboutPage() {
           <h2 className="text-3xl md:text-5xl font-semibold tracking-tight text-[#0F2340] leading-[1.2]">
             Mengapa Memilih Kami
           </h2>
-           
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {advantages.map((item) => (
+          {advantages.map((item, index) => (
             <div 
               key={item.title} 
               className="group rounded-2xl bg-white p-6 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.02)] transition-all duration-300 border border-transparent hover:shadow-[0_10px_35px_rgba(0,0,0,0.06)]"
+              style={{ animationDelay: `${300 + (index * 40)}ms` }}
             >
               <div className="space-y-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-[#0F2340] transition-colors group-hover:bg-[#E87722] group-hover:text-white">
@@ -265,7 +286,7 @@ export default async function AboutPage() {
       </section>
 
       {/* ── 6. COMPLETED PROJECTS (GRID OVERLAY VIEW) ── */}
-      <section className="py-24 bg-slate-50/50 border-t border-slate-100">
+      <section className="py-24 bg-slate-50/50 border-t border-slate-100 about-animate" style={{ animationDelay: "340ms", opacity: 0 }}>
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-left max-w-3xl mb-16 flex flex-col items-start">
             <div className="flex items-center gap-1.5 mb-3">
@@ -275,15 +296,15 @@ export default async function AboutPage() {
             <h2 className="text-3xl md:text-5xl font-semibold tracking-tight text-[#0F2340] leading-[1.2]">
               Hasil Kami Dalam Konstruksi
             </h2>
-             
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {projects.map((project) => (
+            {projects.map((project, index) => (
               <Link
                 key={project.id}
                 href={`/proyek/${project.slug}`}
                 className="group relative aspect-[4/4.5] w-full overflow-hidden rounded-2xl bg-neutral-900 shadow-md block"
+                style={{ animationDelay: `${360 + (index * 40)}ms` }}
               >
                 {project.coverImage ? (
                   <img 

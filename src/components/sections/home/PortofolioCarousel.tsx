@@ -22,6 +22,13 @@ interface RealProject {
   coverImage: string | null
   status: "DRAFT" | "ONGOING" | "COMPLETED" | string // Menerima semua tipe status dari DB
   categoryProjects: {
+    select?: {
+      catEntry: {
+        select: {
+          name: boolean
+        }
+      }
+    }
     catEntry: {
       name: string
     }
@@ -40,59 +47,59 @@ export default function PortfolioCarousel({ projects }: PortfolioCarouselProps) 
     switch (status) {
       case "COMPLETED":
         return (
-          <div className="absolute top-5 left-5 inline-flex items-center gap-1.5 bg-emerald-500/90 text-white backdrop-blur-md px-3.5 py-1.5 rounded-full text-[11px] font-bold shadow-sm">
+          <div className="absolute top-5 left-5 inline-flex items-center gap-1.5 bg-emerald-500/90 text-white backdrop-blur-md px-3.5 py-1.5 rounded-full text-[11px] font-bold shadow-sm z-10">
             <MdOutlineVerified size={13} />
             <span>PROYEK SELESAI</span>
           </div>
         )
       case "ONGOING":
         return (
-          <div className="absolute top-5 left-5 inline-flex items-center gap-1.5 bg-[#E87722]/95 text-white backdrop-blur-md px-3.5 py-1.5 rounded-full text-[11px] font-bold shadow-sm">
+          <div className="absolute top-5 left-5 inline-flex items-center gap-1.5 bg-E87722/95 text-white backdrop-blur-md px-3.5 py-1.5 rounded-full text-[11px] font-bold shadow-sm z-10">
             <IoHammerOutline size={13} className="animate-spin [animation-duration:3s]" />
             <span>DALAM PROSES</span>
           </div>
         )
       default: // DRAFT atau status lainnya
-  return (
-    <div className="absolute top-5 left-5 inline-flex items-center gap-1.5 bg-slate-600/90 text-white backdrop-blur-md px-3.5 py-1.5 rounded-full text-[11px] font-bold shadow-sm">
-      <LuFileText size={13} />
-      <span>DRAFT PLAN</span>
-    </div>
-  )
+        return (
+          <div className="absolute top-5 left-5 inline-flex items-center gap-1.5 bg-slate-600/90 text-white backdrop-blur-md px-3.5 py-1.5 rounded-full text-[11px] font-bold shadow-sm z-10">
+            <LuFileText size={13} />
+            <span>DRAFT PLAN</span>
+          </div>
+        )
     }
   }
 
   return (
     <div className="w-full relative overflow-visible select-none">
       <Swiper
-  modules={[Navigation, Pagination]}
-  spaceBetween={20}
-  // Jika data cuma 1, jangan tampilkan slide mengintip. Kalau lebih dari 1, aktifkan slide samping.
-  slidesPerView={projects.length === 1 ? 1 : 1.2} 
-  centeredSlides={true}
-  // CRITICAL FIX: Loop HANYA aktif jika jumlah data proyek lebih dari 3!
-  loop={projects.length > 3} 
-  pagination={{
-    el: ".custom-swiper-pagination",
-    clickable: true,
-  }}
-  navigation={{
-    nextEl: ".custom-swiper-next",
-    prevEl: ".custom-swiper-prev",
-  }}
-  breakpoints={{
-    768: {
-      slidesPerView: projects.length === 1 ? 1 : 1.5,
-      spaceBetween: 30,
-    },
-    1200: {
-      slidesPerView: projects.length >= 3 ? 1.8 : 1.2,
-      spaceBetween: 40,
-    },
-  }}
-  watchOverflow={true}
-  className="portfolio-swiper !overflow-visible"
->
+        modules={[Navigation, Pagination]}
+        spaceBetween={20}
+        // Jika data cuma 1, jangan tampilkan slide mengintip. Kalau lebih dari 1, aktifkan slide samping.
+        slidesPerView={projects.length === 1 ? 1 : 1.2} 
+        centeredSlides={true}
+        // CRITICAL FIX: Loop HANYA aktif jika jumlah data proyek lebih dari 3!
+        loop={projects.length > 3} 
+        pagination={{
+          el: ".custom-swiper-pagination",
+          clickable: true,
+        }}
+        navigation={{
+          nextEl: ".custom-swiper-next",
+          prevEl: ".custom-swiper-prev",
+        }}
+        breakpoints={{
+          768: {
+            slidesPerView: projects.length === 1 ? 1 : 1.5,
+            spaceBetween: 30,
+          },
+          1200: {
+            slidesPerView: projects.length >= 3 ? 1.8 : 1.2,
+            spaceBetween: 40,
+          },
+        }}
+        watchOverflow={true}
+        className="portfolio-swiper !overflow-visible"
+      >
         {projects.map((project) => {
           const categoryName = project.categoryProjects[0]?.catEntry?.name || "Konstruksi"
           
@@ -104,7 +111,7 @@ export default function PortfolioCarousel({ projects }: PortfolioCarouselProps) 
               <div className="bg-white rounded-3xl overflow-hidden shadow-md border border-slate-100/80 transition-all duration-300 hover:shadow-xl">
                 
                 {/* Visual Area */}
-                <div className="relative w-full aspect-[16/10] md:aspect-[21/10] bg-slate-100">
+                <div className="relative w-full aspect-[16/10] md:aspect-[21/7] lg:aspect-[21/6] bg-slate-100">
                   {project.coverImage ? (
                     <Image
                       src={project.coverImage}
@@ -136,14 +143,14 @@ export default function PortfolioCarousel({ projects }: PortfolioCarouselProps) 
                       </h3>
                     </div>
                     
-                    <div className="bg-[#E87722]/10 text-[#E87722] text-[11px] font-extrabold px-3.5 py-1.5 rounded-md tracking-wider uppercase h-fit self-start">
+                    <div className="bg-E87722/10 text-[#E87722] text-[11px] font-extrabold px-3.5 py-1.5 rounded-md tracking-wider uppercase h-fit self-start shrink-0">
                       {categoryName}
                     </div>
                   </div>
 
                   {/* Info Panel Spesifikasi */}
-                  <div className="grid grid-cols-3 gap-2 border-t border-b border-slate-100 py-4 text-gray-600">
-                    <div className="flex items-center gap-2">
+                  <div className="grid grid-cols-3 gap-4 border-t border-b border-slate-100 py-4 text-gray-600">
+                    <div className="flex items-center gap-2 min-w-0">
                       <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-[#0F2340] shrink-0">
                         <LuUser size={15} />
                       </div>
@@ -153,7 +160,7 @@ export default function PortfolioCarousel({ projects }: PortfolioCarouselProps) 
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                       <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-[#0F2340] shrink-0">
                         <LuLayers size={15} />
                       </div>
@@ -163,14 +170,14 @@ export default function PortfolioCarousel({ projects }: PortfolioCarouselProps) 
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                       <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-[#0F2340] shrink-0">
                         <LuScaling size={15} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Status Proyek</p>
-                        <p className={`text-xs font-bold uppercase tracking-wider ${project.status === "COMPLETED" ? "text-emerald-600" : project.status === "ONGOING" ? "text-[#E87722]" : "text-slate-500"}`}>
-                          {project.status}
+                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Status</p>
+                        <p className={`text-xs font-bold uppercase tracking-wider truncate ${project.status === "COMPLETED" ? "text-emerald-600" : project.status === "ONGOING" ? "text-[#E87722]" : "text-slate-500"}`}>
+                          {project.status === "COMPLETED" ? "Selesai" : project.status === "ONGOING" ? "Berjalan" : project.status}
                         </p>
                       </div>
                     </div>
@@ -204,7 +211,7 @@ export default function PortfolioCarousel({ projects }: PortfolioCarouselProps) 
           </button>
           
           {/* Container Pagination Tengah — Dipaksa Flex Center dan Lebar Statis */}
-  <div className="custom-swiper-pagination !relative !bottom-0 !left-0 !right-0 !w-auto flex items-center justify-center gap-1.5 min-w-[100px] h-4 mx-2
+          <div className="custom-swiper-pagination !relative !bottom-0 !left-0 !right-0 !w-auto flex items-center justify-center gap-1.5 min-w-[100px] h-4 mx-2
             [&_.swiper-pagination-bullet]:w-1.5 
             [&_.swiper-pagination-bullet]:h-1.5 
             [&_.swiper-pagination-bullet]:bg-slate-300 
@@ -224,8 +231,6 @@ export default function PortfolioCarousel({ projects }: PortfolioCarouselProps) 
           
         </div>
       </div>
-      </div>
-
-
+    </div>
   )
 }

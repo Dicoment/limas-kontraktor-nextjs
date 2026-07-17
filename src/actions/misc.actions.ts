@@ -46,6 +46,31 @@ export async function getTeams(params: { page?: number; limit?: number; search?:
   return { data, total, page, totalPages: Math.ceil(total / limit) }
 }
 
+// ── TAMBAHAN: Team CRUD (createTeam/updateTeam/deleteTeam belum ada sebelumnya) ──
+
+export async function createTeam(data: { name: string; position?: string | null; bio?: string | null; avatar?: string | null; email?: string | null; phone?: string | null; displayOrder?: number }) {
+  return prisma.team.create({ data })
+}
+
+export async function updateTeam(id: string, data: { name?: string; position?: string | null; bio?: string | null; avatar?: string | null; email?: string | null; phone?: string | null; displayOrder?: number }) {
+  return prisma.team.update({ where: { id }, data })
+}
+
+export async function getTeamById(id: string) {
+  return prisma.team.findUnique({ where: { id } })
+}
+
+export async function deleteTeam(id: string) {
+  await prisma.team.delete({ where: { id } })
+  return { success: true }
+}
+
+export async function deleteTeams(ids: string[]) {
+  if (ids.length === 0) return { success: true, deletedCount: 0 }
+  const result = await prisma.team.deleteMany({ where: { id: { in: ids } } })
+  return { success: true, deletedCount: result.count }
+}
+
 export async function getTags(params: { page?: number; limit?: number; search?: string } = {}) {
   const page = params.page ?? 1
   const limit = params.limit ?? 50
@@ -109,11 +134,18 @@ export async function getAllProjects() {
 export async function deleteSetting(id: string) {
   await prisma.setting.delete({ where: { id } })
 }
-export async function getTestimonials(params: { page?: number; limit?: number; published?: boolean } = {}) {
+export async function getTestimonials(params: { page?: number; limit?: number; published?: boolean; search?: string } = {}) {
   const page = params.page ?? 1
   const limit = params.limit ?? 20
   const skip = (page - 1) * limit
-  const where = params.published !== undefined ? { published: params.published } : {}
+  const where: Record<string, unknown> = {}
+  if (params.published !== undefined) where.published = params.published
+  if (params.search) {
+    where.OR = [
+      { clientName: { contains: params.search, mode: "insensitive" as const } },
+      { content: { contains: params.search, mode: "insensitive" as const } },
+    ]
+  }
 
   const [data, total] = await Promise.all([
     prisma.testimonial.findMany({ where: where as any, include: { project: true }, skip, take: limit, orderBy: { createdAt: "desc" as const } }),
@@ -156,3 +188,66 @@ export async function deleteLeadsLog(id: string) {
 export async function deletePage(id: string) {
   await prisma.page.delete({ where: { id } })
 }
+
+// ── TAMBAHAN: Testimonial CRUD (createTestimonial/updateTestimonial/deleteTestimonial belum ada) ──
+
+export async function getTestimonialById(id: string) {
+  return prisma.testimonial.findUnique({ where: { id }, include: { project: true } })
+}
+
+export async function createTestimonial(data: {
+  clientName: string
+  content: string
+  rating: number
+  platform?: "MANUAL" | "SOCIAL_MEDIA"
+  sourceUrl?: string | null
+  avatar?: string | null
+  projectId?: string | null
+  published?: boolean
+}) {
+  return prisma.testimonial.create({
+    data: {
+      clientName: data.clientName,
+      content: data.content,
+      rating: data.rating,
+      platform: data.platform ?? "MANUAL",
+      sourceUrl: data.sourceUrl || null,
+      avatar: data.avatar || null,
+      projectId: data.projectId || null,
+      published: data.published ?? false,
+    },
+  })
+}
+
+export async function updateTestimonial(id: string, data: {
+  clientName?: string
+  content?: string
+  rating?: number
+  platform?: "MANUAL" | "SOCIAL_MEDIA"
+  sourceUrl?: string | null
+  avatar?: string | null
+  projectId?: string | null
+  published?: boolean
+}) {
+  return prisma.testimonial.update({
+    where: { id },
+    data: {
+      ...data,
+      sourceUrl: data.sourceUrl === undefined ? undefined : data.sourceUrl || null,
+      avatar: data.avatar === undefined ? undefined : data.avatar || null,
+      projectId: data.projectId === undefined ? undefined : data.projectId || null,
+    },
+  })
+}
+
+export async function deleteTestimonial(id: string) {
+  await prisma.testimonial.delete({ where: { id } })
+  return { success: true }
+}
+
+export async function deleteTestimonials(ids: string[]) {
+  if (ids.length === 0) return { success: true, deletedCount: 0 }
+  const result = await prisma.testimonial.deleteMany({ where: { id: { in: ids } } })
+  return { success: true, deletedCount: result.count }
+}
+
