@@ -4,7 +4,7 @@ import { useState, useEffect, JSX } from "react";
 import { motion } from "framer-motion";
 import { IoArrowForwardSharp, IoLogoWhatsapp } from "react-icons/io5";
 import Link from "next/link";
-export const dynamic = "force-dynamic";
+
 const services = [
   {
     no: "01.",

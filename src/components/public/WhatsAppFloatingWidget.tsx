@@ -153,7 +153,7 @@ export default function WhatsAppFloatingWidget({ title, hours, tooltip, message,
             
             {/* Footer Widget */}
             <div className="bg-white/80 py-1.5 px-4 text-center border-t border-slate-200/40 text-[10px] text-slate-400 shrink-0">
-              Powered by WhatsApp
+              Powered by Dicoment Agency
             </div>
           </motion.div>
         )}

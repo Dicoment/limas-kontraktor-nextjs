@@ -1,26 +1,28 @@
-import AuthProvider from "@/components/AuthProvider"
-import Navbar from "@/components/layout/Navbar"
-import Footer from "@/components/layout/footer/Footer"
-import type { Metadata } from "next"
-import { Plus_Jakarta_Sans, DM_Serif_Display } from "next/font/google"
-import SmoothScroll from "@/components/Provider/SmoothScroll"
-import WhatsAppFloatingWidgetServer from "@/components/public/WhatsAppFloatingWidgetServer"
+import type { Metadata } from "next";
+import { Plus_Jakarta_Sans, DM_Serif_Display } from "next/font/google";
+import AuthProvider from "@/components/AuthProvider";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/footer/Footer";
+import SmoothScroll from "@/components/Provider/SmoothScroll";
+import WhatsAppFloatingWidgetServer from "@/components/public/WhatsAppFloatingWidgetServer";
 
+// 1. TARUH DI SINI: Memaksa Next.js agar menganggap layout & halamannya dinamis saat runtime
+export const dynamic = "force-dynamic";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-})
+});
 
 const dmSerif = DM_Serif_Display({
   variable: "--font-dm-serif",
   subsets: ["latin"],
   weight: ["400"],
-})
+});
 
-const siteUrl = "https://limaskontraktor.com"
-const siteName = "Limas Kontraktor"
+const siteUrl = "https://limaskontraktor.com";
+const siteName = "Limas Kontraktor";
 const siteDescription =
   "Cari kontraktor terpercaya di Bekasi? Limas Kontraktor melayani jasa kontraktor pembangunan, renovasi rumah, dan desain bangunan profesional dengan hasil berkualitas.";
 
@@ -86,23 +88,23 @@ export const metadata: Metadata = {
   verification: {
     google: "ISI_GOOGLE_SEARCH_CONSOLE_CODE_DI_SINI",
   },
-}
+};
 
 export default function FrontendLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <AuthProvider>
       <div className={`${plusJakarta.variable} ${dmSerif.variable} font-sans`}>
         <Navbar />
         <SmoothScroll>
-        <main>{children}</main>
+          <main>{children}</main>
         </SmoothScroll>
-          <Footer />
+        <Footer />
         <WhatsAppFloatingWidgetServer />
       </div>
     </AuthProvider>
-  )
+  );
 }
