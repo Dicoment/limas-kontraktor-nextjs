@@ -103,11 +103,21 @@ export function Sidebar({
           pathname={pathname}
           items={[
             { href: "/dashboard/users", label: "User" },
-            { href: "/dashboard/profile", label: "Setting" },
+            { href: "/dashboard/settings", label: "Setting" },
             { href: "/dashboard/users/new", label: "Tambah User" },
           ]}
         />
-        <SidebarItem href="/dashboard/leads-logs" icon={<RiHistoryLine size={18} />} label="Leads Log" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/leads-logs'} />
+        <SidebarGroup
+          icon={<RiHistoryLine size={18} />}
+          label="Leads Log"
+          collapsed={collapsed}
+          mobileOpen={mobileOpen}
+          pathname={pathname}
+          items={[
+            { href: "/dashboard/leads-logs", label: "Submission" },
+            { href: "/dashboard/leads-logs/wa-floating", label: "WA Floating" },
+          ]}
+        />
       </nav>
 
       {/* Bagian Bawah Profil Footer Info */}

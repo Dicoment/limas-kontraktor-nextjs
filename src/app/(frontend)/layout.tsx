@@ -4,6 +4,8 @@ import Footer from "@/components/layout/footer/Footer"
 import type { Metadata } from "next"
 import { Plus_Jakarta_Sans, DM_Serif_Display } from "next/font/google"
 import SmoothScroll from "@/components/Provider/SmoothScroll"
+import WhatsAppFloatingWidgetServer from "@/components/public/WhatsAppFloatingWidgetServer"
+
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
@@ -99,6 +101,7 @@ export default function FrontendLayout({
         <main>{children}</main>
         </SmoothScroll>
           <Footer />
+        <WhatsAppFloatingWidgetServer />
       </div>
     </AuthProvider>
   )

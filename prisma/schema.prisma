@@ -240,3 +240,15 @@ model PageView {
   @@index([createdAt])
   @@map("page_views")
 }
+model WhatsAppContact {
+  id           String   @id @default(cuid())
+  name         String
+  position     String?
+  phone        String
+  active       Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("whatsapp_contacts")
+}

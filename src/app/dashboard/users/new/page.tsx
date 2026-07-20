@@ -35,14 +35,6 @@ export default function NewUserPage() {
     <div className="max-w-lg mx-auto p-6 space-y-5">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-bold text-slate-800">Tambah User Baru</h1>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={loading}
-          className="px-4 py-2 text-xs font-bold bg-[#E87722] text-white rounded-lg hover:bg-orange-600 transition disabled:opacity-50"
-        >
-          {loading ? "Menyimpan..." : "Simpan"}
-        </button>
       </div>
 
       {errorMsg && (
@@ -66,6 +58,14 @@ export default function NewUserPage() {
         <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Password</label>
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Minimal 6 karakter" className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm outline-none focus:border-[#E87722]" />
       </div>
+       <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={loading}
+          className="px-4 py-4 w-full text-sm font-bold bg-[#E87722] text-white rounded-lg hover:bg-orange-600 transition disabled:opacity-50"
+        >
+          {loading ? "Menyimpan..." : "Simpan"}
+        </button>
     </div>
   );
 }
