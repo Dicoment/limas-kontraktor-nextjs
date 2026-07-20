@@ -23,12 +23,15 @@ interface MediaPickerProps {
   value?: string;
   onChange: (url: string) => void;
   placeholder?: string;
+  /** "circle" buat avatar (bulat, kecil, w-24 h-24). Default "square" (banner rectangle, kayak cover image). */
+  shape?: "square" | "circle";
 }
 
 export default function MediaPicker({
   value,
   onChange,
   placeholder = "Pilih gambar...",
+  shape = "square",
 }: MediaPickerProps) {
   const [imgError, setImgError] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -90,20 +93,22 @@ export default function MediaPicker({
       });
   }, [onChange]);
 
+  const isCircle = shape === "circle";
+
   return (
     <div className="space-y-2">
       {/* Preview + trigger */}
       {(value || previewUrl) ? (
-        <div className="relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+        <div className={`relative group overflow-hidden border border-slate-200 bg-slate-50 ${isCircle ? "w-24 h-24 rounded-full mx-auto" : "rounded-xl"}`}>
           <img
             src={getPublicUrl(value || previewUrl) || ""}
             alt="Cover"
-            className="w-full h-36 object-cover"
+            className={`w-full object-cover ${isCircle ? "h-full" : "h-36"}`}
             onError={(e) => {
               const img = e.currentTarget;
               img.style.display = "none";
               const fallback = document.createElement("div");
-              fallback.className = "w-full h-36 flex items-center justify-center text-slate-400 text-xs";
+              fallback.className = `w-full flex items-center justify-center text-slate-400 text-xs ${isCircle ? "h-full" : "h-36"}`;
               fallback.textContent = "Gambar tidak tersedia";
               img.parentNode?.appendChild(fallback);
             }}
@@ -112,34 +117,38 @@ export default function MediaPicker({
             <button
               type="button"
               onClick={() => setIsOpen(true)}
-              className="px-3 py-1.5 text-xs font-bold bg-white text-slate-800 rounded-lg hover:bg-slate-100 transition"
+              className={`text-xs font-bold bg-white text-slate-800 hover:bg-slate-100 transition ${isCircle ? "px-2 py-1 rounded-lg text-[10px]" : "px-3 py-1.5 rounded-lg"}`}
             >
               Ganti
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                if (previewUrlRef.current) {
-                  URL.revokeObjectURL(previewUrlRef.current);
-                  previewUrlRef.current = null;
-                }
-                setPreviewUrl(null);
-                onChange("");
-              }}
-              className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-            >
-              <RiDeleteBin6Line size={14} />
-            </button>
+            {!isCircle && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (previewUrlRef.current) {
+                    URL.revokeObjectURL(previewUrlRef.current);
+                    previewUrlRef.current = null;
+                  }
+                  setPreviewUrl(null);
+                  onChange("");
+                }}
+                className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+              >
+                <RiDeleteBin6Line size={14} />
+              </button>
+            )}
           </div>
         </div>
       ) : (
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="w-full h-28 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center gap-2 text-slate-400 hover:border-[#E87722] hover:text-[#E87722] hover:bg-orange-50/30 transition"
+          className={`border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-1.5 text-slate-400 hover:border-[#E87722] hover:text-[#E87722] hover:bg-orange-50/30 transition ${
+            isCircle ? "w-24 h-24 rounded-full mx-auto" : "w-full h-28 rounded-xl gap-2"
+          }`}
         >
-          <RiImageLine size={24} />
-          <span className="text-xs font-medium">{placeholder}</span>
+          <RiImageLine size={isCircle ? 20 : 24} />
+          <span className={`font-medium ${isCircle ? "text-[10px]" : "text-xs"}`}>{placeholder}</span>
         </button>
       )}
 

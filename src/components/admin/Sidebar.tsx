@@ -7,7 +7,7 @@ import {
   RiGlobalLine, RiMenuFoldLine, RiUserLine, RiLogoutBoxLine, RiQuestionLine,
 } from "react-icons/ri"
 import Image from "next/image"
-import { SidebarItem, SidebarLabel } from "./NavComponents"
+import { SidebarItem, SidebarLabel, SidebarGroup } from "./NavComponents"
 
 interface SidebarProps {
   collapsed: boolean
@@ -95,8 +95,18 @@ export function Sidebar({
         <SidebarItem href="/dashboard/pages" icon={<RiFileCopyLine size={18} />} label="Pages" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/pages'} />
 
         <SidebarLabel label="Sistem & Prospek" collapsed={collapsed} mobileOpen={mobileOpen} />
-        <SidebarItem href="/dashboard/profile" icon={<RiUserLine size={18} />} label="Profil" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/profile'} />
-        <SidebarItem href="/dashboard/settings" icon={<RiSettings3Line size={18} />} label="Settings" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/settings'} />
+        <SidebarGroup
+          icon={<RiUserLine size={18} />}
+          label="Profile"
+          collapsed={collapsed}
+          mobileOpen={mobileOpen}
+          pathname={pathname}
+          items={[
+            { href: "/dashboard/users", label: "User" },
+            { href: "/dashboard/profile", label: "Setting" },
+            { href: "/dashboard/users/new", label: "Tambah User" },
+          ]}
+        />
         <SidebarItem href="/dashboard/leads-logs" icon={<RiHistoryLine size={18} />} label="Leads Log" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/leads-logs'} />
       </nav>
 
