@@ -11,7 +11,6 @@ export default async function FaqSection() {
     },
   });
 
-  // Tambahkan anotasi tipe data 'any' atau tipe bentukan Prisma di mapping-nya
   const formattedFaqs: FaqItem[] = faqData.map((item: any) => ({
     id: item.id,
     question: item.question,

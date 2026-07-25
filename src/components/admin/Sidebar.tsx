@@ -5,6 +5,7 @@ import {
   RiDashboardLine, RiBriefcaseLine, RiFileTextLine, RiStackLine, RiPriceTag3Line,
   RiTeamLine, RiChat3Line, RiFileCopyLine, RiSettings3Line, RiHistoryLine,
   RiGlobalLine, RiMenuFoldLine, RiUserLine, RiLogoutBoxLine, RiQuestionLine,
+  RiGroupLine,
 } from "react-icons/ri"
 import Image from "next/image"
 import { SidebarItem, SidebarLabel, SidebarGroup } from "./NavComponents"
@@ -17,6 +18,7 @@ interface SidebarProps {
   pathname: string
   adminName: string
   adminEmail: string
+  adminAvatar?: string | null
   handleLogout: () => void
 }
 
@@ -28,6 +30,7 @@ export function Sidebar({
   pathname,
   adminName = 'ADMIN LIMAS',
   adminEmail = 'admin@limaskontraktor.com',
+  adminAvatar,
   handleLogout
 }: SidebarProps) {
   return (
@@ -95,18 +98,41 @@ export function Sidebar({
         <SidebarItem href="/dashboard/pages" icon={<RiFileCopyLine size={18} />} label="Pages" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/pages'} />
 
         <SidebarLabel label="Sistem & Prospek" collapsed={collapsed} mobileOpen={mobileOpen} />
-        <SidebarGroup
+
+        {/* Profil pribadi admin yang lagi login - link langsung, BUKAN dropdown lagi
+            (dipisah dari Setting, yang sebelumnya nyampur di sini) */}
+        <SidebarItem
+          href="/dashboard/profile"
           icon={<RiUserLine size={18} />}
           label="Profile"
           collapsed={collapsed}
           mobileOpen={mobileOpen}
+          active={pathname === '/dashboard/profile'}
+        />
+
+        {/* Manajemen akun admin lain - beda dari profil pribadi sendiri */}
+        <SidebarGroup
+          icon={<RiGroupLine size={18} />}
+          label="Users"
+          collapsed={collapsed}
+          mobileOpen={mobileOpen}
           pathname={pathname}
           items={[
-            { href: "/dashboard/users", label: "User" },
-            { href: "/dashboard/settings", label: "Setting" },
+            { href: "/dashboard/users", label: "Daftar User" },
             { href: "/dashboard/users/new", label: "Tambah User" },
           ]}
         />
+
+        {/* Pengaturan website (google analytics, dsb) - beda dari profil pribadi */}
+        <SidebarItem
+          href="/dashboard/settings"
+          icon={<RiSettings3Line size={18} />}
+          label="Setting"
+          collapsed={collapsed}
+          mobileOpen={mobileOpen}
+          active={pathname === '/dashboard/settings'}
+        />
+
         <SidebarGroup
           icon={<RiHistoryLine size={18} />}
           label="Leads Log"
@@ -123,9 +149,20 @@ export function Sidebar({
       {/* Bagian Bawah Profil Footer Info */}
       <div className="p-4 border-t border-slate-700 bg-slate-950/40">
         <div className={`flex items-center gap-3 ${(collapsed && !mobileOpen) ? "justify-center" : ""}`}>
-          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shrink-0">
-            <RiUserLine size={20} />
-          </div>
+          {adminAvatar ? (
+            <img
+              src={adminAvatar}
+              alt={adminName}
+              className="w-10 h-10 rounded-xl object-cover shadow-lg shrink-0 border border-slate-700"
+              onError={(e) => {
+                e.currentTarget.style.display = "none"
+              }}
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shrink-0">
+              <RiUserLine size={20} />
+            </div>
+          )}
           {(!collapsed || mobileOpen) && (
             <div className="flex-1 min-w-0">
               <p className="text-xs font-black text-white truncate uppercase tracking-tighter">{adminName}</p>

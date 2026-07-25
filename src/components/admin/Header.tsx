@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useSyncExternalStore } from "react"
 import { ArrowLeft, Menu, User, Settings, LogOut } from "lucide-react"
 import Link from "next/link"
+import { getPageTitleOverride, subscribePageTitleOverride } from "@/lib/page-title-store"
 
 interface HeaderProps {
   pathname: string
@@ -10,6 +11,7 @@ interface HeaderProps {
   setMobileOpen: (val: boolean) => void
   adminName: string
   adminEmail: string
+  adminAvatar?: string | null
   handleLogout: () => void
 }
 
@@ -19,12 +21,23 @@ export function Header({
   setMobileOpen,
   adminName,
   adminEmail,
+  adminAvatar,
   handleLogout
 }: HeaderProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  // Halaman tertentu (mis. detail leads-log) bisa nge-override judul ini lewat
+  // <SetPageTitle title="..." /> — dipakai buat rute dinamis yang segmen
+  // terakhir URL-nya bukan kata yang enak dibaca (ID, slug, dll).
+  const titleOverride = useSyncExternalStore(
+    subscribePageTitleOverride,
+    getPageTitleOverride,
+    () => null
+  )
+
   const getPageTitle = () => {
+    if (titleOverride) return titleOverride
     if (pathname === '/dashboard') return 'Overview'
     const segment = pathname?.split('/').pop()
     if (!segment) return 'Dashboard'
@@ -79,10 +92,21 @@ export function Header({
               </span>
             </div>
 
-            {/* Foto Avatar Circle di Kanan */}
-            <div className="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-sm border border-gray-100 shrink-0 group-hover:bg-blue-600 transition-colors">
-              <User size={16} />
-            </div>
+            {/* Foto Avatar Circle di Kanan — pakai foto asli kalau ada, fallback ikon */}
+            {adminAvatar ? (
+              <img
+                src={adminAvatar}
+                alt={adminName}
+                className="w-9 h-9 rounded-full object-cover shadow-sm border border-gray-100 shrink-0"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none"
+                }}
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-sm border border-gray-100 shrink-0 group-hover:bg-blue-600 transition-colors">
+                <User size={16} />
+              </div>
+            )}
           </button>
 
           {/* Isi Dropdown Menu saat Di-klik */}

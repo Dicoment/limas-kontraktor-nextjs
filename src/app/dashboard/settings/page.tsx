@@ -1,7 +1,19 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Save, Camera, Share2, Video } from "lucide-react"
+import { 
+  Save, 
+  Camera, 
+  Share2, 
+  Video, 
+  Building2, 
+  PhoneCall, 
+  Share, 
+  BarChart3, 
+  CheckCircle2, 
+  AlertCircle, 
+  Loader2 
+} from "lucide-react"
 
 const DEFAULT_SETTINGS = {
   company_name: "LIMAS KONTRAKTOR",
@@ -14,17 +26,20 @@ const DEFAULT_SETTINGS = {
   social_facebook: "Limas Kontraktor",
   social_tiktok: "LIMAS KONTRAKTOR",
   social_youtube: "Limas Kontraktor",
+  google_analytics_id: "",
+  google_search_console_code: "",
 }
 
 type SettingsFormData = typeof DEFAULT_SETTINGS
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, icon: Icon, children }: { title: string; icon?: React.ComponentType<{ size?: number; className?: string }>; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-      <div className="bg-slate-900 px-5 py-3">
-        <h2 className="font-bold text-white text-sm uppercase tracking-wider">{title}</h2>
+    <div className="bg-white rounded-xl shadow-xs border border-slate-200/80 overflow-hidden transition-all duration-200 hover:shadow-md">
+      <div className="bg-slate-900 px-6 py-4 flex items-center gap-3">
+        {Icon && <Icon size={18} className="text-indigo-400" />}
+        <h2 className="font-semibold text-white text-sm uppercase tracking-wider">{title}</h2>
       </div>
-      <div className="p-5 space-y-4">{children}</div>
+      <div className="p-6 space-y-5">{children}</div>
     </div>
   )
 }
@@ -47,10 +62,10 @@ function InputField({
   description?: string
 }) {
   return (
-    <div>
-      <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+    <div className="space-y-1.5">
+      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">
         {label}
-        {required && <span className="text-red-500 ml-0.5">*</span>}
+        {required && <span className="text-rose-500 ml-1">*</span>}
       </label>
       {textarea ? (
         <textarea
@@ -59,7 +74,7 @@ function InputField({
           placeholder={placeholder}
           required={required}
           rows={3}
-          className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 resize-y"
+          className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-y"
         />
       ) : (
         <input
@@ -68,10 +83,10 @@ function InputField({
           onChange={onChange}
           placeholder={placeholder}
           required={required}
-          className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+          className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-300 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
         />
       )}
-      {description && <p className="text-[0.8rem] text-muted-foreground text-gray-500 mt-1">{description}</p>}
+      {description && <p className="text-xs text-slate-500 leading-relaxed">{description}</p>}
     </div>
   )
 }
@@ -95,28 +110,29 @@ function SocialInputField({
   }
 
   return (
-    <div>
-      <label className="block text-sm font-semibold text-slate-700 mb-1.5">{label}</label>
-      <div className="relative">
+    <div className="space-y-1.5">
+      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">{label}</label>
+      <div className="relative flex items-center">
         <input
           type="text"
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          className="w-full px-3 py-2.5 pr-12 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+          className="w-full px-3.5 py-2.5 pr-11 bg-slate-50/50 border border-slate-300 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
         />
         {value ? (
           <a
             href={getUrl(value)}
             target="_blank"
             rel="noopener noreferrer"
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
+            className="absolute right-2 p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-md transition-colors"
+            title="Buka Tautan"
           >
-            <Icon size={18} className="text-blue-600" />
+            <Icon size={16} />
           </a>
         ) : (
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-gray-50 rounded-md">
-            <Icon size={18} className="text-gray-300" />
+          <div className="absolute right-2 p-1.5 bg-slate-100 rounded-md">
+            <Icon size={16} className="text-slate-400" />
           </div>
         )}
       </div>
@@ -125,7 +141,7 @@ function SocialInputField({
 }
 
 const TikTokIcon = (props: { size?: number; className?: string }) => (
-  <svg width={props.size} height={props.size} viewBox="0 0 24 24" fill="currentColor" className={props.className}>
+  <svg width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="currentColor" className={props.className}>
     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
   </svg>
 )
@@ -174,7 +190,9 @@ export default function SettingsPage() {
     setSuccess(false)
 
     try {
-      const settingsArray = Object.entries(formData).map(([key, value]) => ({ key, value }))
+      const settingsArray = Object.entries(formData)
+        .filter(([, value]) => value.trim() !== "")
+        .map(([key, value]) => ({ key, value }))
 
       const res = await fetch("/api/settings", {
         method: "PUT",
@@ -207,31 +225,39 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="w-10 h-10 border-3 border-slate-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-sm text-slate-500 font-medium">Memuat pengaturan...</p>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+        <p className="text-sm font-medium text-slate-500">Memuat pengaturan...</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6 font-sans">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-slate-800 tracking-tight">Pengaturan</h1>
+    <div className="max-w-5xl mx-auto space-y-6 font-sans py-4">
+      <div className="flex items-center justify-between border-b border-slate-200/80 pb-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Pengaturan Website</h1>
+          <p className="text-sm text-slate-500 mt-1">Kelola informasi perusahaan, kontak, serta konfigurasi SEO.</p>
+        </div>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
-      )}
-      {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">Pengaturan berhasil disimpan</div>
+        <div className="flex items-start gap-3 bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3.5 rounded-xl text-sm shadow-xs animate-in fade-in slide-in-from-top-2 duration-200">
+          <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+          <div className="flex-1">{error}</div>
+        </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <Section title="Informasi Perusahaan">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {success && (
+        <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3.5 rounded-xl text-sm shadow-xs animate-in fade-in slide-in-from-top-2 duration-200">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+          <span>Pengaturan berhasil diperbarui dan disimpan.</span>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <Section title="Informasi Perusahaan" icon={Building2}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <InputField
               label="Nama Perusahaan"
               value={formData.company_name}
@@ -258,36 +284,36 @@ export default function SettingsPage() {
           />
         </Section>
 
-        <Section title="Kontak">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Section title="Kontak & Komunikasi" icon={PhoneCall}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <InputField
-              label="Nomor Telepon 1(Whatsapp)"
+              label="Nomor Telepon 1 (WhatsApp)"
               value={formData.contact_phone1}
               onChange={handleInputChange("contact_phone1")}
               placeholder="0821-xxxx-xxxx"
               required
-              description="Format nomor telepon tidak ditentukan, maksimal 255 karakter."
+              description="Format nomor bebas, maks. 255 karakter."
             />
             <InputField
               label="Nomor Telepon 2"
               value={formData.contact_phone2}
               onChange={handleInputChange("contact_phone2")}
               placeholder="0812-xxxx-xxxx"
-              description="Format nomor telepon tidak ditentukan, maksimal 255 karakter (Opsional)."
+              description="Opsional."
             />
             <InputField
-              label="Email"
+              label="Email Perusahaan"
               value={formData.contact_email}
               onChange={handleInputChange("contact_email")}
               placeholder="email@perusahaan.com"
               required
-              description="Format email tidak valid jika diisi (Opsional)."
+              description="Format email harus valid jika diisi."
             />
           </div>
         </Section>
 
-        <Section title="Media Sosial">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Section title="Media Sosial" icon={Share}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <SocialInputField
               label="Instagram"
               value={formData.social_instagram}
@@ -319,14 +345,42 @@ export default function SettingsPage() {
           </div>
         </Section>
 
-        <div className="flex justify-end">
+        <Section title="SEO & Analytics" icon={BarChart3}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <InputField
+              label="Google Analytics ID (GA4)"
+              value={formData.google_analytics_id}
+              onChange={handleInputChange("google_analytics_id")}
+              placeholder="G-XXXXXXXXXX"
+              description="Measurement ID dari GA4. Kosongkan jika belum dipasang."
+            />
+            <InputField
+              label="Google Search Console Verification Code"
+              value={formData.google_search_console_code}
+              onChange={handleInputChange("google_search_console_code")}
+              placeholder="Kode verifikasi HTML tag"
+              description="Isi hanya string kodenya (bukan tag <meta> lengkap)."
+            />
+          </div>
+        </Section>
+
+        <div className="flex justify-end pt-2">
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 active:bg-slate-950 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 active:bg-slate-950 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow duration-150"
           >
-            <Save size={16} />
-            {saving ? "Menyimpan..." : "Simpan Pengaturan"}
+            {saving ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Menyimpan...</span>
+              </>
+            ) : (
+              <>
+                <Save size={16} />
+                <span>Simpan Pengaturan</span>
+              </>
+            )}
           </button>
         </div>
       </form>

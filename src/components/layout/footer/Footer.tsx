@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import CTAFooter from "@/components/layout/footer/cta-footer"
+import CTAFooter from "@/components/layout/footer/CTAFooter"
 import { FaPhone, FaEnvelope, FaInstagram, FaFacebookF, FaYoutube, FaTiktok, FaAsterisk } from "react-icons/fa6"
 
 const EMPTY_SETTINGS = {

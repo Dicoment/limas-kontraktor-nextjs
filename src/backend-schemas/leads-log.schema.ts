@@ -25,11 +25,11 @@ export const leadsLogSchema = z.object({
     .max(2000, "URL maksimal 2000 karakter")
     .optional()
     .nullable(),
+
   ipAddress: z.string()
-    .regex(/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/, "Format IP address tidak valid")
+    .max(45, "IP address terlalu panjang")
     .optional()
-    .nullable()
-    .or(z.literal("unknown")),
+    .nullable(),
   userAgent: z.string()
     .max(500, "User Agent maksimal 500 karakter")
     .optional()

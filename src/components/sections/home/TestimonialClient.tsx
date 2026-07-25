@@ -1,68 +1,82 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Play, Star, CheckCircle2, ShieldCheck, Building2, Clock3 } from "lucide-react";
+import { useEffect, useState } from "react"
+import { AnimatePresence, motion } from "framer-motion"
+import { Play, Star, CheckCircle2, Building2, Clock3, ShieldCheck } from "lucide-react"
 
 export interface TestimonialWithProject {
-  id: string;
-  clientName: string;
-  content: string;
-  rating: number;
-  sourceUrl: string | null;
-  avatar: string | null;
-  projectTitle: string | null;
+  id: string
+  clientName: string
+  content: string
+  rating: number
+  sourceUrl: string | null
+  avatar: string | null
+  projectTitle: string | null
 }
 
 interface TestimonialClientProps {
-  testimonials: TestimonialWithProject[];
+  testimonials: TestimonialWithProject[]
 }
 
-export default function TestimonialClient({ testimonials }: TestimonialClientProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [playVideo, setPlayVideo] = useState(false);
+export default function TestimonialClient({ testimonials = [] }: TestimonialClientProps) {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [playVideo, setPlayVideo] = useState(false)
 
-  const active = testimonials[activeIndex];
+  const active = testimonials[activeIndex] || testimonials[0]
 
   useEffect(() => {
-    setPlayVideo(false); 
-  }, [activeIndex]);
+    setPlayVideo(false)
+  }, [activeIndex])
+
+  if (!testimonials || testimonials.length === 0) return null
 
   return (
-    <section className="relative overflow-hidden bg-white py-24 select-none border-t border-slate-200">
-      <div className="relative z-10 mx-auto max-w-7xl px-6">
+    <section className="bg-white text-slate-900 font-sans py-24 select-none border-t border-slate-200/80 relative">
+      <div className="max-w-7xl mx-auto px-6">
         
-        {/* Header Section (Industrial Typography Heavy) */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="mb-16 space-y-3 text-left"
-        >
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 bg-[#E87722]" />
-            <span className="text-sm font-medium uppercase tracking-[0.2em] capitalize text-gray-500">
-              Testimonial Klien
-            </span>
-          </div>
-          <h2 className="max-w-4xl text-3xl font-black tracking-tight text-[#0F2340] md:text-5xl leading-none">
-            Bukti Nyata <span className="text-[#E87722]">Kepuasan Klien</span>
-          </h2>
-        </motion.div>
-
-        {/* LAYOUT GRID UTAMA */}
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:h-[580px] items-stretch">
-          
-          {/* SISI KIRI: Video Player Area */}
+        {/* ── 1. HEADER SECTION ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end mb-16">
           <motion.div 
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-7 space-y-4"
+          >
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+              Testimoni Klien
+            </p>
+
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-slate-800 leading-[1.25] tracking-tight">
+              Kata Mereka Tentang <span className="font-extrabold text-slate-900">Limas Kontraktor</span>
+            </h2>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="lg:col-span-5 lg:pl-6"
+          >
+            <p className="text-xs md:text-sm text-slate-500 leading-relaxed font-normal">
+              Kepercayaan dibangun dari komitmen eksekusi yang konsisten. Lihat tanggapan langsung dari para pemilik hunian dan proyek yang telah kami selesaikan.
+            </p>
+          </motion.div>
+        </div>
+
+        {/* ── 2. MAIN LAYOUT GRID ── */}
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:h-[560px] items-stretch">
+          
+          {/* SISI KIRI: Video Player Showcase */}
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="lg:col-span-8 flex flex-col h-full justify-between"
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-7 flex flex-col h-full justify-between"
           >
-            <div className="relative w-full h-full overflow-hidden bg-[#0F2340] shadow-md flex-1 border rounded-lg border-slate-200">
+            <div className="relative w-full h-full min-h-[380px] overflow-hidden bg-slate-950 rounded-2xl border border-slate-200/80 shadow-2xl flex-1">
               
               <AnimatePresence mode="wait">
                 {!playVideo ? (
@@ -77,31 +91,38 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
                     <img
                       src="/thumbnail.png" 
                       alt={`Thumbnail Proyek ${active.projectTitle}`}
-                      className="h-full w-full object-cover grayscale opacity-40"
+                      className="h-full w-full object-cover opacity-60 transition-scale duration-700 hover:scale-105"
                     />
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
 
-                    {/* Info Card di Dalam Video (Premium Clean Box dengan Animasi Slide Up) */}
+                    {/* Tag Dokumentasi Minimalis */}
+                    <div className="absolute left-6 top-6 z-10">
+                      <span className="text-[11px] font-mono tracking-widest uppercase bg-slate-900/80 backdrop-blur-md text-slate-200 border border-white/10 px-3.5 py-1.5 rounded-full">
+                        DOKUMENTASI SERAH TERIMA
+                      </span>
+                    </div>
+
+                    {/* Info Card Overlay Bottom */}
                     <div className="absolute bottom-6 left-6 right-6 z-10">
                       <motion.div 
                         initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: 0.2 }}
-                        className="border border-white/10 bg-[#0F2340]/80 p-6 backdrop-blur-md"
+                        transition={{ duration: 0.4, delay: 0.1 }}
+                        className="border border-white/10 bg-slate-900/80 p-6 rounded-xl backdrop-blur-xl space-y-3"
                       >
-                        <h3 className="text-xl font-bold text-white capitalize tracking-tight">
+                        <h3 className="text-lg md:text-xl font-bold text-white tracking-tight">
                           {active.projectTitle}
                         </h3>
                         
-                        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm font-bold capitalize tracking-widest text-slate-300">
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs font-normal tracking-wide text-slate-300">
                           {[
                             { icon: Building2, text: "Design & Build" },
                             { icon: Clock3, text: "Tepat Waktu" },
-                            { icon: ShieldCheck, text: "Bergaransi" },
+                            { icon: ShieldCheck, text: "Garansi Struktur" },
                           ].map((item, j) => (
                             <div key={j} className="flex items-center gap-2">
-                              <item.icon size={14} className="text-[#E87722]" />
+                              <item.icon size={14} className="text-slate-400" />
                               <span>{item.text}</span>
                             </div>
                           ))}
@@ -109,23 +130,14 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
                       </motion.div>
                     </div>
 
-                    {/* Tombol Play */}
+                    {/* Play Button Minimalis */}
                     <button
                       onClick={() => setPlayVideo(true)}
-                      className="absolute left-1/2 top-1/2 flex h-20 w-20 md:h-24 md:w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#E87722] text-white shadow-lg hover:bg-orange-600 transition-all transform hover:scale-105 cursor-pointer z-20"
+                      aria-label="Play video testimoni"
+                      className="absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-slate-900 shadow-2xl hover:scale-110 transition-all duration-300 active:scale-95 cursor-pointer z-20 group"
                     >
-                      <Play size={28} className="fill-current ml-1" />
+                      <Play size={24} className="fill-slate-900 ml-1 transition-transform group-hover:scale-110" />
                     </button>
-
-                    {/* Dokumentasi Tag Atas */}
-                    <div className="absolute left-6 top-6 z-10">
-                      <div className="inline-flex items-center gap-2 bg-black/60 px-4 py-2 border border-white/10 backdrop-blur-md">
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#E87722]" />
-                        <span className="text-sm font-bold capitalize tracking-widest text-white">
-                          Dokumentasi Proyek
-                        </span>
-                      </div>
-                    </div>
                   </motion.div>
                 ) : (
                   <motion.div
@@ -149,94 +161,80 @@ export default function TestimonialClient({ testimonials }: TestimonialClientPro
               </AnimatePresence>
             </div>
 
-            {/* Validasi Tag Minimal */}
-            <div className="mt-6 flex flex-wrap gap-6 shrink-0">
-              {["Klien Asli", "Dokumentasi Nyata", "Serah Terima Bangunan"].map((text, idx) => (
-                <div key={idx} className="flex items-center gap-2 text-sm font-bold capitalize tracking-wider text-slate-600">
-                  <CheckCircle2 size={16} className="text-[#E87722]" />
+            {/* Sub-Badges Bottom */}
+            <div className="mt-5 flex flex-wrap gap-6 shrink-0">
+              {["Klien Asli Verified", "Dokumentasi Riil", "Serah Terima Bangunan"].map((text, idx) => (
+                <div key={idx} className="flex items-center gap-2 text-xs font-normal text-slate-500">
+                  <CheckCircle2 size={15} className="text-slate-800" />
                   <span>{text}</span>
                 </div>
               ))}
             </div>
           </motion.div>
 
-          {/* SISI KANAN: Vertical Scroller Cards (Clean Border Layout dengan Staggered Entry) */}
+          {/* SISI KANAN: Vertical Testimonial List */}
           <motion.div 
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="lg:col-span-4 flex flex-col gap-4 h-full overflow-y-auto pr-2 scrollbar-none"
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="lg:col-span-5 flex flex-col gap-3 h-full overflow-y-auto pr-1 scrollbar-none"
           >
             {testimonials.map((item, index) => {
-              const isActive = index === activeIndex;
+              const isActive = index === activeIndex
 
               return (
-                <motion.div
+                <div
                   key={item.id}
                   onClick={() => setActiveIndex(index)}
-                  whileHover={{ y: isActive ? 0 : -2 }}
-                  transition={{ duration: 0.2 }}
-                  className={`cursor-pointer border rounded-lg p-6 transition-all duration-300 flex flex-col justify-between shrink-0 ${
+                  className={`cursor-pointer rounded-2xl p-6 border transition-all duration-300 flex flex-col justify-between shrink-0 ${
                     isActive
-                      ? "border-[#0F2340] bg-[#0F2340] text-white shadow-md"
-                      : "border-slate-200 bg-white hover:border-slate-400"
+                      ? "border-slate-900 bg-slate-900 text-white shadow-xl"
+                      : "border-slate-200/80 bg-slate-50/60 text-slate-800 hover:bg-slate-100/80 hover:border-slate-300"
                   }`}
                 >
-                  <div>
-                    <div className="flex items-center justify-between gap-4">
-                      {isActive && (
-                        <div className="flex gap-0.5 text-[#E87722] shrink-0">
-                          {[...Array(item.rating)].map((_, i) => (
-                            <Star key={i} size={12} fill="currentColor" className="stroke-none" />
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Animasi teks kutipan saat card aktif diklik */}
-                    <div className="overflow-hidden">
-                      <AnimatePresence mode="wait">
-                        <motion.p 
-                          key={isActive ? `active-${item.id}` : `inactive-${item.id}`}
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className={`mt-4 text-sm md:text-base leading-relaxed font-light ${isActive ? "text-slate-200" : "text-slate-600"}`}
-                        >
-                          "{item.content}"
-                        </motion.p>
-                      </AnimatePresence>
-                    </div>
-                  </div>
-
-                  <div className={`mt-6 flex items-center justify-between border-t pt-4 ${isActive ? "border-white/10" : "border-slate-100"}`}>
-                    <div className="flex items-center gap-4 min-w-0">
-                      <img
-                        src={item.avatar || "/avatar-placeholder.png"}
-                        alt={item.clientName}
-                        className={`h-11 w-11 rounded-full object-cover border transition-colors ${
-                          isActive ? "border-white/20" : "border-slate-200"
-                        }`}
-                      />
-                      <div className="min-w-0">
-                        <h4 className={`font-black text-sm md:text-base capitalize tracking-tight truncate ${isActive ? "text-white" : "text-[#0F2340]"}`}>
-                          {item.clientName}
-                        </h4>
-                        <p className="text-sm truncate mt-0.5 text-slate-400">
-                          {item.projectTitle}
-                        </p>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-1 text-amber-400">
+                        {[...Array(item.rating)].map((_, i) => (
+                          <Star key={i} size={12} fill="currentColor" className="stroke-none" />
+                        ))}
                       </div>
+                      <span className={`text-[10px] font-mono tracking-widest uppercase ${isActive ? 'text-slate-400' : 'text-slate-400'}`}>
+                        /{index + 1 < 10 ? `0${index + 1}` : index + 1}
+                      </span>
+                    </div>
+
+                    <p className={`text-xs md:text-sm leading-relaxed font-normal line-clamp-3 ${isActive ? "text-slate-300" : "text-slate-600"}`}>
+                      "{item.content}"
+                    </p>
+                  </div>
+
+                  {/* Client Info */}
+                  <div className={`mt-5 pt-4 border-t flex items-center gap-3.5 ${isActive ? "border-white/10" : "border-slate-200/80"}`}>
+                    <img
+                      src={item.avatar || "/avatar-placeholder.png"}
+                      alt={item.clientName}
+                      className={`h-10 w-10 rounded-full object-cover border ${
+                        isActive ? "border-white/20" : "border-slate-200"
+                      }`}
+                    />
+                    <div className="min-w-0">
+                      <h4 className={`font-bold text-xs md:text-sm tracking-tight truncate ${isActive ? "text-white" : "text-slate-900"}`}>
+                        {item.clientName}
+                      </h4>
+                      <p className={`text-xs truncate ${isActive ? "text-slate-400" : "text-slate-500"}`}>
+                        {item.projectTitle}
+                      </p>
                     </div>
                   </div>
-                </motion.div>
-              );
+                </div>
+              )
             })}
           </motion.div>
 
         </div>
       </div>
     </section>
-  );
+  )
 }

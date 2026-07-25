@@ -121,12 +121,39 @@ export async function getAllTeams() {
 export async function getAllTags() {
   return prisma.tag.findMany({ orderBy: { name: "asc" as const } })
 }
-export async function deleteLeadLog(id: string) {
-  await prisma.leadsLog.delete({ where: { id } })
+export async function deleteLeadsLogs(ids: string[]) {
+  if (ids.length === 0) return { success: true, deletedCount: 0 }
+  const result = await prisma.leadsLog.deleteMany({ where: { id: { in: ids } } })
+  return { success: true, deletedCount: result.count }
 }
+
+export async function getLeadsLogById(id: string) {
+  const lead = await prisma.leadsLog.findUnique({ where: { id } })
+  if (!lead) return null
+
+  let project: { id: string; title: string } | null = null
+  if (lead.projectId) {
+    project = await prisma.project.findUnique({
+      where: { id: lead.projectId },
+      select: { id: true, title: true },
+    })
+  }
+
+  return { ...lead, project }
+}
+
 export async function getSettings() {
   return prisma.setting.findMany({ orderBy: { key: "asc" } })
 }
+
+/** Versi key-value dari getSettings(), dipakai layout.tsx publik buat
+ * baca google_analytics_id & google_search_console_code tanpa harus
+ * looping array manual tiap kali butuh 1 value doang. */
+export async function getSettingsMap() {
+  const rows = await prisma.setting.findMany()
+  return Object.fromEntries(rows.map((r) => [r.key, r.value])) as Record<string, string>
+}
+
 export async function getAllProjects() {
   return prisma.project.findMany({ select: { id: true, title: true }, orderBy: { title: "asc" } })
 }
@@ -183,6 +210,7 @@ export async function getLeadsLogs(params: { page?: number; limit?: number; proj
 
 export async function deleteLeadsLog(id: string) {
   await prisma.leadsLog.delete({ where: { id } })
+  return { success: true }
 }
 
 export async function deletePage(id: string) {
@@ -250,4 +278,3 @@ export async function deleteTestimonials(ids: string[]) {
   const result = await prisma.testimonial.deleteMany({ where: { id: { in: ids } } })
   return { success: true, deletedCount: result.count }
 }
-

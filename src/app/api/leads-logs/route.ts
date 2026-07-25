@@ -65,9 +65,13 @@ export async function POST(request: NextRequest) {
     }
     
     // Get client IP and user agent from request headers
-    const ipAddress = request.headers.get("x-forwarded-for") || 
-                     request.headers.get("x-real-ip") || 
-                     "unknown"
+    // FIX: x-forwarded-for bisa berisi beberapa IP dipisah koma kalau request
+    // lewat beberapa proxy/CDN (mis. "203.0.113.5, 70.41.3.18") — ambil yang
+    // PERTAMA aja (itu IP client asli), sisanya IP proxy perantara.
+    const xForwardedFor = request.headers.get("x-forwarded-for")
+    const ipAddress = xForwardedFor
+      ? xForwardedFor.split(",")[0].trim()
+      : (request.headers.get("x-real-ip") || "unknown")
     const userAgent = request.headers.get("user-agent") || "unknown"
     
     // Validate with zod schema
