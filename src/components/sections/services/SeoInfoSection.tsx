@@ -72,32 +72,31 @@ export default function SeoInfoSection({
 }: SeoInfoSectionProps) {
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Pastikan URL YouTube punya parameter autoplay pas diklik
   const embedUrlWithAutoplay = youtubeUrl.includes("?")
     ? `${youtubeUrl}&autoplay=1`
     : `${youtubeUrl}?autoplay=1`;
 
   return (
-    <section className="bg-white text-slate-900 font-sans py-24">
-      <div className="max-w-7xl mx-auto px-6 space-y-24">
+    <section className="bg-white text-slate-900 font-sans py-14 md:py-24">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 space-y-14 md:space-y-24">
         
         {/* ── 1. HEADER & BENEFIT COLUMNS ── */}
-        <div className="space-y-16">
+        <div className="space-y-10 md:space-y-16">
           <div className="max-w-3xl space-y-4">
             {subtitle && (
-              <p className="text-xs md:text-sm font-normal text-slate-400 tracking-wider uppercase">
+              <p className="text-base md:text-xs font-normal text-slate-400 tracking-wider uppercase">
                 {subtitle}
               </p>
             )}
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-slate-800 leading-[1.25] tracking-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-slate-800 leading-[1.25] tracking-tight">
               {title}
             </h2>
-            <p className="text-sm md:text-base text-slate-500 leading-relaxed font-normal pt-2">
+            <p className="text-base md:text-sm lg:text-base text-slate-500 leading-relaxed font-normal pt-2">
               {description}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
             {benefits.map((item, idx) => (
               <motion.div
                 key={item.id || idx}
@@ -112,7 +111,7 @@ export default function SeoInfoSection({
                     {item.icon}
                   </div>
                 ) : item.numberTag ? (
-                  <span className="text-xs font-mono font-medium text-[#E87722] tracking-widest block pb-1">
+                  <span className="text-base md:text-xs font-mono font-medium text-[#E87722] tracking-widest block pb-1">
                     [{item.numberTag}]
                   </span>
                 ) : null}
@@ -120,7 +119,7 @@ export default function SeoInfoSection({
                 <h3 className="text-lg md:text-xl font-bold text-slate-900 tracking-tight">
                   {item.title}
                 </h3>
-                <p className="text-xs md:text-sm text-slate-500 leading-relaxed">
+                <p className="text-base md:text-xs lg:text-sm text-slate-500 leading-relaxed">
                   {item.description}
                 </p>
               </motion.div>
@@ -129,7 +128,7 @@ export default function SeoInfoSection({
         </div>
 
         {/* ── 2. SEO CONTENT BLOCK & VIDEO FACADE (PORSI 50:50) ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           
           {/* Custom Video Thumbnail / Play State */}
           <motion.div
@@ -157,7 +156,7 @@ export default function SeoInfoSection({
                 <div className="absolute inset-0 bg-slate-900/20 group-hover:bg-slate-900/10 transition-colors" />
 
                 {/* Minimalist Architectural Play Button */}
-                <div className="relative z-10 w-16 h-16 rounded-full bg-white/90 backdrop-blur-md text-slate-900 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-[#E87722] group-hover:text-white transition-all duration-300">
+                <div className="relative z-10 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/90 backdrop-blur-md text-slate-900 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-[#E87722] group-hover:text-white transition-all duration-300">
                   <IoPlay className="text-xl ml-1" />
                 </div>
               </button>
@@ -178,7 +177,7 @@ export default function SeoInfoSection({
               {infoHeading}
             </h3>
 
-            <div className="space-y-4 text-sm md:text-base text-slate-600 leading-relaxed font-normal">
+            <div className="space-y-4 text-base md:text-sm lg:text-base text-slate-600 leading-relaxed font-normal">
               {infoParagraphs.map((paragraph, i) => (
                 <p key={i}>{paragraph}</p>
               ))}
@@ -190,10 +189,10 @@ export default function SeoInfoSection({
                   href={buttonHref}
                   variant="outline-dark"
                   size="md"
-                  className="rounded-full gap-2.5 normal-case font-normal hover:scale-105 active:scale-95 transition-transform"
+                  className="rounded-full gap-2.5 text-base md:text-sm normal-case font-normal hover:scale-105 active:scale-95 transition-transform"
                 >
                   <span>{buttonText}</span>
-                  <IoArrowForwardSharp className="text-sm" />
+                  <IoArrowForwardSharp className="text-base md:text-sm" />
                 </Button>
               </div>
             )}

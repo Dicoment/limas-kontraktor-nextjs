@@ -50,25 +50,25 @@ export default function WorkProcessSection({
   steps = defaultSteps,
 }: WorkProcessProps) {
   return (
-    <section className="bg-white text-slate-900 font-sans py-28 relative">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="bg-white text-slate-900 font-sans py-12 md:py-28 relative">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6">
         
         {/* ── 1. HEADER SECTION ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-end mb-10 md:mb-20">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.6 }}
-            className="lg:col-span-7 space-y-4"
+            className="lg:col-span-7 space-y-3 md:space-y-4"
           >
             {subtitle && (
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+              <p className="text-base md:text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
                 {subtitle}
               </p>
             )}
 
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-slate-800 leading-[1.25] tracking-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-slate-800 leading-[1.25] tracking-tight">
               {title}
             </h2>
           </motion.div>
@@ -81,7 +81,7 @@ export default function WorkProcessSection({
             className="lg:col-span-5 lg:pl-6"
           >
             {description && (
-              <p className="text-xs md:text-sm text-slate-500 leading-relaxed font-normal">
+              <p className="text-base md:text-xs lg:text-sm text-slate-500 leading-relaxed font-normal">
                 {description}
               </p>
             )}
@@ -98,30 +98,30 @@ export default function WorkProcessSection({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group relative pt-8 pb-10 md:py-10 md:px-8 first:pl-0 last:pr-0 flex flex-col justify-between transition-colors duration-500 hover:bg-slate-50/60"
+                className="group relative pt-6 pb-8 md:py-10 md:px-8 first:pl-0 last:pr-0 flex flex-col justify-between transition-colors duration-500 hover:bg-slate-50/60"
               >
-                <div className="space-y-8">
+                <div className="space-y-6 md:space-y-8">
                   {/* Step Number Jumbo & Indicator Dot */}
                   <div className="flex items-center justify-between">
-                    <span className="text-5xl md:text-6xl font-extralight tracking-tight font-mono text-slate-300 group-hover:text-slate-900 transition-colors duration-500">
+                    <span className="text-4xl sm:text-5xl md:text-6xl font-extralight tracking-tight font-mono text-slate-300 group-hover:text-slate-900 transition-colors duration-500">
                       {item.langkah}
                     </span>
                     <span className="w-2 h-2 rounded-full bg-slate-200 group-hover:bg-slate-900 transition-colors duration-500" />
                   </div>
 
                   {/* Title & Description */}
-                  <div className="space-y-3">
+                  <div className="space-y-2.5 md:space-y-3">
                     <h3 className="text-lg md:text-xl font-bold text-slate-800 tracking-tight leading-snug group-hover:text-slate-900 transition-colors">
                       {item.nama}
                     </h3>
-                    <p className="text-xs md:text-sm text-slate-500 leading-relaxed font-normal">
+                    <p className="text-base md:text-xs lg:text-sm text-slate-500 leading-relaxed font-normal">
                       {item.deskripsi}
                     </p>
                   </div>
                 </div>
 
                 {/* Bottom Active Line Accent */}
-                <div className="mt-10 pt-4">
+                <div className="mt-8 md:mt-10 pt-2 md:pt-4">
                   <div className="w-full h-[1px] bg-slate-200 relative overflow-hidden">
                     <div className="absolute inset-0 bg-slate-900 -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out" />
                   </div>

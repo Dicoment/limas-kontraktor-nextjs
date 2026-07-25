@@ -55,7 +55,7 @@ export default function Footer() {
 
   return (
     <>
-      <CTAFooter />
+      <CTAFooter  />
 
       <footer className="bg-slate-900 text-white antialiased relative">
         

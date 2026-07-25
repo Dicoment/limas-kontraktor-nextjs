@@ -27,28 +27,28 @@ export default function CredibilitySection({
     <section className="bg-white text-slate-900 font-sans">
       
       {/* ── 1. CLEAN STATEMENT AREA ── */}
-      <div className="max-w-6xl mx-auto px-6 pt-20 pb-12 text-center space-y-8">
+      <div className="max-w-6xl mx-auto px-5 sm:px-6 pt-14 md:pt-20 pb-8 md:pb-12 text-center space-y-6 md:space-y-8">
         
-        {/* Label Atas */}
+        {/* Label Atas (Mobile: text-base | Desktop: text-sm) */}
         {subtitle && (
           <motion.p
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.5 }}
-            className="text-xs md:text-sm font-normal text-slate-400 tracking-wider"
+            className="text-base md:text-sm font-normal text-slate-400 tracking-wider"
           >
             {subtitle}
           </motion.p>
         )}
 
-        {/* Title Typography */}
+        {/* Title Typography (Desktop persis awal: text-3xl lg:text-4xl) */}
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light leading-[1.4] tracking-tight text-slate-800 max-w-5xl mx-auto"
+          className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl font-light leading-[1.3] md:leading-[1.4] tracking-tight text-slate-800 max-w-5xl mx-auto"
         >
           {title}
         </motion.h2>
@@ -66,24 +66,24 @@ export default function CredibilitySection({
               href={buttonHref}
               variant="outline-dark"
               size="md"
-              className="rounded-full gap-2.5 normal-case font-normal hover:scale-105 active:scale-95 transition-transform"
+              className="rounded-full gap-2.5 text-base md:text-sm normal-case font-normal hover:scale-105 active:scale-95 transition-transform"
             >
               <span>{buttonText}</span>
-              <IoArrowForwardSharp className="text-sm" />
+              <IoArrowForwardSharp className="text-base md:text-sm" />
             </Button>
           </motion.div>
         )}
 
       </div>
 
-      {/* ── 2. FRAMED ARCHITECTURAL IMAGE (ANIMATED REVEAL & ZOOM) ── */}
-      <div className="max-w-7xl mx-auto px-6 pb-20">
+      {/* ── 2. FRAMED ARCHITECTURAL IMAGE ── */}
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 pb-14 md:pb-20">
         <motion.div
           initial={{ opacity: 0, y: 30, scale: 0.98 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] lg:h-[650px] overflow-hidden rounded-2xl md:rounded-3xl shadow-sm bg-slate-100"
+          className="relative w-full h-[320px] sm:h-[420px] md:h-[600px] lg:h-[650px] overflow-hidden rounded-2xl md:rounded-3xl shadow-sm bg-slate-100"
         >
           <Image
             src={imageSrc}
