@@ -51,6 +51,34 @@ const defaultBenefits: SeoBenefitItem[] = [
   },
 ];
 
+// Ubah berbagai format link YouTube (watch?v=, youtu.be, shorts/, atau embed/ yang sudah benar)
+// jadi format embed yang valid buat iframe. Kalau link tidak dikenali/bukan YouTube, return null.
+function toYoutubeEmbedUrl(url?: string): string | null {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    let videoId: string | null = null;
+
+    if (parsed.hostname.includes("youtu.be")) {
+      videoId = parsed.pathname.slice(1);
+    } else if (parsed.hostname.includes("youtube.com")) {
+      if (parsed.pathname === "/watch") {
+        videoId = parsed.searchParams.get("v");
+      } else if (parsed.pathname.startsWith("/embed/")) {
+        videoId = parsed.pathname.split("/embed/")[1];
+      } else if (parsed.pathname.startsWith("/shorts/")) {
+        videoId = parsed.pathname.split("/shorts/")[1];
+      }
+    }
+
+    if (!videoId) return null;
+    videoId = videoId.split("?")[0].split("&")[0];
+    return `https://www.youtube.com/embed/${videoId}`;
+  } catch {
+    return null;
+  }
+}
+
 export default function SeoInfoSection({
   subtitle = "Solusi Perencanaan",
   title = (
@@ -72,9 +100,10 @@ export default function SeoInfoSection({
 }: SeoInfoSectionProps) {
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const embedUrlWithAutoplay = youtubeUrl.includes("?")
-    ? `${youtubeUrl}&autoplay=1`
-    : `${youtubeUrl}?autoplay=1`;
+  const embedUrl = toYoutubeEmbedUrl(youtubeUrl);
+  const embedUrlWithAutoplay = embedUrl
+    ? `${embedUrl}?autoplay=1`
+    : null;
 
   return (
     <section className="bg-white text-slate-900 font-sans py-14 md:py-24">
@@ -142,7 +171,8 @@ export default function SeoInfoSection({
               <button
                 type="button"
                 onClick={() => setIsPlaying(true)}
-                className="w-full h-full relative flex items-center justify-center cursor-pointer focus:outline-none"
+                disabled={!embedUrlWithAutoplay}
+                className="w-full h-full relative flex items-center justify-center cursor-pointer focus:outline-none disabled:cursor-default"
                 aria-label="Play Video"
               >
                 <Image
@@ -155,19 +185,23 @@ export default function SeoInfoSection({
                 {/* Overlay Soft Dark */}
                 <div className="absolute inset-0 bg-slate-900/20 group-hover:bg-slate-900/10 transition-colors" />
 
-                {/* Minimalist Architectural Play Button */}
-                <div className="relative z-10 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/90 backdrop-blur-md text-slate-900 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-[#E87722] group-hover:text-white transition-all duration-300">
-                  <IoPlay className="text-xl ml-1" />
-                </div>
+                {/* Minimalist Architectural Play Button — hanya tampil kalau video valid */}
+                {embedUrlWithAutoplay && (
+                  <div className="relative z-10 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/90 backdrop-blur-md text-slate-900 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-[#E87722] group-hover:text-white transition-all duration-300">
+                    <IoPlay className="text-xl ml-1" />
+                  </div>
+                )}
               </button>
             ) : (
-              <iframe
-                src={embedUrlWithAutoplay}
-                title={infoHeading}
-                className="w-full h-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
+              embedUrlWithAutoplay && (
+                <iframe
+                  src={embedUrlWithAutoplay}
+                  title={infoHeading}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              )
             )}
           </motion.div>
 

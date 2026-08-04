@@ -26,8 +26,28 @@ async function getCompletedProjects() {
   return projects;
 }
 
+async function getServiceImageSettings() {
+  const keys = [
+    "service_desain_hero_image",
+    "service_desain_body_image",
+    "service_desain_youtube_url",
+  ]
+  const settings = await db.setting.findMany({
+    where: { key: { in: keys } },
+    select: { key: true, value: true },
+  })
+  const map: Record<string, string> = {}
+  for (const s of settings) map[s.key] = s.value
+  return {
+    heroImage: map["service_desain_hero_image"] || "",
+    bodyImage: map["service_desain_body_image"] || "",
+    youtubeUrl: map["service_desain_youtube_url"] || "",
+  }
+}
+
 export default async function JasaArsitekDesainRabPage() {
   const completedProjects = await getCompletedProjects();
+  const serviceImages = await getServiceImageSettings();
 
   return (
     <main className="bg-white font-sans antialiased text-[#0F2340]">
@@ -44,7 +64,7 @@ export default async function JasaArsitekDesainRabPage() {
         titleLine1="Jasa Desain Arsitektur,"
         titleLine2="Interior & Perencanaan RAB Bangunan"
         description="Limas Kontraktor (CV Listiya Mandiri Jaya Steel) melayani perencanaan arsitektur, visualisasi 3D interior-eksterior, gambar kerja teknis, serta penyusunan RAB transparan untuk rumah dan bangunan komersial."
-        bgImage="/images/heroabout.webp"
+        bgImage={serviceImages.heroImage || "/images/heroabout.webp"}
         ctaPortfolioHref="/proyek"
       />
 
@@ -68,11 +88,11 @@ export default async function JasaArsitekDesainRabPage() {
         }
         buttonText="Konsultasi Desain & RAB"
         buttonHref="/kontak"
-        imageSrc="/images/proyek-limas.webp"
+        imageSrc={serviceImages.bodyImage || "/images/proyek-limas.webp"}
         imageAlt="Proyek Perencanaan Arsitektur Limas Kontraktor"
       />
 
- {/* ── 3. SEO & BENEFIT SECTION ── */}
+      {/* ── 3. SEO & BENEFIT SECTION ── */}
       <SeoInfoSection 
         subtitle="Solusi Perencanaan Bangunan"
         title={
@@ -108,7 +128,8 @@ export default async function JasaArsitekDesainRabPage() {
         ]}
         buttonText="Tentang Limas Kontraktor"
         buttonHref="/tentang"
-        youtubeUrl="https://www.youtube.com/embed/sYSwjKiAtwQ"
+        youtubeUrl={serviceImages.youtubeUrl || "https://www.youtube.com/embed/sYSwjKiAtwQ"}
+        thumbnailSrc={serviceImages.bodyImage || "/images/thumbnail.png"}
       />
       
       {/* ── 4. PORTFOLIO DYNAMIC GRID ── */}

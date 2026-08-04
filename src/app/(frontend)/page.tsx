@@ -8,9 +8,7 @@ import AlurKerjaSection from "@/components/sections/home/AlurKerjaSection"
 import TestimonialSection from "@/components/sections/home/TestimonialSection"
 import FaqSection from "@/components/sections/home/FaqSection"
 export const dynamic = "force-dynamic"
-// ==========================================
-// CONFIGURASI META TAG UNTUK SEO MAXIMAL
-// ==========================================
+
 export const metadata: Metadata = {
   title: "Jasa Kontraktor Rumah & Renovasi Jabodetabek | LIMAS KONTRAKTOR",
   description: "Jasa kontraktor profesional untuk bangun baru, desain arsitektur, dan renovasi rumah/ruko di Bekasi, Jakarta, dan Jabodetabek. Perencanaan RAB transparan, amanah, dan bergaransi resmi.",
@@ -25,12 +23,10 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "LIMAS KONTRAKTOR" }],
   creator: "Dicoment Agency",
-  
-  // OpenGraph (Untuk tampilan maksimal saat link dibagikan di WA, FB, LinkedIn)
   openGraph: {
     title: "LIMAS KONTRAKTOR - Jasa Kontraktor Bangunan & Renovasi Profesional di Jabodetabek",
     description: "Wujudkan bangunan kokoh impian Anda di Jabodetabek dengan tim berpengalaman sejak 2014 dan sistem perencanaan RAB jujur tanpa biaya silumen.",
-    url: "https://limaskontraktor.com", // Ganti dengan domain asli nanti
+    url: "https://limaskontraktor.com",
     siteName: "Limas Kontraktor",
     images: [
       {
@@ -43,23 +39,31 @@ export const metadata: Metadata = {
     locale: "id_ID",
     type: "website",
   },
-  
-  // Mencegah robot index menduplikasi halaman secara tidak sengaja
   alternates: {
     canonical: "https://limaskontraktor.com",
   },
 }
 
+async function getSiteImageSettings() {
+  const keys = ["service_image_1", "service_image_2", "service_image_3", "homepage_excellence_image"]
+  const settings = await prisma.setting.findMany({
+    where: { key: { in: keys } },
+    select: { key: true, value: true },
+  })
+  const map: Record<string, string> = {}
+  for (const s of settings) map[s.key] = s.value
+  return map
+}
+
 export default async function HomePage() {
-  // Menarik data portfolio proyek terbaru yang sukses diselesaikan untuk dijadikan background
   const latestProject = await prisma.project.findFirst({
     where: { status: "COMPLETED", coverImage: { not: null } },
     orderBy: { createdAt: "desc" },
     select: { coverImage: true },
   })
 
-  // Menggunakan cover image proyek terbaru, jika database kosong maka lari ke local asset
   const bgImage = latestProject?.coverImage || "/hero-home.webp"
+  const siteImages = await getSiteImageSettings()
 
   return (
     <main>
@@ -67,9 +71,15 @@ export default async function HomePage() {
       <HeroSection backgroundImage={bgImage} />
       
       {/* 2. Layanan Section */}
-      <LayananSection />
+      <LayananSection
+        images={{
+          service_image_1: siteImages.service_image_1,
+          service_image_2: siteImages.service_image_2,
+          service_image_3: siteImages.service_image_3,
+        }}
+      />
       {/* 3. Keunggulan Section */}
-      <ExcellenceSection />
+      <ExcellenceSection imageSrc={siteImages.homepage_excellence_image} />
       {/* 4. Portfolio Section */}
       <PortfolioSection />
       {/* 5. Alur Kerja Section */}

@@ -5,34 +5,45 @@ import { motion } from "framer-motion"
 import { IoArrowForwardSharp, IoLogoWhatsapp } from "react-icons/io5"
 import Link from "next/link"
 
-const services = [
+type ServiceImages = {
+  service_image_1?: string
+  service_image_2?: string
+  service_image_3?: string
+}
+
+const defaultServices = [
   {
     no: "01.",
     title: "Konstruksi & Bangun Baru",
     desc: "Layanan kontraktor menyeluruh untuk pembangunan dari nol mulai dari rumah tinggal, ruko komersial, hingga fasilitas umum.",
     href: "/layanan/konstruksi",
-    image: "/images/jasa-kontraktor.webp"
+    fallbackImage: "/images/jasa-kontraktor.webp"
   },
   {
     no: "02.",
     title: "Renovasi Total & Parsial",
     desc: "Solusi peremajaan properti, penambahan lantai, perbaikan struktur dinding/atap, hingga rekonstruksi tata ruang.",
     href: "/layanan/renovasi",
-    image: "/images/jasa-renovasi.webp"
+    fallbackImage: "/images/jasa-renovasi.webp"
   },
   {
     no: "03.",
     title: "Desain Arsitektur & RAB",
     desc: "Pembuatan konsep visual arsitektur 3D eksterior-interior terintegrasi dengan penyusunan RAB yang transparan.",
     href: "/layanan/desain",
-    image: "/images/jasa-desain.webp"
+    fallbackImage: "/images/jasa-desain.webp"
   }
 ]
 
 const benefits = ["RAB Transparan", "Bergaransi", "Tukang Berpengalaman", "Tepat Waktu"]
 
-export default function LayananSection() {
+export default function LayananSection({ images }: { images?: ServiceImages } = {}) {
   const [whatsappNumber, setWhatsappNumber] = useState("6282320721150")
+
+  const services = defaultServices.map((svc, index) => ({
+    ...svc,
+    image: images?.[`service_image_${index + 1}` as keyof ServiceImages] || svc.fallbackImage,
+  }))
 
   useEffect(() => {
     const fetchNumber = async () => {
@@ -40,8 +51,14 @@ export default function LayananSection() {
         const res = await fetch("/api/settings", { method: "GET" })
         if (res.ok) {
           const json = await res.json()
-          if (json?.data?.contact_phone1) {
-            const cleanNumber = json.data.contact_phone1.replace(/[^0-9]/g, "")
+          // FIX: successResponse() bungkus payload 2 lapis
+          // ({ success, data: { data: settingsObject, meta } }), jadi harus
+          // json.data.data, bukan json.data langsung — sebelumnya nomor WA
+          // di section ini SELALU balik ke hardcode default, gak pernah
+          // ke-update dari settings.
+          const settingsData = json?.data?.data
+          if (settingsData?.contact_phone1) {
+            const cleanNumber = settingsData.contact_phone1.replace(/[^0-9]/g, "")
             setWhatsappNumber(cleanNumber.startsWith("0") ? `62${cleanNumber.substring(1)}` : cleanNumber)
           }
         }
@@ -153,8 +170,8 @@ export default function LayananSection() {
             </div>
 
             <div className="relative z-10 pt-4 mt-auto">
-              <a
-                href={`https://wa.me/${whatsappNumber}`}
+              
+                <a href={`https://wa.me/${whatsappNumber}`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center justify-center gap-2.5 bg-[#FFCC00] text-black font-bold px-5 py-3.5 rounded-xl text-xs tracking-wider uppercase transition-all duration-300 shadow-lg shadow-black/30 hover:bg-white w-full"

@@ -26,8 +26,28 @@ async function getCompletedProjects() {
   return projects;
 }
 
+async function getServiceImageSettings() {
+  const keys = [
+    "service_renovasi_hero_image",
+    "service_renovasi_body_image",
+    "service_renovasi_youtube_url",
+  ]
+  const settings = await db.setting.findMany({
+    where: { key: { in: keys } },
+    select: { key: true, value: true },
+  })
+  const map: Record<string, string> = {}
+  for (const s of settings) map[s.key] = s.value
+  return {
+    heroImage: map["service_renovasi_hero_image"] || "",
+    bodyImage: map["service_renovasi_body_image"] || "",
+    youtubeUrl: map["service_renovasi_youtube_url"] || "",
+  }
+}
+
 export default async function JasaRenovasiPage() {
   const completedProjects = await getCompletedProjects();
+  const serviceImages = await getServiceImageSettings();
 
   return (
     <main className="bg-white font-sans antialiased text-[#0F2340]">
@@ -44,7 +64,7 @@ export default async function JasaRenovasiPage() {
         titleLine1="Jasa Renovasi Rumah"
         titleLine2="& Peremajaan Properti Jabodetabek"
         description="Solusi ahli untuk renovasi rumah tinggal, ruko, dan bangunan komersial. Mulai dari penambahan lantai (tingkat), rekonstruksi denah, hingga perbaikan struktur bergaransi."
-        bgImage="/images/heroabout.webp"
+        bgImage={serviceImages.heroImage || "/images/heroabout.webp"}
         ctaPortfolioHref="/proyek"
       />
 
@@ -66,7 +86,7 @@ export default async function JasaRenovasiPage() {
         }
         buttonText="Konsultasi Renovasi Gratis"
         buttonHref="/kontak"
-        imageSrc="/images/proyek-limas.webp"
+        imageSrc={serviceImages.bodyImage || "/images/proyek-limas.webp"}
         imageAlt="Proyek Renovasi Limas Kontraktor"
       />
 
@@ -106,8 +126,8 @@ export default async function JasaRenovasiPage() {
         ]}
         buttonText="Tentang Limas Kontraktor"
         buttonHref="/tentang"
-        youtubeUrl="https://www.youtube.com/embed/sYSwjKiAtwQ"
-        thumbnailSrc="/images/thumbnail.png"
+        youtubeUrl={serviceImages.youtubeUrl || "https://www.youtube.com/embed/sYSwjKiAtwQ"}
+        thumbnailSrc={serviceImages.bodyImage || "/images/thumbnail.png"}
       />
 
       {/* ── 4. PORTFOLIO DYNAMIC GRID ── */}

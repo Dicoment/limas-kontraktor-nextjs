@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { 
   Save, 
   Camera, 
@@ -12,8 +13,11 @@ import {
   BarChart3, 
   CheckCircle2, 
   AlertCircle, 
-  Loader2 
+  XCircle,
+  Loader2,
+  Image as ImageIcon,
 } from "lucide-react"
+import MediaPicker from "@/components/ui/MediaPicker"
 
 const DEFAULT_SETTINGS = {
   company_name: "LIMAS KONTRAKTOR",
@@ -28,9 +32,32 @@ const DEFAULT_SETTINGS = {
   social_youtube: "Limas Kontraktor",
   google_analytics_id: "",
   google_search_console_code: "",
+  // ── Gambar Homepage ──
+  service_image_1: "",
+  service_image_2: "",
+  service_image_3: "",
+  homepage_excellence_image: "",
+  // ── Gambar Halaman Tentang ──
+  about_credibility_image: "",
+  // ── Halaman Layanan: Konstruksi ──
+  service_konstruksi_hero_image: "",
+  service_konstruksi_body_image: "",
+  service_konstruksi_youtube_url: "",
+  // ── Halaman Layanan: Renovasi ──
+  service_renovasi_hero_image: "",
+  service_renovasi_body_image: "",
+  service_renovasi_youtube_url: "",
+  // ── Halaman Layanan: Desain ──
+  service_desain_hero_image: "",
+  service_desain_body_image: "",
+  service_desain_youtube_url: "",
 }
 
 type SettingsFormData = typeof DEFAULT_SETTINGS
+
+// BARU: state modal punya 4 tahap — dulu cuma boolean showConfirm doang,
+// gak ada feedback visual pas proses simpan lagi jalan atau setelah selesai.
+type ModalState = "closed" | "confirm" | "loading" | "success" | "error"
 
 function Section({ title, icon: Icon, children }: { title: string; icon?: React.ComponentType<{ size?: number; className?: string }>; children: React.ReactNode }) {
   return (
@@ -121,8 +148,8 @@ function SocialInputField({
           className="w-full px-3.5 py-2.5 pr-11 bg-slate-50/50 border border-slate-300 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
         />
         {value ? (
-          <a
-            href={getUrl(value)}
+          
+           <a href={getUrl(value)}
             target="_blank"
             rel="noopener noreferrer"
             className="absolute right-2 p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-md transition-colors"
@@ -140,6 +167,26 @@ function SocialInputField({
   )
 }
 
+function ImageField({
+  label,
+  value,
+  onChange,
+  description,
+}: {
+  label: string
+  value: string
+  onChange: (url: string) => void
+  description?: string
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">{label}</label>
+      <MediaPicker value={value} onChange={onChange} placeholder={label} />
+      {description && <p className="text-xs text-slate-500 leading-relaxed">{description}</p>}
+    </div>
+  )
+}
+
 const TikTokIcon = (props: { size?: number; className?: string }) => (
   <svg width={props.size || 18} height={props.size || 18} viewBox="0 0 24 24" fill="currentColor" className={props.className}>
     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
@@ -147,11 +194,11 @@ const TikTokIcon = (props: { size?: number; className?: string }) => (
 )
 
 export default function SettingsPage() {
+  const router = useRouter()
   const [formData, setFormData] = useState<SettingsFormData>(DEFAULT_SETTINGS)
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState(false)
+  const [modalState, setModalState] = useState<ModalState>("closed")
+  const [errorDetail, setErrorDetail] = useState("")
 
   useEffect(() => {
     fetchSettings()
@@ -180,14 +227,22 @@ export default function SettingsPage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setFormData(prev => ({ ...prev, [key]: e.target.value }))
-    setSuccess(false)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleImageChange = (key: keyof SettingsFormData) => (url: string) => {
+    setFormData(prev => ({ ...prev, [key]: url }))
+  }
+
+  const handleSubmitClick = (e: React.FormEvent) => {
     e.preventDefault()
-    setSaving(true)
-    setError("")
-    setSuccess(false)
+    setModalState("confirm")
+  }
+
+  // BARU: alurnya sekarang confirm -> loading -> success/error, semua
+  // ditampilin di modal yang sama (bukan lompat ke banner terpisah lagi).
+  const confirmSave = async () => {
+    setModalState("loading")
+    setErrorDetail("")
 
     try {
       const settingsArray = Object.entries(formData)
@@ -201,25 +256,24 @@ export default function SettingsPage() {
       })
 
       const json = await res.json()
-      
+
       if (res.ok && json.success !== false) {
-        setSuccess(true)
-        setTimeout(() => setSuccess(false), 3000)
+        setModalState("success")
       } else {
-        let errorMsg = json.error || json.message || "Gagal menyimpan pengaturan"
+        let msg = json.error || json.message || "Gagal menyimpan pengaturan"
         if (json.errors) {
           const fieldErrors = Object.entries(json.errors)
             .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`)
             .join(" | ")
-          errorMsg = `${errorMsg} - ${fieldErrors}`
+          msg = `${msg} - ${fieldErrors}`
         }
-        setError(errorMsg)
+        setErrorDetail(msg)
+        setModalState("error")
       }
     } catch (err) {
-      setError("Terjadi kesalahan saat menyimpan")
       console.error(err)
-    } finally {
-      setSaving(false)
+      setErrorDetail("Terjadi kesalahan jaringan saat menyimpan.")
+      setModalState("error")
     }
   }
 
@@ -233,29 +287,15 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 font-sans py-4">
+    <div className="max-w-5xl mx-auto space-y-6 font-sans py-4 relative">
       <div className="flex items-center justify-between border-b border-slate-200/80 pb-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Pengaturan Website</h1>
-          <p className="text-sm text-slate-500 mt-1">Kelola informasi perusahaan, kontak, serta konfigurasi SEO.</p>
+          <p className="text-sm text-slate-500 mt-1">Kelola informasi perusahaan, kontak, gambar halaman, serta konfigurasi SEO.</p>
         </div>
       </div>
 
-      {error && (
-        <div className="flex items-start gap-3 bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3.5 rounded-xl text-sm shadow-xs animate-in fade-in slide-in-from-top-2 duration-200">
-          <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
-          <div className="flex-1">{error}</div>
-        </div>
-      )}
-
-      {success && (
-        <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3.5 rounded-xl text-sm shadow-xs animate-in fade-in slide-in-from-top-2 duration-200">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-          <span>Pengaturan berhasil diperbarui dan disimpan.</span>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmitClick} className="space-y-6">
         <Section title="Informasi Perusahaan" icon={Building2}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <InputField
@@ -345,6 +385,107 @@ export default function SettingsPage() {
           </div>
         </Section>
 
+        <Section title="Gambar Halaman Home & Tentang" icon={ImageIcon}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <ImageField
+              label="Layanan 1 - Konstruksi & Bangun Baru"
+              value={formData.service_image_1}
+              onChange={handleImageChange("service_image_1")}
+              description="Gambar kartu layanan pertama di homepage."
+            />
+            <ImageField
+              label="Layanan 2 - Renovasi Total & Parsial"
+              value={formData.service_image_2}
+              onChange={handleImageChange("service_image_2")}
+              description="Gambar kartu layanan kedua di homepage."
+            />
+            <ImageField
+              label="Layanan 3 - Desain Arsitektur & RAB"
+              value={formData.service_image_3}
+              onChange={handleImageChange("service_image_3")}
+              description="Gambar kartu layanan ketiga di homepage."
+            />
+            <ImageField
+              label="Gambar Section 'Kenapa Memilih Kami'"
+              value={formData.homepage_excellence_image}
+              onChange={handleImageChange("homepage_excellence_image")}
+              description="Gambar di section keunggulan, tepat di bawah Layanan (homepage)."
+            />
+            <ImageField
+              label="Gambar Halaman Tentang"
+              value={formData.about_credibility_image}
+              onChange={handleImageChange("about_credibility_image")}
+              description="Gambar besar di halaman Tentang Kami."
+            />
+          </div>
+        </Section>
+
+        <Section title="Gambar & Video - Layanan Konstruksi" icon={ImageIcon}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <ImageField
+              label="Hero Background"
+              value={formData.service_konstruksi_hero_image}
+              onChange={handleImageChange("service_konstruksi_hero_image")}
+            />
+            <ImageField
+              label="Gambar Bangunan (Body)"
+              value={formData.service_konstruksi_body_image}
+              onChange={handleImageChange("service_konstruksi_body_image")}
+            />
+            <InputField
+              label="Link Video YouTube"
+              value={formData.service_konstruksi_youtube_url}
+              onChange={handleInputChange("service_konstruksi_youtube_url")}
+              placeholder="https://www.youtube.com/embed/xxxxxxx"
+              description="Gunakan format embed: youtube.com/embed/ID_VIDEO"
+            />
+          </div>
+        </Section>
+
+        <Section title="Gambar & Video - Layanan Renovasi" icon={ImageIcon}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <ImageField
+              label="Hero Background"
+              value={formData.service_renovasi_hero_image}
+              onChange={handleImageChange("service_renovasi_hero_image")}
+            />
+            <ImageField
+              label="Gambar Bangunan (Body)"
+              value={formData.service_renovasi_body_image}
+              onChange={handleImageChange("service_renovasi_body_image")}
+            />
+            <InputField
+              label="Link Video YouTube"
+              value={formData.service_renovasi_youtube_url}
+              onChange={handleInputChange("service_renovasi_youtube_url")}
+              placeholder="https://www.youtube.com/embed/xxxxxxx"
+              description="Gunakan format embed: youtube.com/embed/ID_VIDEO"
+            />
+          </div>
+        </Section>
+
+        <Section title="Gambar & Video - Layanan Desain" icon={ImageIcon}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <ImageField
+              label="Hero Background"
+              value={formData.service_desain_hero_image}
+              onChange={handleImageChange("service_desain_hero_image")}
+            />
+            <ImageField
+              label="Gambar Bangunan (Body)"
+              value={formData.service_desain_body_image}
+              onChange={handleImageChange("service_desain_body_image")}
+            />
+            <InputField
+              label="Link Video YouTube"
+              value={formData.service_desain_youtube_url}
+              onChange={handleInputChange("service_desain_youtube_url")}
+              placeholder="https://www.youtube.com/embed/xxxxxxx"
+              description="Gunakan format embed: youtube.com/embed/ID_VIDEO"
+            />
+          </div>
+        </Section>
+
         <Section title="SEO & Analytics" icon={BarChart3}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <InputField
@@ -367,23 +508,110 @@ export default function SettingsPage() {
         <div className="flex justify-end pt-2">
           <button
             type="submit"
-            disabled={saving}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 active:bg-slate-950 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow duration-150"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 active:bg-slate-950 transition-all shadow-sm hover:shadow duration-150"
           >
-            {saving ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Menyimpan...</span>
-              </>
-            ) : (
-              <>
-                <Save size={16} />
-                <span>Simpan Pengaturan</span>
-              </>
-            )}
+            <Save size={16} />
+            <span>Simpan Pengaturan</span>
           </button>
         </div>
       </form>
+
+      {/* MODAL — 4 tahap: confirm, loading, success, error */}
+      {modalState !== "closed" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-sm w-full p-6">
+            {modalState === "confirm" && (
+              <div className="space-y-4">
+                <h3 className="text-base font-bold text-slate-900">Yakin ingin menyimpan perubahan?</h3>
+                <p className="text-sm text-slate-500">
+                  Perubahan pengaturan ini akan langsung tampil di website setelah disimpan.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setModalState("closed")}
+                    className="flex-1 px-4 py-2 text-sm font-semibold border border-slate-200 rounded-md hover:bg-slate-50 text-slate-600"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmSave}
+                    className="flex-1 px-4 py-2 text-sm font-semibold bg-slate-900 hover:bg-slate-800 text-white rounded-md"
+                  >
+                    Ya, Simpan
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {modalState === "loading" && (
+              <div className="flex flex-col items-center text-center gap-3 py-4">
+                <Loader2 className="w-10 h-10 text-slate-400 animate-spin" strokeWidth={1.5} />
+                <p className="text-sm font-medium text-slate-600">Menyimpan pengaturan...</p>
+              </div>
+            )}
+
+            {modalState === "success" && (
+              <div className="flex flex-col items-center text-center gap-3 py-2">
+                <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-500" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Data berhasil disimpan</h3>
+                  <p className="text-sm text-slate-500 mt-1">Perubahan sudah tampil di website.</p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 pt-3 w-full">
+                  <button
+                    type="button"
+                    onClick={() => router.push("/dashboard")}
+                    className="flex-1 px-4 py-2 text-sm font-semibold border border-slate-200 rounded-md hover:bg-slate-50 text-slate-600"
+                  >
+                    Kembali ke Dashboard
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setModalState("closed")}
+                    className="flex-1 px-4 py-2 text-sm font-semibold bg-slate-900 hover:bg-slate-800 text-white rounded-md"
+                  >
+                    Edit Lagi
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {modalState === "error" && (
+              <div className="flex flex-col items-center text-center gap-3 py-2">
+                <div className="w-14 h-14 rounded-full bg-rose-50 flex items-center justify-center">
+                  <XCircle className="w-8 h-8 text-rose-500" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Data gagal disimpan</h3>
+                  <p className="text-sm text-slate-500 mt-1 break-words">
+                    {errorDetail || "Terjadi kesalahan yang tidak diketahui."}
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 pt-3 w-full">
+                  <button
+                    type="button"
+                    onClick={() => setModalState("closed")}
+                    className="flex-1 px-4 py-2 text-sm font-semibold border border-slate-200 rounded-md hover:bg-slate-50 text-slate-600"
+                  >
+                    Tutup
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmSave}
+                    className="flex-1 px-4 py-2 text-sm font-semibold bg-slate-900 hover:bg-slate-800 text-white rounded-md"
+                  >
+                    Coba Lagi
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

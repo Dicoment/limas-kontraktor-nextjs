@@ -19,6 +19,14 @@ async function getProjects() {
   return projects;
 }
 
+async function getAboutImageSetting() {
+  const setting = await db.setting.findUnique({
+    where: { key: "about_credibility_image" },
+    select: { value: true },
+  });
+  return setting?.value || "";
+}
+
 const stats = [
   { value: "10+", label: "Tahun Pengalaman" },
   { value: "150+", label: "Proyek Selesai" },
@@ -61,6 +69,7 @@ const advantages = [
 
 export default async function AboutPage() {
   const projects = await getProjects();
+  const aboutImage = await getAboutImageSetting();
   
   return (
     <main className="bg-white font-sans antialiased text-[#0F2340]">
@@ -175,7 +184,7 @@ export default async function AboutPage() {
           <div className="lg:col-span-5 relative w-full">
             <div className="w-full rounded-2xl overflow-hidden aspect-[4/3.2] lg:aspect-[4/4.5] shadow-[0_4px_25px_rgba(0,0,0,0.02)] border border-white relative group">
               <img
-                src="/images/heroproyek.webp"
+                src={aboutImage || "/images/heroproyek.webp"}
                 alt="Project Konstruksi Realisasi Lapangan"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
               />

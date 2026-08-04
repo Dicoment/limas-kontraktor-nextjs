@@ -26,8 +26,28 @@ async function getCompletedProjects() {
   return projects;
 }
 
+async function getServiceImageSettings() {
+  const keys = [
+    "service_konstruksi_hero_image",
+    "service_konstruksi_body_image",
+    "service_konstruksi_youtube_url",
+  ]
+  const settings = await db.setting.findMany({
+    where: { key: { in: keys } },
+    select: { key: true, value: true },
+  })
+  const map: Record<string, string> = {}
+  for (const s of settings) map[s.key] = s.value
+  return {
+    heroImage: map["service_konstruksi_hero_image"] || "",
+    bodyImage: map["service_konstruksi_body_image"] || "",
+    youtubeUrl: map["service_konstruksi_youtube_url"] || "",
+  }
+}
+
 export default async function JasaKontraktorPage() {
   const completedProjects = await getCompletedProjects();
+  const serviceImages = await getServiceImageSettings();
 
   return (
     <main className="bg-white font-sans antialiased text-[#0F2340]">
@@ -44,7 +64,7 @@ export default async function JasaKontraktorPage() {
         titleLine1="Jasa Kontraktor Bangunan"
         titleLine2="& Konstruksi Profesional Bekasi & Jabodetabek"
         description="Limas Kontraktor (CV Listiya Mandiri Jaya Steel) melayani jasa pembangunan rumah, ruko, gedung komersial, dan konstruksi baja WF berpengalaman dengan RAB transparan."
-        bgImage="/images/heroabout.webp"
+        bgImage={serviceImages.heroImage || "/images/heroabout.webp"}
         ctaPortfolioHref="/proyek"
       />
 
@@ -68,7 +88,7 @@ export default async function JasaKontraktorPage() {
         }
         buttonText="Konsultasi Konstruksi"
         buttonHref="/kontak"
-        imageSrc="/images/proyek-limas.webp"
+        imageSrc={serviceImages.bodyImage || "/images/proyek-limas.webp"}
         imageAlt="Proyek Konstruksi Limas Kontraktor"
       />
 
@@ -108,8 +128,8 @@ export default async function JasaKontraktorPage() {
         ]}
         buttonText="Tentang Limas Kontraktor"
         buttonHref="/tentang"
-        youtubeUrl="https://www.youtube.com/embed/sYSwjKiAtwQ"
-        thumbnailSrc="/images/thumbnail.png"
+        youtubeUrl={serviceImages.youtubeUrl || "https://www.youtube.com/embed/sYSwjKiAtwQ"}
+        thumbnailSrc={serviceImages.bodyImage || "/images/thumbnail.png"}
       />
 
       {/* ── 4. PORTFOLIO DYNAMIC GRID ── */}

@@ -22,7 +22,9 @@ const keunggulan = [
   },
 ]
 
-export default function ExcellenceSection() {
+export default function ExcellenceSection({ imageSrc }: { imageSrc?: string } = {}) {
+  const resolvedImage = imageSrc || "/images/heroabout.webp"
+
   return (
     <section className="bg-white py-16 md:py-24 overflow-hidden relative border-t border-slate-50">
       <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -41,7 +43,7 @@ export default function ExcellenceSection() {
             {/* aspect-[4/3] di mobile biar tidak terlalu tinggi, lg:aspect-[4/5] di desktop */}
             <div className="w-full rounded-2xl overflow-hidden aspect-[4/3] lg:aspect-[4/5] shadow-xl relative group">
               <Image
-                src="/images/heroabout.webp"
+                src={resolvedImage}
                 alt="Proyek Konstruksi dan Renovasi Bangunan oleh Tim Limas Kontraktor"
                 fill
                 priority
