@@ -94,8 +94,6 @@ export async function generateMetadata(): Promise<Metadata> {
       icon: "/favicon.ico",
       apple: "/apple-touch-icon.png",
     },
-    // gscCode `undefined` kalau belum diisi di dashboard — Next.js otomatis
-    // gak nge-render meta tag verification-nya sama sekali kalau undefined.
     verification: {
       google: gscCode,
     },

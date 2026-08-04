@@ -29,6 +29,7 @@ const navLinks = [
   { label: "Beranda", href: "/" },
   { label: "Layanan", href: "/layanan", isMega: true },
   { label: "Proyek", href: "/proyek" },
+  { label: "VR 360", href: "/vr-360" },
   { label: "Tentang", href: "/tentang" },
   { label: "Blog", href: "/blog" },
   { label: "Kontak", href: "/kontak" },
@@ -100,7 +101,7 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between relative z-50">
         
-        {/* LOGO BRANDING (Tetap Aman di Atas Karena Background Selalu Gelap) */}
+        {/* LOGO BRANDING */}
         <Link href="/" onClick={() => setMobileOpen(false)} className="relative block">
           <Image
             src="/images/logo-putih.png"
@@ -128,7 +129,7 @@ export default function Navbar() {
                     <ChevronDown size={14} className={`transition-transform duration-300 ${megaOpen ? "rotate-180 text-[#E87722]" : ""}`} />
                   </button>
 
-                  {/* DESKTOP MEGA MENU - UKURAN BESAR DAN LEBIH LEBAR */}
+                  {/* DESKTOP MEGA MENU */}
                   <AnimatePresence>
                     {megaOpen && (
                       <motion.div
@@ -198,7 +199,7 @@ export default function Navbar() {
           </Button>
         </div>
 
-        {/* MOBILE HAMBURGER BUTTON (Sengaja Dibuat Mencolok Putih/Orange) */}
+        {/* MOBILE HAMBURGER BUTTON */}
         <button
           className="md:hidden p-2 text-white hover:text-[#E87722] active:text-[#E87722] transition-colors cursor-pointer"
           onClick={() => setMobileOpen(!mobileOpen)}
@@ -208,7 +209,7 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* MOBILE FULLSCREEN OVERLAY - KEMBALI KE DARK MODE SOLID BIAR KELIHATAN */}
+      {/* MOBILE FULLSCREEN OVERLAY */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -235,7 +236,7 @@ export default function Navbar() {
                         />
                       </button>
                       
-                      {/* Sub-menu Dropdown Mobile (Teks Diperbesar Parah Biar Terbaca) */}
+                      {/* Sub-menu Dropdown Mobile */}
                       <AnimatePresence>
                         {mobileDropdownOpen === link.label && (
                           <motion.div

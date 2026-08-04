@@ -12,7 +12,7 @@ import {
   RiMenuUnfoldLine,
 } from "react-icons/ri";
 
-export type SaveStatus = "idle" | "saving" | "saved" | "error";
+export type SaveStatus = "idle" | "saving" | "saved" | "error" | "published";
 
 interface BlogPostTopBarProps {
   title: string;
@@ -28,12 +28,6 @@ interface BlogPostTopBarProps {
   onToggleSidebar: () => void;
 }
 
-/**
- * Top bar editor Blog Post. Sama struktur kayak ProjectTopBar, tapi badge
- * status cuma 2 kondisi (Draft/Published) karena BlogPost.published itu
- * Boolean di schema, bukan enum 3-state kayak Project.status.
- * URL preview flat di root (`/{slug}`), bukan di-prefix `/blog/` atau `/artikel/`.
- */
 export default function BlogPostTopBar({
   title,
   published,
@@ -77,6 +71,11 @@ export default function BlogPostTopBar({
         {saveStatus === "saved" && (
           <span className="text-green-400 text-xs flex items-center gap-1">
             <RiCheckLine size={13} /> Tersimpan
+          </span>
+        )}
+        {saveStatus === "published" && (
+          <span className="text-green-400 text-xs font-bold flex items-center gap-1 animate-in fade-in duration-200">
+            <RiCheckLine size={13} /> Berhasil dipublikasikan!
           </span>
         )}
         {saveStatus === "error" && (

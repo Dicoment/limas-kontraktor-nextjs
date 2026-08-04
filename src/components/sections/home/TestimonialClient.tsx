@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { Play, Star, CheckCircle2, Building2, Clock3, ShieldCheck } from "lucide-react"
+import { Play, Star, CheckCircle2, Building2, Clock3, ShieldCheck, ExternalLink } from "lucide-react"
 
 export interface TestimonialWithProject {
   id: string
@@ -18,11 +18,42 @@ interface TestimonialClientProps {
   testimonials: TestimonialWithProject[]
 }
 
+// Ubah berbagai format link YouTube (youtu.be, watch?v=, shorts/) jadi format embed yang valid
+function getYouTubeEmbedUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url)
+    let videoId: string | null = null
+
+    if (parsed.hostname.includes("youtu.be")) {
+      videoId = parsed.pathname.slice(1)
+    } else if (parsed.hostname.includes("youtube.com")) {
+      if (parsed.pathname === "/watch") {
+        videoId = parsed.searchParams.get("v")
+      } else if (parsed.pathname.startsWith("/embed/")) {
+        videoId = parsed.pathname.split("/embed/")[1]
+      } else if (parsed.pathname.startsWith("/shorts/")) {
+        videoId = parsed.pathname.split("/shorts/")[1]
+      }
+    }
+
+    if (!videoId) return null
+    videoId = videoId.split("?")[0].split("&")[0]
+    return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`
+  } catch {
+    return null
+  }
+}
+
+function isYouTubeUrl(url: string): boolean {
+  return /youtu\.?be/i.test(url)
+}
+
 export default function TestimonialClient({ testimonials = [] }: TestimonialClientProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [playVideo, setPlayVideo] = useState(false)
 
   const active = testimonials[activeIndex] || testimonials[0]
+  const embedUrl = active?.sourceUrl && isYouTubeUrl(active.sourceUrl) ? getYouTubeEmbedUrl(active.sourceUrl) : null
 
   useEffect(() => {
     setPlayVideo(false)
@@ -130,14 +161,16 @@ export default function TestimonialClient({ testimonials = [] }: TestimonialClie
                       </motion.div>
                     </div>
 
-                    {/* Play Button Minimalis */}
-                    <button
-                      onClick={() => setPlayVideo(true)}
-                      aria-label="Play video testimoni"
-                      className="absolute left-1/2 top-1/2 flex h-16 w-16 sm:h-20 sm:w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-slate-900 shadow-2xl hover:scale-110 transition-all duration-300 active:scale-95 cursor-pointer z-20 group"
-                    >
-                      <Play size={24} className="fill-slate-900 ml-1 transition-transform group-hover:scale-110" />
-                    </button>
+                    {/* Play Button — hanya muncul jika testimoni punya sourceUrl */}
+                    {active.sourceUrl && (
+                      <button
+                        onClick={() => setPlayVideo(true)}
+                        aria-label="Play video testimoni"
+                        className="absolute left-1/2 top-1/2 flex h-16 w-16 sm:h-20 sm:w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-slate-900 shadow-2xl hover:scale-110 transition-all duration-300 active:scale-95 cursor-pointer z-20 group"
+                      >
+                        <Play size={24} className="fill-slate-900 ml-1 transition-transform group-hover:scale-110" />
+                      </button>
+                    )}
                   </motion.div>
                 ) : (
                   <motion.div
@@ -147,14 +180,34 @@ export default function TestimonialClient({ testimonials = [] }: TestimonialClie
                     exit={{ opacity: 0 }}
                     className="absolute inset-0 w-full h-full"
                   >
-                    {active.sourceUrl && (
+                    {embedUrl ? (
+                      // YouTube: bisa langsung autoplay di iframe
                       <iframe
-                        src={`${active.sourceUrl}?autoplay=1`}
+                        src={embedUrl}
                         title={`Video Testimoni ${active.clientName}`}
                         className="h-full w-full border-none"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                       />
+                    ) : (
+                      // TikTok, Instagram, Facebook: platform ini memblokir embed iframe,
+                      // jadi tampilkan tautan ke konten aslinya
+                      <div className="flex flex-col items-center justify-center h-full text-center p-6 gap-4">
+                        <p className="text-slate-300 text-sm max-w-xs">
+                          Video dari platform ini belum bisa diputar langsung di sini.
+                        </p>
+                        {active.sourceUrl && (
+                          
+                          <a  href={active.sourceUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-slate-900 rounded-lg text-sm font-semibold hover:bg-slate-100 transition-colors"
+                          >
+                            <ExternalLink size={16} />
+                            Buka Video Asli
+                          </a>
+                        )}
+                      </div>
                     )}
                   </motion.div>
                 )}
@@ -163,13 +216,13 @@ export default function TestimonialClient({ testimonials = [] }: TestimonialClie
 
             {/* Sub-Badges Bottom */}
             <div className="mt-4 sm:mt-5 flex flex-wrap gap-4 sm:gap-6 shrink-0">
-  {["Garansi Resmi", "Hasil Realisasi", "Legalitas Jelas"].map((text, idx) => (
-    <div key={idx} className="flex items-center gap-2 text-base md:text-xs font-normal text-slate-500">
-      <CheckCircle2 size={16} className="text-slate-800" />
-      <span>{text}</span>
-    </div>
-  ))}
-</div>
+              {["Garansi Resmi", "Hasil Realisasi", "Legalitas Jelas"].map((text, idx) => (
+                <div key={idx} className="flex items-center gap-2 text-base md:text-xs font-normal text-slate-500">
+                  <CheckCircle2 size={16} className="text-slate-800" />
+                  <span>{text}</span>
+                </div>
+              ))}
+            </div>
           </motion.div>
 
           {/* SISI KANAN: Vertical Testimonial List */}

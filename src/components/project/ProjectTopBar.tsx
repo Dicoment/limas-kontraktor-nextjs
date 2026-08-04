@@ -12,7 +12,7 @@ import {
   RiMenuUnfoldLine,
 } from "react-icons/ri";
 
-export type SaveStatus = "idle" | "saving" | "saved" | "error";
+export type SaveStatus = "idle" | "saving" | "saved" | "error" | "published";
 
 interface ProjectTopBarProps {
   title: string;
@@ -28,11 +28,6 @@ interface ProjectTopBarProps {
   onToggleSidebar: () => void;
 }
 
-/**
- * Top bar halaman editor project: navigasi kembali, judul, badge status,
- * indikator save, dan tombol-tombol aksi (simpan draf, preview, terbitkan,
- * toggle sidebar — mirip tombol "Settings" di WordPress block editor).
- */
 export default function ProjectTopBar({
   title,
   status,
@@ -80,6 +75,12 @@ export default function ProjectTopBar({
         {saveStatus === "saved" && (
           <span className="text-green-400 text-xs flex items-center gap-1">
             <RiCheckLine size={13} /> Tersimpan
+          </span>
+        )}
+        {/* BARU: notifikasi khusus pas berhasil publish, sebelum redirect */}
+        {saveStatus === "published" && (
+          <span className="text-green-400 text-xs font-bold flex items-center gap-1 animate-in fade-in duration-200">
+            <RiCheckLine size={13} /> Berhasil dipublikasikan!
           </span>
         )}
         {saveStatus === "error" && (
@@ -131,10 +132,6 @@ export default function ProjectTopBar({
 
         <div className="w-px h-4 bg-[#3c434a] flex-shrink-0 mx-0.5" />
 
-        {/* Toggle sidebar — pola sama seperti tombol "Settings" di WordPress
-            block editor. State `sidebarOpen` dipegang di ProjectFormClient
-            (parent bersama top bar & sidebar), jadi topbar dan sidebar
-            tetap 2 komponen terpisah, cuma nge-share 1 state lewat props. */}
         <button
           type="button"
           onClick={onToggleSidebar}

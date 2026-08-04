@@ -17,6 +17,7 @@ import {
   RiLoader4Line,
   RiErrorWarningLine,
   RiPriceTag3Line,
+  RiImageLine,
 } from "react-icons/ri";
 import MediaPicker from "@/components/ui/MediaPicker";
 import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
@@ -43,7 +44,6 @@ interface BlogPostSidebarProps {
   setActiveTab: (tab: SidebarTab) => void;
   open: boolean;
 
-  // Status pakai boolean (published), BEDA sama Project yang enum 3-state.
   published: boolean;
   setPublished: (v: boolean) => void;
   publishedAt?: string | Date | null;
@@ -82,8 +82,6 @@ function slugify(text: string): string {
     .replace(/-+/g, "-");
 }
 
-/** Sama persis kayak versi di ProjectSidebar — form inline kecil buat nambah
- * kategori/tag baru tanpa ninggalin sidebar. */
 function InlineAddForm({
   placeholder,
   onSubmit,
@@ -157,15 +155,6 @@ function InlineAddForm({
   );
 }
 
-/**
- * Sidebar kanan editor Blog Post. Struktur & fix reaktivitas sama persis
- * kayak ProjectSidebar, TAPI:
- * - Section "Tim Lapangan" DIHAPUS (blog gak punya konsep tim)
- * - Field "Galeri Proyek" DIHAPUS (blog cuma punya 1 cover image, gak ada gallery di schema)
- * - Section "Kategori" -> Location/Client/LimasRole diganti "Excerpt" (field asli di schema BlogPost)
- * - Section "Tags" BARU (blog punya relasi Tag yang project gak punya)
- * - Status jadi toggle Draft/Published (boolean), bukan select 3-opsi
- */
 export default function BlogPostSidebar({
   editor,
   activeTab,
@@ -197,7 +186,6 @@ export default function BlogPostSidebar({
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [showAddTag, setShowAddTag] = useState(false);
 
-  // Fix reaktivitas Tiptap — sama persis kayak ProjectSidebar.
   const [, forceUpdate] = useState(0);
   useEffect(() => {
     if (!editor) return;
@@ -224,8 +212,16 @@ export default function BlogPostSidebar({
   };
   const blockInfo = getBlockInfo();
 
-  /** Kategori blog — type "blog" biar konsisten sama fix filter type kemarin
-   * (jangan sampai kategori project ikut nyampur di sini juga). */
+  const imageAttrs = editor?.getAttributes("image") || {};
+  const currentWidth = imageAttrs.width || "100%";
+  const currentImageAlign = imageAttrs.align || "center";
+  const WIDTH_PRESETS = [
+    { label: "25%", value: "25%" },
+    { label: "50%", value: "50%" },
+    { label: "75%", value: "75%" },
+    { label: "100%", value: "100%" },
+  ];
+
   const handleCreateCategory = async (name: string) => {
     const res = await fetch("/api/categories", {
       method: "POST",
@@ -241,9 +237,6 @@ export default function BlogPostSidebar({
     setSelectedCategories([...selectedCategories, newCategory.id]);
   };
 
-  // ASUMSI: endpoint /api/tags belum pernah saya lihat, dibikin mengikuti
-  // pola persis /api/categories. Tag di schema gak punya field `type`,
-  // jadi gak dikirim. Sesuaikan kalau ternyata endpoint aslinya beda.
   const handleCreateTag = async (name: string) => {
     const res = await fetch("/api/tags", {
       method: "POST",
@@ -338,7 +331,6 @@ export default function BlogPostSidebar({
 
               <hr style={{ borderColor: "#dcdcde" }} />
 
-              {/* KATEGORI — identik sama ProjectSidebar */}
               <Section title="Kategori">
                 <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 max-h-36 overflow-y-auto space-y-1.5">
                   {categories.length === 0 && (
@@ -383,8 +375,6 @@ export default function BlogPostSidebar({
                 )}
               </Section>
 
-              {/* TAGS — baru, gak ada di ProjectSidebar. Pola sama kayak Kategori,
-                  cuma gak ada field tambahan per-item (Tim punya "role", Tags enggak) */}
               <Section title="Tags">
                 <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 max-h-36 overflow-y-auto">
                   {tags.length === 0 && (
@@ -433,7 +423,6 @@ export default function BlogPostSidebar({
 
               <hr style={{ borderColor: "#dcdcde" }} />
 
-              {/* MEDIA — cuma Cover Image, gak ada Galeri (blog gak punya field gallery di schema) */}
               <Section title="Media">
                 <Field label="Cover Image">
                   <MediaPicker value={coverImage} onChange={setCoverImage} />
@@ -495,6 +484,59 @@ export default function BlogPostSidebar({
                       ))}
                     </div>
                   </div>
+                )}
+
+                {editor?.isActive("image") && (
+                  <>
+                    <div className="p-3 space-y-2">
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase flex items-center gap-1.5">
+                        <RiImageLine size={12} /> Ukuran Gambar
+                      </span>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {WIDTH_PRESETS.map((preset) => (
+                          <button
+                            key={preset.value}
+                            type="button"
+                            onClick={() =>
+                              editor.chain().focus().updateAttributes("image", { width: preset.value }).run()
+                            }
+                            className={`py-1.5 text-[11px] font-bold rounded border transition ${
+                              currentWidth === preset.value
+                                ? "bg-[#E87722] text-white border-transparent"
+                                : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
+                            }`}
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="p-3 space-y-2">
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase block">Posisi Gambar</span>
+                      <div className="flex gap-1">
+                        {(["left", "center", "right"] as const).map((align) => {
+                          const Icon = { left: RiAlignLeft, center: RiAlignCenter, right: RiAlignRight }[align];
+                          return (
+                            <button
+                              key={align}
+                              type="button"
+                              onClick={() =>
+                                editor.chain().focus().updateAttributes("image", { align }).run()
+                              }
+                              className={`p-1.5 rounded border w-8 h-8 flex items-center justify-center transition ${
+                                currentImageAlign === align
+                                  ? "bg-[#E87722] text-white border-transparent"
+                                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-100"
+                              }`}
+                            >
+                              <Icon size={13} />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 <div className="p-3 space-y-2">

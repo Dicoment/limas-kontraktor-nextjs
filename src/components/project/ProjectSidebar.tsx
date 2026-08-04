@@ -16,6 +16,7 @@ import {
   RiCloseLine,
   RiLoader4Line,
   RiErrorWarningLine,
+  RiImageLine,
 } from "react-icons/ri";
 import MediaPicker, { MultipleMediaPicker } from "@/components/ui/MediaPicker";
 import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
@@ -44,13 +45,8 @@ interface ProjectSidebarProps {
   editor: Editor | null;
   activeTab: SidebarTab;
   setActiveTab: (tab: SidebarTab) => void;
-
-  // Dikontrol dari ProjectFormClient bareng tombol toggle di ProjectTopBar.
-  // Kalau false, sidebar collapse (lebar 0) tapi tetap 1 komponen terpisah —
-  // gak perlu digabung sama top bar, cuma share state ini lewat props.
   open: boolean;
 
-  // Pos tab fields
   status: string;
   setStatus: (v: string) => void;
   slug: string;
@@ -80,7 +76,6 @@ interface ProjectSidebarProps {
   setSeoDescription: (v: string) => void;
 }
 
-/** Generate slug sederhana dari nama, konsisten dengan logic slug judul project. */
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -90,11 +85,6 @@ function slugify(text: string): string {
     .replace(/-+/g, "-");
 }
 
-/**
- * Form inline kecil untuk menambah kategori atau tim baru tanpa
- * meninggalkan sidebar. Dipakai untuk dua kasus (kategori & tim)
- * lewat props `onSubmit` yang berbeda.
- */
 function InlineAddForm({
   placeholder,
   onSubmit,
@@ -168,11 +158,6 @@ function InlineAddForm({
   );
 }
 
-/**
- * Sidebar kanan halaman editor project, berisi 2 tab:
- * - "Pos": status, info proyek, kategori, tim, media, SEO
- * - "Blok": setelan untuk blok/elemen yang sedang aktif di editor
- */
 export default function ProjectSidebar({
   editor,
   activeTab,
@@ -209,14 +194,6 @@ export default function ProjectSidebar({
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [showAddTeam, setShowAddTeam] = useState(false);
 
-  // FIX: ProjectSidebar cuma nerima `editor` sebagai prop, jadi dia gak
-  // otomatis re-render tiap kali selection/cursor pindah di dalam editor
-  // (mis. klik ke paragraf lain, atau klik tombol align) — dia numpang
-  // re-render dari parent (ProjectFormClient) yang gak selalu ke-trigger
-  // pas transaksi itu cuma soal selection, bukan ngetik teks baru.
-  // Makanya warna aktif tombol Rata Teks/Heading kelihatan "telat" atau
-  // gak nyala sama sekali. Solusinya: subscribe langsung ke event Tiptap
-  // di sini, biar komponen ini force-update sendiri tiap ada perubahan.
   const [, forceUpdate] = useState(0);
   useEffect(() => {
     if (!editor) return;
@@ -243,7 +220,18 @@ export default function ProjectSidebar({
   };
   const blockInfo = getBlockInfo();
 
-  /** Kirim kategori baru ke API, lalu tambahkan ke list lokal & langsung centang. */
+  // BARU: attribute width/align gambar yang lagi aktif (buat kontrol di bawah)
+  const imageAttrs = editor?.getAttributes("image") || {};
+  const currentWidth = imageAttrs.width || "100%";
+  const currentImageAlign = imageAttrs.align || "center";
+
+  const WIDTH_PRESETS = [
+    { label: "25%", value: "25%" },
+    { label: "50%", value: "50%" },
+    { label: "75%", value: "75%" },
+    { label: "100%", value: "100%" },
+  ];
+
   const handleCreateCategory = async (name: string) => {
     const res = await fetch("/api/categories", {
       method: "POST",
@@ -259,7 +247,6 @@ export default function ProjectSidebar({
     setSelectedCategories([...selectedCategories, newCategory.id]);
   };
 
-  /** Kirim tim baru ke API, lalu tambahkan ke list lokal & langsung centang. */
   const handleCreateTeam = async (name: string) => {
     const res = await fetch("/api/teams", {
       method: "POST",
@@ -283,8 +270,6 @@ export default function ProjectSidebar({
       style={{ borderColor: "#dcdcde" }}
       aria-hidden={!open}
     >
-      {/* Wrapper lebar tetap 280px di dalam supaya konten gak "kegencet"
-          pas transisi width; overflow-hidden di <aside> yang nyembunyiinnya. */}
       <div className="w-[280px] flex flex-col flex-1 min-h-0 overflow-y-auto">
         <div className="flex border-b flex-shrink-0" style={{ borderColor: "#dcdcde" }}>
           {(["pos", "blok"] as const).map((t) => (
@@ -353,7 +338,6 @@ export default function ProjectSidebar({
 
               <hr style={{ borderColor: "#dcdcde" }} />
 
-              {/* KATEGORI — checkbox list custom + tambah kategori inline */}
               <Section title="Kategori">
                 <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 max-h-36 overflow-y-auto space-y-1.5">
                   {categories.length === 0 && (
@@ -398,7 +382,6 @@ export default function ProjectSidebar({
                 )}
               </Section>
 
-              {/* TIM LAPANGAN — multi-select checkbox + peran per tim + tambah tim inline */}
               <Section title="Tim Lapangan">
                 <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 max-h-44 overflow-y-auto space-y-2">
                   {teams.length === 0 && <p className="text-[11px] text-slate-400 italic">Belum ada tim</p>}
@@ -521,6 +504,62 @@ export default function ProjectSidebar({
                       ))}
                     </div>
                   </div>
+                )}
+
+                {/* BARU: kontrol ukuran & alignment khusus buat blok Gambar,
+                    mirip pengaturan block image di WordPress. Cuma muncul
+                    kalau cursor lagi di gambar. */}
+                {editor?.isActive("image") && (
+                  <>
+                    <div className="p-3 space-y-2">
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase flex items-center gap-1.5">
+                        <RiImageLine size={12} /> Ukuran Gambar
+                      </span>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {WIDTH_PRESETS.map((preset) => (
+                          <button
+                            key={preset.value}
+                            type="button"
+                            onClick={() =>
+                              editor.chain().focus().updateAttributes("image", { width: preset.value }).run()
+                            }
+                            className={`py-1.5 text-[11px] font-bold rounded border transition ${
+                              currentWidth === preset.value
+                                ? "bg-[#E87722] text-white border-transparent"
+                                : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"
+                            }`}
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="p-3 space-y-2">
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase block">Posisi Gambar</span>
+                      <div className="flex gap-1">
+                        {(["left", "center", "right"] as const).map((align) => {
+                          const Icon = { left: RiAlignLeft, center: RiAlignCenter, right: RiAlignRight }[align];
+                          return (
+                            <button
+                              key={align}
+                              type="button"
+                              onClick={() =>
+                                editor.chain().focus().updateAttributes("image", { align }).run()
+                              }
+                              className={`p-1.5 rounded border w-8 h-8 flex items-center justify-center transition ${
+                                currentImageAlign === align
+                                  ? "bg-[#E87722] text-white border-transparent"
+                                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-100"
+                              }`}
+                            >
+                              <Icon size={13} />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 <div className="p-3 space-y-2">

@@ -17,6 +17,16 @@ import crypto from "crypto"
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"]
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 
+function safeJsonParse(val: any): any[] {
+  if (!val || typeof val !== "string") return []
+  try {
+    const parsed = JSON.parse(val)
+    return Array.isArray(parsed) ? parsed : [parsed]
+  } catch {
+    return []
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url)
@@ -83,42 +93,42 @@ export async function POST(request: NextRequest) {
         const partStart = buffer.indexOf(boundaryBuffer, pos)
         if (partStart === -1) break
         
-        const headerEnd = buffer.indexOf(boundaryBuffer, partStart + boundaryBuffer.length)
-        if (headerEnd === -1) break
+        const nextPart = buffer.indexOf(boundaryBuffer, partStart + boundaryBuffer.length)
+        if (nextPart === -1) break
         
-        const headersRaw = buffer.slice(partStart + boundaryBuffer.length, headerEnd).toString()
+        const partBuffer = buffer.slice(partStart + boundaryBuffer.length, nextPart)
         
-        const contentDispositionMatch = headersRaw.match(/Content-Disposition: form-data; name="([^"]+)"(?:; filename="([^"]+)")?/)
-        if (!contentDispositionMatch) {
-          pos = headerEnd + boundaryBuffer.length
-          continue
+        // Pisahkan header dan body part menggunakan double CRLF (\r\n\r\n)
+        const headerEndIndex = partBuffer.indexOf("\r\n\r\n")
+        if (headerEndIndex !== -1) {
+          const headersRaw = partBuffer.slice(0, headerEndIndex).toString("utf-8")
+          let content = partBuffer.slice(headerEndIndex + 4)
+          
+          // Hapus trailing CRLF di akhir content
+          if (content.length >= 2 && content[content.length - 2] === 0x0d && content[content.length - 1] === 0x0a) {
+            content = content.slice(0, content.length - 2)
+          }
+          
+          const contentDispositionMatch = headersRaw.match(/Content-Disposition: form-data; name="([^"]+)"(?:; filename="([^"]+)")?/)
+          if (contentDispositionMatch) {
+            const fieldName = contentDispositionMatch[1]
+            const filename = contentDispositionMatch[2]
+            
+            if (filename) {
+              const mimeMatch = headersRaw.match(/Content-Type: ([^\r\n]+)/)
+              files.push({
+                name: fieldName,
+                data: content,
+                type: mimeMatch ? mimeMatch[1].trim() : "",
+                originalName: filename
+              })
+            } else {
+              fields[fieldName] = content.toString("utf-8").trim()
+            }
+          }
         }
         
-        const fieldName = contentDispositionMatch[1]
-        const filename = contentDispositionMatch[2]
-        
-        const bodyStart = headerEnd + boundaryBuffer.length
-        const bodyEnd = buffer.indexOf(boundaryBuffer, bodyStart)
-        
-        let content = buffer.slice(bodyStart, bodyEnd)
-        if (content[0] === 0x0d) content = content.slice(1)
-        if (content[0] === 0x0a) content = content.slice(1)
-        if (content[content.length - 1] === 0x0d) content = content.slice(0, content.length - 1)
-        if (content[content.length - 1] === 0x0a) content = content.slice(0, content.length - 1)
-        
-        if (filename) {
-          const mimeMatch = headersRaw.match(/Content-Type: ([^\r\n]+)/)
-          files.push({
-            name: fieldName,
-            data: content,
-            type: mimeMatch ? mimeMatch[1].trim() : "",
-            originalName: filename
-          })
-        } else {
-          fields[fieldName] = content.toString()
-        }
-        
-        pos = headerEnd + boundaryBuffer.length
+        pos = nextPart
       }
 
       const imageFile = files.find(f => f.name === "image")
@@ -170,8 +180,8 @@ export async function POST(request: NextRequest) {
         seoDescription: fields.seoDescription || null,
         published: fields.published === "true",
         publishedAt: fields.publishedAt || null,
-        categoryIds: fields.categoryIds ? JSON.parse(fields.categoryIds) : [],
-        tagIds: fields.tagIds ? JSON.parse(fields.tagIds) : [],
+        categoryIds: safeJsonParse(fields.categoryIds),
+        tagIds: safeJsonParse(fields.tagIds),
       }
     } else {
       try {

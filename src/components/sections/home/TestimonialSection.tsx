@@ -1,18 +1,15 @@
 // src/components/sections/TestimonialSection.tsx
-import prisma from "@/lib/prisma"; 
-import TestimonialClient, { TestimonialWithProject } from "./TestimonialClient"; 
-import { TestimonialPlatform } from "@prisma/client";
+import prisma from "@/lib/prisma";
+import TestimonialClient, { TestimonialWithProject } from "./TestimonialClient";
 
 export default async function TestimonialSection() {
-  // Ambil data asli database
+  // Ambil SEMUA testimoni published, baik Manual maupun Social Media
   const testimonialData = await prisma.testimonial.findMany({
     where: {
-      published: true, 
-      platform: TestimonialPlatform.SOCIAL_MEDIA, 
-      sourceUrl: { not: null }, 
+      published: true,
     },
     orderBy: {
-      createdAt: "desc", 
+      createdAt: "desc",
     },
     include: {
       project: {

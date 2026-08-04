@@ -82,69 +82,81 @@ export function Sidebar({
       </div>
 
       {/* Bagian List Navigasi */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1 custom-scrollbar">
-        <SidebarItem href="/dashboard" icon={<RiDashboardLine size={18} />} label="Dashboard" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard'} />
+<nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1 custom-scrollbar">
+  <SidebarItem href="/dashboard" icon={<RiDashboardLine size={18} />} label="Dashboard" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard'} />
 
-        <SidebarLabel label="Konten Utama" collapsed={collapsed} mobileOpen={mobileOpen} />
-        <SidebarItem href="/dashboard/projects" icon={<RiBriefcaseLine size={18} />} label="Projects" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/projects'} />
-        <SidebarItem href="/dashboard/blog-posts" icon={<RiFileTextLine size={18} />} label="Blog Posts" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/blog-posts'} />
-        <SidebarItem href="/dashboard/categories" icon={<RiStackLine size={18} />} label="Categories" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/categories'} />
-        <SidebarItem href="/dashboard/tags" icon={<RiPriceTag3Line size={18} />} label="Tags" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/tags'} />
-        <SidebarItem href="/dashboard/faqs" icon={<RiQuestionLine size={18} />} label="FAQ" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/faqs'} />
+  <SidebarLabel label="Konten Utama" collapsed={collapsed} mobileOpen={mobileOpen} />
+  
+  {/* Menu Projects dengan Sub-menu / Dropdown */}
+  <SidebarGroup
+    icon={<RiBriefcaseLine size={18} />}
+    label="Projects"
+    collapsed={collapsed}
+    mobileOpen={mobileOpen}
+    pathname={pathname}
+    items={[
+      { href: "/dashboard/projects", label: "Daftar Projects" },
+      { href: "/dashboard/virtual-tour", label: "Virtual Tour" }, // Sesuaikan route jika beda, contoh: /dashboard/projects/virtual-tour
+    ]}
+  />
 
-        <SidebarLabel label="Data Perusahaan" collapsed={collapsed} mobileOpen={mobileOpen} />
-        <SidebarItem href="/dashboard/teams" icon={<RiTeamLine size={18} />} label="Teams" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/teams'} />
-        <SidebarItem href="/dashboard/testimonials" icon={<RiChat3Line size={18} />} label="Testimonials" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/testimonials'} />
-        <SidebarItem href="/dashboard/pages" icon={<RiFileCopyLine size={18} />} label="Pages" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/pages'} />
+  <SidebarItem href="/dashboard/blog-posts" icon={<RiFileTextLine size={18} />} label="Blog Posts" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/blog-posts'} />
+  <SidebarItem href="/dashboard/categories" icon={<RiStackLine size={18} />} label="Categories" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/categories'} />
+  <SidebarItem href="/dashboard/tags" icon={<RiPriceTag3Line size={18} />} label="Tags" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/tags'} />
+  <SidebarItem href="/dashboard/faqs" icon={<RiQuestionLine size={18} />} label="FAQ" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/faqs'} />
 
-        <SidebarLabel label="Sistem & Prospek" collapsed={collapsed} mobileOpen={mobileOpen} />
+  <SidebarLabel label="Data Perusahaan" collapsed={collapsed} mobileOpen={mobileOpen} />
+  <SidebarItem href="/dashboard/teams" icon={<RiTeamLine size={18} />} label="Teams" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/teams'} />
+  <SidebarItem href="/dashboard/testimonials" icon={<RiChat3Line size={18} />} label="Testimonials" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/testimonials'} />
+  <SidebarItem href="/dashboard/pages" icon={<RiFileCopyLine size={18} />} label="Pages" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/pages'} />
 
-        {/* Profil pribadi admin yang lagi login - link langsung, BUKAN dropdown lagi
-            (dipisah dari Setting, yang sebelumnya nyampur di sini) */}
-        <SidebarItem
-          href="/dashboard/profile"
-          icon={<RiUserLine size={18} />}
-          label="Profile"
-          collapsed={collapsed}
-          mobileOpen={mobileOpen}
-          active={pathname === '/dashboard/profile'}
-        />
+  <SidebarLabel label="Sistem & Prospek" collapsed={collapsed} mobileOpen={mobileOpen} />
 
-        {/* Manajemen akun admin lain - beda dari profil pribadi sendiri */}
-        <SidebarGroup
-          icon={<RiGroupLine size={18} />}
-          label="Users"
-          collapsed={collapsed}
-          mobileOpen={mobileOpen}
-          pathname={pathname}
-          items={[
-            { href: "/dashboard/users", label: "Daftar User" },
-            { href: "/dashboard/users/new", label: "Tambah User" },
-          ]}
-        />
+  {/* Profil pribadi admin yang lagi login */}
+  <SidebarItem
+    href="/dashboard/profile"
+    icon={<RiUserLine size={18} />}
+    label="Profile"
+    collapsed={collapsed}
+    mobileOpen={mobileOpen}
+    active={pathname === '/dashboard/profile'}
+  />
 
-        {/* Pengaturan website (google analytics, dsb) - beda dari profil pribadi */}
-        <SidebarItem
-          href="/dashboard/settings"
-          icon={<RiSettings3Line size={18} />}
-          label="Setting"
-          collapsed={collapsed}
-          mobileOpen={mobileOpen}
-          active={pathname === '/dashboard/settings'}
-        />
+  {/* Manajemen akun admin lain */}
+  <SidebarGroup
+    icon={<RiGroupLine size={18} />}
+    label="Users"
+    collapsed={collapsed}
+    mobileOpen={mobileOpen}
+    pathname={pathname}
+    items={[
+      { href: "/dashboard/users", label: "Daftar User" },
+      { href: "/dashboard/users/new", label: "Tambah User" },
+    ]}
+  />
 
-        <SidebarGroup
-          icon={<RiHistoryLine size={18} />}
-          label="Leads Log"
-          collapsed={collapsed}
-          mobileOpen={mobileOpen}
-          pathname={pathname}
-          items={[
-            { href: "/dashboard/leads-logs", label: "Submission" },
-            { href: "/dashboard/leads-logs/wa-floating", label: "WA Floating" },
-          ]}
-        />
-      </nav>
+  {/* Pengaturan website */}
+  <SidebarItem
+    href="/dashboard/settings"
+    icon={<RiSettings3Line size={18} />}
+    label="Setting"
+    collapsed={collapsed}
+    mobileOpen={mobileOpen}
+    active={pathname === '/dashboard/settings'}
+  />
+
+  <SidebarGroup
+    icon={<RiHistoryLine size={18} />}
+    label="Leads Log"
+    collapsed={collapsed}
+    mobileOpen={mobileOpen}
+    pathname={pathname}
+    items={[
+      { href: "/dashboard/leads-logs", label: "Submission" },
+      { href: "/dashboard/leads-logs/wa-floating", label: "WA Floating" },
+    ]}
+  />
+</nav>
 
       {/* Bagian Bawah Profil Footer Info */}
       <div className="p-4 border-t border-slate-700 bg-slate-950/40">

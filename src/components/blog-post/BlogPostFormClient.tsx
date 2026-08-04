@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TiptapLink from "@tiptap/extension-link";
-import TiptapImage from "@tiptap/extension-image";
+import CustomImage from "@/lib/tiptap/CustomImage";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -27,14 +27,6 @@ interface BlogPostFormClientProps {
   initialData?: FormattedBlogPost;
 }
 
-/**
- * Halaman editor Blog Post (tambah/edit). Struktur identik ProjectFormClient
- * (topbar + toolbar + kanvas Tiptap + sidebar collapsible, full-screen
- * overlay biar gak numpuk sama AdminLayout), TAPI:
- * - Gak ada state teams/selectedTeams/gallery (blog gak punya Tim & Galeri)
- * - Ada state excerpt & selectedTags (field baru khusus blog)
- * - status jadi boolean `published`, bukan string enum
- */
 export default function BlogPostFormClient({
   categories: initialCategories = [],
   tags: initialTags = [],
@@ -88,8 +80,8 @@ export default function BlogPostFormClient({
         openOnClick: false,
         HTMLAttributes: { class: "text-[#E87722] underline underline-offset-2 cursor-pointer" },
       }),
-      TiptapImage.configure({
-        HTMLAttributes: { class: "max-w-full rounded-xl my-5 shadow-sm" },
+      CustomImage.configure({
+        HTMLAttributes: { class: "rounded-xl my-5 shadow-sm" },
         allowBase64: false,
       }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
@@ -159,10 +151,6 @@ export default function BlogPostFormClient({
     [editor]
   );
 
-  // ASUMSI: target /api/blog-posts mirror pola /api/projects yang dipakai
-  // ProjectFormClient. BELUM diverifikasi karena route handler-nya belum
-  // pernah saya lihat isinya — sesuaikan field FormData ini begitu file
-  // route.ts aslinya di-share.
   const handleSubmit = async (publish: boolean) => {
     if (!title.trim()) {
       setErrorMsg("Judul artikel wajib diisi.");
@@ -191,12 +179,7 @@ export default function BlogPostFormClient({
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        // API ngebalikin detail per-field (err.fieldErrors) pas Zod validation
-        // gagal, tapi sebelumnya kebuang gitu aja jadi cuma nampilin "Validation
-        // failed" generic. Sekarang detailnya digabung biar kelihatan field mana
-        // yang bermasalah.
         if (err.fieldErrors) {
-          console.error("Blog post validation errors:", err.fieldErrors);
           const detail = Object.entries(err.fieldErrors)
             .map(([field, msgs]) => `${field}: ${(msgs as string[]).join(", ")}`)
             .join(" | ");
@@ -214,7 +197,13 @@ export default function BlogPostFormClient({
         setSaveStatus("saved");
         setTimeout(() => setSaveStatus("idle"), 3000);
       } else {
-        window.location.href = "/dashboard/blog-posts";
+        // FIX: sebelumnya langsung redirect pas publish, gak sempet
+        // nampilin notifikasi. Sekarang dikasih jeda biar banner
+        // "Berhasil dipublikasikan!" sempet kebaca dulu.
+        setSaveStatus("published");
+        setTimeout(() => {
+          window.location.href = "/dashboard/blog-posts";
+        }, 1200);
       }
     } catch (err: any) {
       setErrorMsg(err.message);
@@ -226,7 +215,10 @@ export default function BlogPostFormClient({
   };
 
   return (
-    <>
+    // FIX: dibalikin non-full-screen — sebelumnya `fixed inset-0 z-[999]`
+    // bikin LinkModal/ImageUploadModal (sibling sebelum div ini) ketutup
+    // invisible karena z-index-nya jauh di bawah 999.
+    <div className="flex flex-col h-full" style={{ fontFamily: "'Inter', sans-serif" }}>
       {showLinkModal && (
         <LinkModal
           defaultUrl={editor?.getAttributes("link").href || ""}
@@ -236,91 +228,87 @@ export default function BlogPostFormClient({
       )}
       {showImageModal && <ImageUploadModal onSelect={confirmImage} onClose={() => setShowImageModal(false)} />}
 
-      {/* Full-screen overlay, sama alasannya kayak ProjectFormClient — keluar
-          dari flow AdminLayout (Header + BottomNav) biar gak rebutan tinggi. */}
-      <div className="fixed inset-0 z-[999] flex flex-col bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-        <BlogPostTopBar
-          title={title}
-          published={published}
-          slug={slug}
-          loading={loading}
-          saveStatus={saveStatus}
-          canPreview={canPreview}
-          onSaveDraft={() => handleSubmit(false)}
-          onPublish={() => handleSubmit(true)}
-          onPreviewBlocked={() => setErrorMsg("Simpan draf dulu sebelum preview.")}
-          sidebarOpen={sidebarOpen}
-          onToggleSidebar={() => setSidebarOpen((v) => !v)}
-        />
+      <BlogPostTopBar
+        title={title}
+        published={published}
+        slug={slug}
+        loading={loading}
+        saveStatus={saveStatus}
+        canPreview={canPreview}
+        onSaveDraft={() => handleSubmit(false)}
+        onPublish={() => handleSubmit(true)}
+        onPreviewBlocked={() => setErrorMsg("Simpan draf dulu sebelum preview.")}
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen((v) => !v)}
+      />
 
-        {errorMsg && (
-          <div className="bg-red-50 border-b border-red-200 px-5 py-2 flex items-center gap-2 text-red-700 text-xs font-medium flex-shrink-0 z-20">
-            <RiErrorWarningLine size={14} /> {errorMsg}
-            <button
-              type="button"
-              onClick={() => setErrorMsg("")}
-              className="ml-auto text-red-400 hover:text-red-600"
-            >
-              <RiCloseLine size={14} />
-            </button>
-          </div>
-        )}
-
-        <div className="flex-1 flex overflow-hidden min-h-0" style={{ background: "#f0f0f1" }}>
-          <div className="flex-1 flex flex-col overflow-hidden min-h-0">
-            <ProjectEditorToolbar editor={editor} onAddLink={handleAddLink} onAddImage={handleAddImage} />
-
-            <div className="flex-1 overflow-y-auto bg-white min-h-0" style={{ scrollbarGutter: "stable" }}>
-              <div className="px-10 pt-10 pb-2 border-b border-slate-100">
-                <input
-                  className="text-[2rem] font-bold w-full outline-none text-[#0F2340] placeholder:text-slate-300 leading-snug"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Tambahkan judul"
-                />
-                {slug && (
-                  <p className="text-[11px] text-slate-400 mt-1 font-mono">
-                    /blog/<span className="text-[#E87722]">{slug}</span>
-                  </p>
-                )}
-              </div>
-              <EditorContent editor={editor} className="w-full" />
-            </div>
-          </div>
-
-          <BlogPostSidebar
-            editor={editor}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            open={sidebarOpen}
-            published={published}
-            setPublished={setPublished}
-            publishedAt={initialData?.publishedAt}
-            slug={slug}
-            setSlug={(v) => {
-              setSlugTouched(true);
-              setSlug(v);
-            }}
-            excerpt={excerpt}
-            setExcerpt={setExcerpt}
-            categories={categories}
-            setCategories={setCategories}
-            selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-            tags={tags}
-            setTags={setTags}
-            selectedTags={selectedTags}
-            setSelectedTags={setSelectedTags}
-            coverImage={coverImage}
-            setCoverImage={setCoverImage}
-            title={title}
-            seoTitle={seoTitle}
-            setSeoTitle={setSeoTitle}
-            seoDescription={seoDescription}
-            setSeoDescription={setSeoDescription}
-          />
+      {errorMsg && (
+        <div className="bg-red-50 border-b border-red-200 px-5 py-2 flex items-center gap-2 text-red-700 text-xs font-medium flex-shrink-0 z-20">
+          <RiErrorWarningLine size={14} /> {errorMsg}
+          <button
+            type="button"
+            onClick={() => setErrorMsg("")}
+            className="ml-auto text-red-400 hover:text-red-600"
+          >
+            <RiCloseLine size={14} />
+          </button>
         </div>
+      )}
+
+      <div className="flex-1 flex overflow-hidden min-h-0" style={{ background: "#f0f0f1" }}>
+        <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+          <ProjectEditorToolbar editor={editor} onAddLink={handleAddLink} onAddImage={handleAddImage} />
+
+          <div className="flex-1 overflow-y-auto bg-white min-h-0" style={{ scrollbarGutter: "stable" }}>
+            <div className="px-10 pt-10 pb-2 border-b border-slate-100">
+              <input
+                className="text-[2rem] font-bold w-full outline-none text-[#0F2340] placeholder:text-slate-300 leading-snug"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Tambahkan judul"
+              />
+              {slug && (
+                <p className="text-[11px] text-slate-400 mt-1 font-mono">
+                  /blog/<span className="text-[#E87722]">{slug}</span>
+                </p>
+              )}
+            </div>
+            <EditorContent editor={editor} className="w-full" />
+          </div>
+        </div>
+
+        <BlogPostSidebar
+          editor={editor}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          open={sidebarOpen}
+          published={published}
+          setPublished={setPublished}
+          publishedAt={initialData?.publishedAt}
+          slug={slug}
+          setSlug={(v) => {
+            setSlugTouched(true);
+            setSlug(v);
+          }}
+          excerpt={excerpt}
+          setExcerpt={setExcerpt}
+          categories={categories}
+          setCategories={setCategories}
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+          tags={tags}
+          setTags={setTags}
+          selectedTags={selectedTags}
+          setSelectedTags={setSelectedTags}
+          coverImage={coverImage}
+          setCoverImage={setCoverImage}
+          title={title}
+          seoTitle={seoTitle}
+          setSeoTitle={setSeoTitle}
+          seoDescription={seoDescription}
+          setSeoDescription={setSeoDescription}
+        />
       </div>
-    </>
+    </div>
   );
 }

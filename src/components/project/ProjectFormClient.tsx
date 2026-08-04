@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TiptapLink from "@tiptap/extension-link";
-import TiptapImage from "@tiptap/extension-image";
+import CustomImage from "@/lib/tiptap/CustomImage";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -27,11 +27,6 @@ interface ProjectFormClientProps {
   initialData?: FormattedProject;
 }
 
-/**
- * Halaman editor project (tambah/edit). Menggabungkan top bar, toolbar
- * editor, kanvas Tiptap, dan sidebar kanan (Pos & Blok) menjadi satu
- * pengalaman edit yang utuh.
- */
 export default function ProjectFormClient({
   categories: initialCategories = [],
   teams: initialTeams = [],
@@ -47,14 +42,10 @@ export default function ProjectFormClient({
   const [status, setStatus] = useState<string>(initialData?.status ?? "DRAFT");
   const [seoTitle, setSeoTitle] = useState(initialData?.seoTitle ?? "");
   const [seoDescription, setSeoDescription] = useState(initialData?.seoDescription ?? "");
-  // categories & teams disimpan sebagai state lokal (bukan langsung props)
-  // karena sidebar bisa menambahkan kategori/tim baru secara on-the-fly
-  // tanpa reload halaman.
+
   const [categories, setCategories] = useState<any[]>(initialCategories);
   const [teams, setTeams] = useState<any[]>(initialTeams);
 
-  // FormattedProject.categories sudah berupa Category[] langsung (bukan nested
-  // catEntry), dan .teams sudah { id, name, role }[] — jadi mapping-nya simpel.
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     () => initialData?.categories?.map((c) => c.id) ?? []
   );
@@ -92,8 +83,8 @@ export default function ProjectFormClient({
         openOnClick: false,
         HTMLAttributes: { class: "text-[#E87722] underline underline-offset-2 cursor-pointer" },
       }),
-      TiptapImage.configure({
-        HTMLAttributes: { class: "max-w-full rounded-xl my-5 shadow-sm" },
+      CustomImage.configure({
+        HTMLAttributes: { class: "rounded-xl my-5 shadow-sm" },
         allowBase64: false,
       }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
@@ -128,15 +119,10 @@ export default function ProjectFormClient({
         return true;
       },
     },
-    // Isi konten awal editor dari initialData.description (mode edit).
-    // Kalau kosong (mode "new"), fallback ke string kosong seperti semula.
     content: initialData?.description ?? "",
     immediatelyRender: false,
   });
 
-  // Auto-generate slug dari title HANYA kalau slug belum pernah "disentuh"
-  // (mode "new" / belum ada slug awal). Di mode edit, slug yang sudah ada
-  // dari initialData tidak boleh keubah otomatis cuma karena title diketik ulang.
   const [slugTouched, setSlugTouched] = useState(!!initialData?.slug);
   useEffect(() => {
     if (slugTouched) return;
@@ -210,7 +196,14 @@ export default function ProjectFormClient({
         setSaveStatus("saved");
         setTimeout(() => setSaveStatus("idle"), 3000);
       } else {
-        window.location.href = "/dashboard/projects";
+        // FIX: sebelumnya langsung `window.location.href` pas publish,
+        // gak sempet nampilin notifikasi apapun ke user. Sekarang kasih
+        // jeda dikit biar banner "Berhasil dipublikasikan!" sempet kebaca
+        // dulu sebelum pindah halaman.
+        setSaveStatus("published");
+        setTimeout(() => {
+          window.location.href = "/dashboard/projects";
+        }, 1200);
       }
     } catch (err: any) {
       setErrorMsg(err.message);
@@ -222,7 +215,13 @@ export default function ProjectFormClient({
   };
 
   return (
-    <>
+    // FIX: dibalikin ke non-full-screen, ikut alur normal di dalam <main>
+    // AdminLayout. Sebelumnya dibungkus `fixed inset-0 z-[999]` yang bikin
+    // LinkModal & ImageUploadModal (di-render sebagai sibling SEBELUM div
+    // ini) ketutup invisible karena z-index modal jauh di bawah 999 —
+    // itu sebabnya klik tombol Link kelihatan gak ngefek, padahal modalnya
+    // beneran render, cuma ketiban layer di atasnya.
+    <div className="flex flex-col h-full" style={{ fontFamily: "'Inter', sans-serif" }}>
       {showLinkModal && (
         <LinkModal
           defaultUrl={editor?.getAttributes("link").href || ""}
@@ -232,101 +231,92 @@ export default function ProjectFormClient({
       )}
       {showImageModal && <ImageUploadModal onSelect={confirmImage} onClose={() => setShowImageModal(false)} />}
 
-      {/* Halaman editor ini sengaja jadi full-screen overlay yang keluar total
-          dari flow AdminLayout (Header + BottomNav mobile) — mirip WordPress
-          block editor yang "ambil alih" layar pas lagi ngedit. Ini ngilangin
-          ketergantungan sama tinggi Header/BottomNav yang sebelumnya cuma
-          ditebak lewat calc(100vh - 64px), penyebab menu kepotong & gak
-          responsif. z-index dikasih tinggi biar nutup BottomNav (z-50) dan
-          overlay sidebar mobile AdminLayout (z-60) sepenuhnya. */}
-      <div className="fixed inset-0 z-[999] flex flex-col bg-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-        <ProjectTopBar
-          title={title}
-          status={status}
-          slug={slug}
-          loading={loading}
-          saveStatus={saveStatus}
-          canPreview={canPreview}
-          onSaveDraft={() => handleSubmit("DRAFT")}
-          onPublish={() => handleSubmit("COMPLETED")}
-          onPreviewBlocked={() => setErrorMsg("Simpan draf dulu sebelum preview.")}
-          sidebarOpen={sidebarOpen}
-          onToggleSidebar={() => setSidebarOpen((v) => !v)}
-        />
+      <ProjectTopBar
+        title={title}
+        status={status}
+        slug={slug}
+        loading={loading}
+        saveStatus={saveStatus}
+        canPreview={canPreview}
+        onSaveDraft={() => handleSubmit("DRAFT")}
+        onPublish={() => handleSubmit("COMPLETED")}
+        onPreviewBlocked={() => setErrorMsg("Simpan draf dulu sebelum preview.")}
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen((v) => !v)}
+      />
 
-        {errorMsg && (
-          <div className="bg-red-50 border-b border-red-200 px-5 py-2 flex items-center gap-2 text-red-700 text-xs font-medium flex-shrink-0 z-20">
-            <RiErrorWarningLine size={14} /> {errorMsg}
-            <button
-              type="button"
-              onClick={() => setErrorMsg("")}
-              className="ml-auto text-red-400 hover:text-red-600"
-            >
-              <RiCloseLine size={14} />
-            </button>
-          </div>
-        )}
-
-        <div className="flex-1 flex overflow-hidden min-h-0" style={{ background: "#f0f0f1" }}>
-          <div className="flex-1 flex flex-col overflow-hidden min-h-0">
-            <ProjectEditorToolbar editor={editor} onAddLink={handleAddLink} onAddImage={handleAddImage} />
-
-            <div className="flex-1 overflow-y-auto bg-white min-h-0" style={{ scrollbarGutter: "stable" }}>
-              <div className="px-10 pt-10 pb-2 border-b border-slate-100">
-                <input
-                  className="text-[2rem] font-bold w-full outline-none text-[#0F2340] placeholder:text-slate-300 leading-snug"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Tambahkan judul"
-                />
-                {slug && (
-                  <p className="text-[11px] text-slate-400 mt-1 font-mono">
-                    /proyek/<span className="text-[#E87722]">{slug}</span>
-                  </p>
-                )}
-              </div>
-              <EditorContent editor={editor} className="w-full" />
-            </div>
-          </div>
-
-          <ProjectSidebar
-            editor={editor}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            open={sidebarOpen}
-            status={status}
-            setStatus={setStatus}
-            slug={slug}
-            setSlug={(v) => {
-              setSlugTouched(true);
-              setSlug(v);
-            }}
-            location={location}
-            setLocation={setLocation}
-            client={client}
-            setClient={setClient}
-            limasRole={limasRole}
-            setLimasRole={setLimasRole}
-            categories={categories}
-            setCategories={setCategories}
-            selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-            teams={teams}
-            setTeams={setTeams}
-            selectedTeams={selectedTeams}
-            setSelectedTeams={setSelectedTeams}
-            coverImage={coverImage}
-            setCoverImage={setCoverImage}
-            gallery={gallery}
-            setGallery={setGallery}
-            title={title}
-            seoTitle={seoTitle}
-            setSeoTitle={setSeoTitle}
-            seoDescription={seoDescription}
-            setSeoDescription={setSeoDescription}
-          />
+      {errorMsg && (
+        <div className="bg-red-50 border-b border-red-200 px-5 py-2 flex items-center gap-2 text-red-700 text-xs font-medium flex-shrink-0 z-20">
+          <RiErrorWarningLine size={14} /> {errorMsg}
+          <button
+            type="button"
+            onClick={() => setErrorMsg("")}
+            className="ml-auto text-red-400 hover:text-red-600"
+          >
+            <RiCloseLine size={14} />
+          </button>
         </div>
+      )}
+
+      <div className="flex-1 flex overflow-hidden min-h-0" style={{ background: "#f0f0f1" }}>
+        <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+          <ProjectEditorToolbar editor={editor} onAddLink={handleAddLink} onAddImage={handleAddImage} />
+
+          <div className="flex-1 overflow-y-auto bg-white min-h-0" style={{ scrollbarGutter: "stable" }}>
+            <div className="px-10 pt-10 pb-2 border-b border-slate-100">
+              <input
+                className="text-[2rem] font-bold w-full outline-none text-[#0F2340] placeholder:text-slate-300 leading-snug"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Tambahkan judul"
+              />
+              {slug && (
+                <p className="text-[11px] text-slate-400 mt-1 font-mono">
+                  /proyek/<span className="text-[#E87722]">{slug}</span>
+                </p>
+              )}
+            </div>
+            <EditorContent editor={editor} className="w-full" />
+          </div>
+        </div>
+
+        <ProjectSidebar
+          editor={editor}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          open={sidebarOpen}
+          status={status}
+          setStatus={setStatus}
+          slug={slug}
+          setSlug={(v) => {
+            setSlugTouched(true);
+            setSlug(v);
+          }}
+          location={location}
+          setLocation={setLocation}
+          client={client}
+          setClient={setClient}
+          limasRole={limasRole}
+          setLimasRole={setLimasRole}
+          categories={categories}
+          setCategories={setCategories}
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+          teams={teams}
+          setTeams={setTeams}
+          selectedTeams={selectedTeams}
+          setSelectedTeams={setSelectedTeams}
+          coverImage={coverImage}
+          setCoverImage={setCoverImage}
+          gallery={gallery}
+          setGallery={setGallery}
+          title={title}
+          seoTitle={seoTitle}
+          setSeoTitle={setSeoTitle}
+          seoDescription={seoDescription}
+          setSeoDescription={setSeoDescription}
+        />
       </div>
-    </>
+    </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { RiErrorWarningLine, RiCloseLine } from "react-icons/ri";
+import { RiErrorWarningLine, RiCloseLine, RiCheckboxCircleLine } from "react-icons/ri";
 import MediaPicker from "@/components/ui/MediaPicker";
 import { createTeam, updateTeam } from "@/actions/misc.actions";
 
@@ -30,14 +30,20 @@ export default function TeamFormClient({ initialData }: TeamFormClientProps) {
   const [displayOrder, setDisplayOrder] = useState(initialData?.displayOrder ?? 0);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
 
   const handleSubmit = async () => {
+    // 1. Cegah eksekusi jika sedang proses loading
+    if (loading) return;
+
     if (!name.trim()) {
       setErrorMsg("Nama wajib diisi.");
       return;
     }
+
     setLoading(true);
     setErrorMsg("");
+    setSuccessMsg("");
 
     const payload = {
       name,
@@ -50,36 +56,56 @@ export default function TeamFormClient({ initialData }: TeamFormClientProps) {
     };
 
     try {
-      if (initialData) await updateTeam(initialData.id, payload);
-      else await createTeam(payload);
+      if (initialData) {
+        await updateTeam(initialData.id, payload);
+        setSuccessMsg("Tim berhasil diperbarui!");
+      } else {
+        await createTeam(payload);
+        setSuccessMsg("Tim baru berhasil ditambahkan!");
+      }
 
-      router.push("/dashboard/teams");
-      router.refresh();
+      // 2. Tampilkan notifikasi sebentar lalu redirect & hapus cache
+      setTimeout(() => {
+        router.push("/dashboard/teams");
+        router.refresh();
+      }, 500);
+
     } catch (err: any) {
       setErrorMsg(err.message || "Gagal menyimpan.");
-    } finally {
-      setLoading(false);
+      setLoading(false); // Hanya matikan loading jika error
     }
   };
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-bold text-slate-800">{initialData ? "Edit Tim" : "Tambah Tim Baru"}</h1>
+        <h1 className="text-lg font-bold text-slate-800">
+          {initialData ? "Edit Tim" : "Tambah Tim Baru"}
+        </h1>
         <button
           type="button"
           onClick={handleSubmit}
           disabled={loading}
-          className="px-4 py-2 text-xs font-bold bg-[#E87722] text-white rounded-lg hover:bg-orange-600 transition disabled:opacity-50"
+          className="px-4 py-2 text-xs font-bold bg-[#E87722] text-white rounded-lg hover:bg-orange-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "Menyimpan..." : "Simpan"}
         </button>
       </div>
 
+      {successMsg && (
+        <div className="bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-lg flex items-center gap-2 text-emerald-700 text-xs font-medium">
+          <RiCheckboxCircleLine size={16} /> {successMsg}
+        </div>
+      )}
+
       {errorMsg && (
         <div className="bg-red-50 border border-red-200 px-4 py-2 rounded-lg flex items-center gap-2 text-red-700 text-xs">
           <RiErrorWarningLine size={14} /> {errorMsg}
-          <button type="button" onClick={() => setErrorMsg("")} className="ml-auto text-red-400 hover:text-red-600">
+          <button
+            type="button"
+            onClick={() => setErrorMsg("")}
+            className="ml-auto text-red-400 hover:text-red-600"
+          >
             <RiCloseLine size={14} />
           </button>
         </div>
