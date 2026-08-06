@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import {
-  RiDashboardLine, RiBriefcaseLine, RiFileTextLine, RiStackLine, RiPriceTag3Line,
+  RiDashboardLine, RiImageLine,RiBriefcaseLine, RiFileTextLine, RiStackLine, RiPriceTag3Line,
   RiTeamLine, RiChat3Line, RiFileCopyLine, RiSettings3Line, RiHistoryLine,
   RiGlobalLine, RiMenuFoldLine, RiUserLine, RiLogoutBoxLine, RiQuestionLine,
   RiGroupLine,
@@ -101,6 +101,8 @@ export function Sidebar({
   />
 
   <SidebarItem href="/dashboard/blog-posts" icon={<RiFileTextLine size={18} />} label="Blog Posts" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/blog-posts'} />
+  <SidebarItem href="/dashboard/media" icon={<RiImageLine size={18} />} label="Media" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/media'} />
+
   <SidebarItem href="/dashboard/categories" icon={<RiStackLine size={18} />} label="Categories" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/categories'} />
   <SidebarItem href="/dashboard/tags" icon={<RiPriceTag3Line size={18} />} label="Tags" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/tags'} />
   <SidebarItem href="/dashboard/faqs" icon={<RiQuestionLine size={18} />} label="FAQ" collapsed={collapsed} mobileOpen={mobileOpen} active={pathname === '/dashboard/faqs'} />

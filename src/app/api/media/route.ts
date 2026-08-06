@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 
+const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+
 export async function GET() {
   try {
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads'); 
-    
     try {
       await fs.access(uploadDir);
     } catch {
@@ -13,7 +13,7 @@ export async function GET() {
     }
 
     const filenames = await fs.readdir(uploadDir);
-    
+
     const files = await Promise.all(
       filenames.map(async (name) => {
         const fullPath = path.join(uploadDir, name);
@@ -24,15 +24,14 @@ export async function GET() {
             id: name,
             name: name,
             size: stats.size,
-            url: `/uploads/${name}`, // Next.js otomatis melayani ini dari public/uploads
-            createdAt: stats.birthtime
+            url: `/uploads/${name}`,
+            createdAt: stats.birthtime,
           };
         }
         return null;
       })
     );
 
-    // Filter null dan urutkan dari yang terbaru
     const validFiles = files.filter(Boolean) as any[];
     validFiles.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
@@ -40,5 +39,48 @@ export async function GET() {
   } catch (err: any) {
     console.error("Media API Error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const filenames: string[] = Array.isArray(body?.filenames) ? body.filenames : [];
+
+    if (filenames.length === 0) {
+      return NextResponse.json({ error: "Tidak ada file yang dipilih." }, { status: 400 });
+    }
+
+    let deletedCount = 0;
+    const failed: string[] = [];
+
+    for (const rawName of filenames) {
+      // path.basename mencegah path traversal (misal "../../../etc/passwd")
+      const safeName = path.basename(rawName);
+      const filePath = path.join(uploadDir, safeName);
+
+      // Pastikan path hasil join tetap di dalam uploadDir
+      if (!filePath.startsWith(uploadDir)) {
+        failed.push(rawName);
+        continue;
+      }
+
+      try {
+        await fs.unlink(filePath);
+        deletedCount++;
+      } catch (err) {
+        console.error(`Gagal hapus file ${safeName}:`, err);
+        failed.push(rawName);
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      deletedCount,
+      failed,
+    });
+  } catch (err: any) {
+    console.error("Media DELETE Error:", err);
+    return NextResponse.json({ error: err.message || "Gagal menghapus file." }, { status: 500 });
   }
 }
