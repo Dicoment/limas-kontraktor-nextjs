@@ -33,6 +33,7 @@ const DEFAULT_SETTINGS = {
   google_analytics_id: "",
   google_search_console_code: "",
   // ── Gambar Homepage ──
+  hero_home_image: "",
   service_image_1: "",
   service_image_2: "",
   service_image_3: "",
@@ -55,8 +56,6 @@ const DEFAULT_SETTINGS = {
 
 type SettingsFormData = typeof DEFAULT_SETTINGS
 
-// BARU: state modal punya 4 tahap — dulu cuma boolean showConfirm doang,
-// gak ada feedback visual pas proses simpan lagi jalan atau setelah selesai.
 type ModalState = "closed" | "confirm" | "loading" | "success" | "error"
 
 function Section({ title, icon: Icon, children }: { title: string; icon?: React.ComponentType<{ size?: number; className?: string }>; children: React.ReactNode }) {
@@ -238,8 +237,6 @@ export default function SettingsPage() {
     setModalState("confirm")
   }
 
-  // BARU: alurnya sekarang confirm -> loading -> success/error, semua
-  // ditampilin di modal yang sama (bukan lompat ke banner terpisah lagi).
   const confirmSave = async () => {
     setModalState("loading")
     setErrorDetail("")
@@ -387,6 +384,12 @@ export default function SettingsPage() {
 
         <Section title="Gambar Halaman Home & Tentang" icon={ImageIcon}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <ImageField
+              label="Hero Background Homepage"
+              value={formData.hero_home_image}
+              onChange={handleImageChange("hero_home_image")}
+              description="Opsional. Kalau kosong, otomatis pakai foto cover proyek terbaru yang berstatus Completed."
+            />
             <ImageField
               label="Layanan 1 - Konstruksi & Bangun Baru"
               value={formData.service_image_1}

@@ -45,7 +45,13 @@ export const metadata: Metadata = {
 }
 
 async function getSiteImageSettings() {
-  const keys = ["service_image_1", "service_image_2", "service_image_3", "homepage_excellence_image"]
+  const keys = [
+    "hero_home_image",
+    "service_image_1",
+    "service_image_2",
+    "service_image_3",
+    "homepage_excellence_image",
+  ]
   const settings = await prisma.setting.findMany({
     where: { key: { in: keys } },
     select: { key: true, value: true },
@@ -56,14 +62,19 @@ async function getSiteImageSettings() {
 }
 
 export default async function HomePage() {
-  const latestProject = await prisma.project.findFirst({
-    where: { status: "COMPLETED", coverImage: { not: null } },
-    orderBy: { createdAt: "desc" },
-    select: { coverImage: true },
-  })
-
-  const bgImage = latestProject?.coverImage || "/hero-home.webp"
   const siteImages = await getSiteImageSettings()
+
+  // Prioritas gambar hero: 1) gambar manual dari dashboard, 2) cover proyek terbaru, 3) fallback statis
+  let bgImage = siteImages.hero_home_image || ""
+
+  if (!bgImage) {
+    const latestProject = await prisma.project.findFirst({
+      where: { status: "COMPLETED", coverImage: { not: null } },
+      orderBy: { createdAt: "desc" },
+      select: { coverImage: true },
+    })
+    bgImage = latestProject?.coverImage || "/hero-home.webp"
+  }
 
   return (
     <main>
